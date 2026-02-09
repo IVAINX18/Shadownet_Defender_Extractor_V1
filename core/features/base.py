@@ -4,33 +4,33 @@ import numpy as np
 
 class FeatureBlock(ABC):
     """
-    Abstract base class for a feature block.
-    Each block is responsible for extracting a specific subset of features
-    from the PE file.
+    Clase base abstracta para un bloque de características.
+    Cada bloque es responsable de extraer un subconjunto específico de características
+    del archivo PE.
     """
 
     @property
     @abstractmethod
     def name(self) -> str:
-        """Returns the name of this feature block."""
+        """Devuelve el nombre de este bloque de características."""
         pass
 
     @property
     @abstractmethod
     def dim(self) -> int:
-        """Returns the dimension (number of features) of this block."""
+        """Devuelve la dimensión (número de características) de este bloque."""
         pass
 
     @abstractmethod
     def extract(self, pe: pefile.PE, raw_data: bytes = None) -> np.ndarray:
         """
-        Extracts features from the given PE file or raw data.
+        Extrae características del archivo PE dado o de los datos sin procesar.
         
         Args:
-            pe: Parsed pefile.PE object.
-            raw_data: Raw bytes of the file (optional, used for byte-level features).
+            pe: Objeto pefile.PE analizado.
+            raw_data: Bytes sin procesar del archivo (opcional, usado para características a nivel de byte).
             
         Returns:
-            A numpy array of shape (dim,) with dtype=float32.
+            Un array de numpy con forma (dim,) y dtype=float32.
         """
         pass
