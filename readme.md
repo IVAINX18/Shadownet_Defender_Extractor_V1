@@ -1,6 +1,6 @@
 # Módulo de Extracción de Características SOREL/EMBER
 
-Este módulo implementa un extractor de características modular para archivos PE de Windows, compatible con los modelos entrenados en los datasets SOREL-20M o EMBER 2.0.
+Este módulo implementa un extractor de características modular para archivos PE de Windows, compatible con los modelos entrenados en los datasets SOREL-20M
 
 ## Objetivo
 Generar un vector de características NumPy de tamaño **2381** que pueda ser consumido por el modelo de detección de malware.
