@@ -5,6 +5,7 @@ from .general import GeneralFileInfo
 from .header import HeaderFileInfo
 from .byte_histogram import ByteHistogram
 from .byte_entropy import ByteEntropy
+from .imports import ImportsFeatureBlock
 
 class PEFeatureExtractor:
     """
@@ -33,6 +34,7 @@ class PEFeatureExtractor:
         self.byte_entropy_block = ByteEntropy()
         self.general_block = GeneralFileInfo()
         self.header_block = HeaderFileInfo()
+        self.imports_block = ImportsFeatureBlock()
         
         # Dimensión total esperada (definida por el usuario/modelo)
         self.total_dim = 2381
@@ -95,5 +97,12 @@ class PEFeatureExtractor:
         # Extraer características de Cabecera (Header)
         header_feats = self.header_block.extract(pe, raw_data)
         final_vector[offset_header : offset_header + self.header_block.dim] = header_feats
+        
+        # Offset para Imports: 943-2222 (1280 features)
+        offset_imports = 943
+        
+        # Extraer características de Imports (feature hashing)
+        imports_feats = self.imports_block.extract(pe, raw_data)
+        final_vector[offset_imports : offset_imports + self.imports_block.dim] = imports_feats
         
         return final_vector
