@@ -165,15 +165,15 @@ classDiagram
 
 ```mermaid
 graph LR
-    A[Archivo PE (.exe)] -->|Lectura Binaria| B(Extractor Engine);
+    A[Archivo PE] -->|Lectura Binaria| B[Extractor Engine];
     B -->|Parsing| C{Módulos};
     C -->|Bytes| D[Histograma/Entropía];
     C -->|Estructura| E[Headers/Secciones];
     C -->|Imports| F[Hashing IAT];
-    D & E & F -->|Concatenación| G[Vector Crudo (2381)];
+    D & E & F -->|Concatenación| G[Vector Crudo 2381];
     G -->|Z-Score Normalization| H[StandardScaler];
     H -->|Vector Normalizado| I[Modelo ONNX];
-    I -->|Inferencia| J(Score de Probabilidad);
+    I -->|Inferencia| J[Score de Probabilidad];
     J -->|Umbral 0.85| K[Reporte Final];
 ```
 
