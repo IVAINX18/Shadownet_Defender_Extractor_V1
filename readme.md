@@ -388,11 +388,43 @@ Localización: `core/features/header.py`
 
 ---
 
-### 5. Imports (1280 features)
+### 6. SectionInfo (255 features)
 
 #### ¿Qué es?
 
-Codifica las **funciones importadas** del PE usando **feature hashing** (hashing trick).
+Analiza las secciones del PE (`.text`, `.data`, `.rsrc`, etc.) para extraer estadísticas estructurales y de contenido.
+
+#### Mapa de Características (255 dimensiones)
+
+| Grupo                      | Cantidad | Descripción                                                                            |
+| :------------------------- | :------: | :------------------------------------------------------------------------------------- |
+| **Estadísticas Globales**  |    10    | Promedios de tamaño, entropía, y conteos totales.                                      |
+| **Flags & Permisos**       |    5     | Conteos de secciones ejecutables, escribibles, y **RWX** (peligroso).                  |
+| **Histograma Entropía**    |    50    | Distribución de complejidad [0-8 bits]. Detecta secciones cifradas (alta entropía).    |
+| **Histograma Tamaño Raw**  |    50    | Distribución logarítmica de tamaños en disco.                                          |
+| **Histograma Tamaño Virt** |    50    | Distribución logarítmica de tamaños en memoria.                                        |
+| **Nombres Hashed**         |    90    | Feature Hashing de nombres de sección para capturar anomalías (`UPX0`, nombres raros). |
+
+#### Lógica Matemática
+
+**1. Entropía de Shannon** (por sección):
+$$H(X) = - \sum p(x) \log_2 p(x)$$
+Mide qué tan "aleatoria" es la sección.
+
+- **Texto/Código**: ~4-6 bits.
+- **Cifrado/Compresión**: ~7.5-8.0 bits.
+
+**2. Histogramas Logarítmicos**:
+Como las secciones pueden medir desde 0 bytes hasta Gigabytes, usamos escala logarítmica para el binning:
+$$Bin = \lfloor \frac{\log_2(Size + 1)}{26.0} \times 49 \rfloor$$
+
+**3. Feature Hashing Determinístico**:
+Para los nombres de sección (strings arbitrarios), usamos SHA256 mapeado a 90 bins:
+$$Index = \text{SHA256}(name) \pmod{90}$$
+
+#### Código de Implementación
+
+Localización: `core/features/section_info.py`
 
 #### Concepto: Import Address Table (IAT)
 

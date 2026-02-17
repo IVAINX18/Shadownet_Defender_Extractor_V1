@@ -4,7 +4,8 @@ from .header import HeaderFileInfo
 from .byte_histogram import ByteHistogram
 from .byte_entropy import ByteEntropy
 from .imports import ImportsFeatureBlock
+from .section_info import SectionInfoBlock
 from .extractor import PEFeatureExtractor
 
-__all__ = ['FeatureBlock', 'GeneralFileInfo', 'HeaderFileInfo', 'ByteHistogram', 'ByteEntropy', 'ImportsFeatureBlock', 'PEFeatureExtractor']
+__all__ = ['FeatureBlock', 'GeneralFileInfo', 'HeaderFileInfo', 'ByteHistogram', 'ByteEntropy', 'ImportsFeatureBlock', 'SectionInfoBlock', 'PEFeatureExtractor']
 

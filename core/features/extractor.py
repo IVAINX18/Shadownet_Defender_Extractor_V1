@@ -3,9 +3,11 @@ import numpy as np
 from .base import FeatureBlock
 from .general import GeneralFileInfo
 from .header import HeaderFileInfo
+from .header import HeaderFileInfo
 from .byte_histogram import ByteHistogram
 from .byte_entropy import ByteEntropy
 from .imports import ImportsFeatureBlock
+from .section_info import SectionInfoBlock
 
 class PEFeatureExtractor:
     """
@@ -34,6 +36,7 @@ class PEFeatureExtractor:
         self.byte_entropy_block = ByteEntropy()
         self.general_block = GeneralFileInfo()
         self.header_block = HeaderFileInfo()
+        self.section_block = SectionInfoBlock()
         self.imports_block = ImportsFeatureBlock()
         
         # Dimensión total esperada (definida por el usuario/modelo)
@@ -97,6 +100,11 @@ class PEFeatureExtractor:
         # Extraer características de Cabecera (Header)
         header_feats = self.header_block.extract(pe, raw_data)
         final_vector[offset_header : offset_header + self.header_block.dim] = header_feats
+        
+        # Offset para SectionInfo: 688-942 (255 features)
+        offset_sections = 688
+        section_feats = self.section_block.extract(pe, raw_data)
+        final_vector[offset_sections : offset_sections + self.section_block.dim] = section_feats
         
         # Offset para Imports: 943-2222 (1280 features)
         offset_imports = 943
