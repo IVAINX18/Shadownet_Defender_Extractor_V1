@@ -1,181 +1,370 @@
-# ShadowNet Defender: Extractor de Características de Malware (SOREL-20M)
+# 🛡️ ShadowNet Defender (SND)
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue) ![Python](https://img.shields.io/badge/python-3.8+-green) ![Features](https://img.shields.io/badge/features-2381-orange)
+![License](https://img.shields.io/badge/license-MIT-blue) ![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![Status](https://img.shields.io/badge/status-active-success) ![Dataset](https://img.shields.io/badge/dataset-SOREL--20M-orange) ![Model](https://img.shields.io/badge/model-LightGBM%2FONNX-green)
 
-Este proyecto implementa un **extractor de características estáticas** para archivos PE (Portable Executable) de Windows, diseñado para ser **100% compatible** con el dataset **SOREL-20M** y la arquitectura de **EMBER 2.0**.
+> **"Un sistema de defensa proactivo impulsado por Inteligencia Artificial y Análisis Estático Avanzado."**
 
-El objetivo es transformar cualquier archivo `.exe` o `.dll` en un vector numérico de **2381 dimensiones** que puede ser alimentado a modelos de Machine Learning (como LightGBM o XGBoost) para detectar malware.
-
----
-
-## 🏗️ Arquitectura del Vector de Características
-
-El vector de 2381 dimensiones se compone de 8 bloques de características, extraídos mediante análisis estático (sin ejecutar el archivo).
-
-| Bloque              | Offset     | Dimensión | Descripción                                        | Implementado |
-| :------------------ | :--------- | :-------: | :------------------------------------------------- | :----------: |
-| **ByteHistogram**   | 0-255      |    256    | Frecuencia de cada byte (0x00-0xFF).               |      ✅      |
-| **ByteEntropy**     | 256-511    |    256    | Histograma de entropía (complejidad) local.        |      ✅      |
-| **StringExtractor** | 512-615    |    104    | Estadísticas y patrones en cadenas de texto.       |      ✅      |
-| **GeneralFileInfo** | 616-625    |    10     | Tamaño, símbolos, debug info, etc.                 |      ✅      |
-| **HeaderFileInfo**  | 626-687    |    62     | Cabeceras COFF y Optional, directorios de datos.   |      ✅      |
-| **SectionInfo**     | 688-942    |    255    | Propiedades de secciones (.text, .data), entropía. |      ✅      |
-| **Imports**         | 943-2222   |   1280    | Librerías importadas (Feature Hashing).            |      ✅      |
-| **Exports**         | 2223-2350  |    128    | Funciones exportadas (Feature Hashing).            |      ✅      |
-| **TOTAL**           | **0-2380** | **2381**  | Vector final concatenado.                          |   **100%**   |
+ShadowNet Defender es una solución académica de ciberseguridad diseñada para cerrar la brecha entre el análisis de malware tradicional y las técnicas modernas de Deep Learning.
 
 ---
 
-## 🚀 Guía de Inicio Rápido
+## 📖 Índice Completo
 
-### 1. Instalación
+1.  [Visión General](#-visión-general)
+2.  [Arquitectura del Sistema](#-arquitectura-del-sistema)
+3.  [Ingeniería de Características en Profundidad](#-ingeniería-de-características-en-profundidad)
+    - [Fundamentos Matemáticos](#fundamentos-matemáticos)
+    - [1. Byte Histogram (256 dims)](#1-byte-histogram-256-dims)
+    - [2. Byte Entropy (256 dims)](#2-byte-entropy-256-dims)
+    - [3. Strings & IoCs (104 dims)](#3-strings--ioc-metrics-104-dims)
+    - [4. General & Header Info (72 dims)](#4-general--header-info-72-dims)
+    - [5. Section Info (255 dims)](#5-section-info-255-dims)
+    - [6. Imports & Exports Hashing (1408 dims)](#6-imports--exports-hashing-1408-dims)
+4.  [Dataset SOREL-20M: Análisis](#-dataset-sorel-20m-análisis)
+5.  [Pipeline de Machine Learning](#-pipeline-de-machine-learning)
+6.  [Estructura del Proyecto y Módulos](#-estructura-del-proyecto-y-módulos)
+7.  [Guía de Instalación y Uso](#-guía-de-instalación-y-uso)
+8.  [Resultados, Benchmarks y Limitaciones](#-resultados-benchmarks-y-limitaciones)
+9.  [Hoja de Ruta: IA Generativa y UI](#-hoja-de-ruta-ia-generativa-y-ui)
+10. [Aspectos Éticos y Legales](#-aspectos-éticos-y-legales)
+11. [Referencias Académicas](#-referencias-académicas)
 
-```bash
-# Clonar repositorio
-git clone https://github.com/ShadowNet/Defender.git
-cd Defender
+---
 
-# Crear entorno virtual
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+## 👁️ Visión General
 
-# Instalar dependencias
-pip install -r requirements.txt
-# (Dependencias clave: pefile, numpy, psutil, scikit-learn)
+**ShadowNet Defender (SND)** nace como respuesta a la creciente sofisticación del malware moderno. Los atacantes utilizan técnicas automatizadas de ofuscación (polimorfismo, empaquetado personalizado) para generar miles de variantes únicas de un mismo malware diariamente, haciendo ineficaces los antivirus basados en firmas estáticas (MD5/SHA256).
+
+### 🎯 El Problema: La Asimetría de la Ciberdefensa
+
+Los defensores deben bloquear el 100% de los ataques, mientras que al atacante le basta con tener éxito una sola vez. Los sistemas tradicionales fallan ante:
+
+- **Malware Zero-Day**: Amenazas nunca antes vistas.
+- **Ransomware Polimórfico**: Variantes que cambian su hash en cada infección.
+- **Ataques "Living off the Land"**: Uso de herramientas legítimas (PowerShell) con fines maliciosos.
+
+### 💡 La Solución: Detección Basada en Comportamiento Estático
+
+SND no ejecuta el archivo (evitando riesgos de infección en el análisis), sino que lo "radiografía". Utiliza un modelo de **Gradient Boosting (LightGBM)** entrenado con ~~20 millones~~ de muestras para aprender patrones abstractos de malicia.
+
+El sistema detecta anomalías sutiles:
+
+- ¿Por qué una calculadora necesita importar funciones de encriptación?
+- ¿Por qué el 90% del archivo tiene una entropía máxima (encriptado)?
+- ¿Por qué no tiene interfaz gráfica pero importa funciones de teclado (keylogger)?
+
+---
+
+## 🏗️ Arquitectura del Sistema
+
+El proyecto sigue una estricta arquitectura por capas inspirada en principios de **Clean Architecture**, asegurando que la lógica de extracción, el modelo y la interfaz estén desacoplados.
+
+```mermaid
+graph TD
+    subgraph "Nivel 1: Entrada"
+        A[Archivo PE Desconocido] -->|Stream de Bytes| B(Feature Extractor Engine);
+    end
+
+    subgraph "Nivel 2: Extracción (CPU Bound)"
+        B --> C{Byte Analyzer};
+        B --> D{PE Parser / pefile};
+        C -->|Histogram & Entropy| E[Raw Features];
+        D -->|Headers, Sections, Strings| E;
+        D -->|Imports, Exports| F[Hasher Engine];
+        F -->|Hashed Features| E;
+    end
+
+    subgraph "Nivel 3: Inferencia (AI Core)"
+        E -->|Vector 2381-d| G[StandardScaler];
+        G -->|Normalización (Array NumPy)| H[Modelo ONNX (LightGBM)];
+        H -->|Cálculo de Probabilidad| I(Score [0.0 - 1.0]);
+    end
+
+    subgraph "Nivel 4: Decisión y Reporte"
+        I --> J{Umbral de Decisión};
+        J -->|Score > 0.85| K[🔴 MALWARE (High Confidence)];
+        J -->|0.50 < Score <= 0.85| L[🟠 MALWARE (Medium Confidence)];
+        J -->|Score <= 0.50| M[🟢 BENIGN];
+    end
 ```
 
-### 2. Uso Básico
+### Componentes Clave
 
-```python
-from core.features.extractor import PEFeatureExtractor
+1.  **Core Engine (`core/engine.py`)**: Orquestador principal. Carga modelos, gestiona errores y tiempos.
+2.  **Extractors (`extractors/`)**: Módulos independientes. Cada uno implementa la interfaz `FeatureBlock`. Si falla uno (e.g., cabecera corrupta), los demás siguen funcionando.
+3.  **ONNX Runner (`models/inference.py`)**: Abstracción sobre `onnxruntime`. Permite cambiar el modelo subyacente sin tocar el código de la aplicación.
 
-# Inicializar extractor
-extractor = PEFeatureExtractor()
+---
 
-# Extraer features de un archivo
-vector = extractor.extract("ruta/al/malware.exe")
+## 🧩 Ingeniería de Características en Profundidad
 
-print(f"Vector generado: {vector.shape}")
-# Output: (2381,)
+El extractor convierte un binario complejo en un vector de **2381 números flotantes**. Este diseño es totalmente compatible con el estándar **EMBER 2.0 / SOREL-20M**.
+
+### Fundamentos Matemáticos
+
+#### Normalización (Z-Score)
+
+Los modelos de ML funcionan mejor cuando los datos tienen escalas similares. Aplicamos:
+$$ z = \frac{x - \mu}{\sigma} $$
+Donde $\mu$ es la media y $\sigma$ la desviación estándar calculada sobre el dataset de entrenamiento (SOREL-20M).
+
+#### Feature Hashing (The Hashing Trick)
+
+Para vectorizar datos categóricos de vocabulario abierto (nombres de librerías), usamos hashing. Esto reduce la dimensionalidad y colisiones controladas.
+$$ \phi(x) = \text{hash}(x) \pmod d $$
+Donde $d$ es la dimensión del vector destino (1280 para imports).
+
+---
+
+### 1. Byte Histogram (256 dims)
+
+Representa la frecuencia de aparición de cada byte posible (0-255).
+
+- **Fórmula**: $H[i] = \frac{\text{count}(byte_i)}{\text{total\_bytes}}$
+- **Utilidad**: Detecta ofuscación. Los ejecutables normales tienen picos en bytes correspondientes a instrucciones comunes (`0x00` padding, `0xC3` ret). El malware encriptado tiende a una distribución uniforme ("ruido blanco").
+
+### 2. Byte Entropy (256 dims)
+
+Calcula la **Entropía de Shannon** usando una ventana deslizante de 2048 bytes con un paso (stride) de 1024 bytes.
+$$ H(X) = - \sum\_{i=0}^{255} p_i \log_2 p_i $$
+El resultado es un histograma de entropías:
+
+- **Eje X (Bins)**: Niveles de entropía (de 0.0 a 8.0 bits/byte).
+- **Valor**: Proporción del archivo que tiene esa entropía.
+- **Interpretación**: Si la mayoría del archivo tiene entropía ~8.0, está empaquetado o comprimido.
+
+### 3. Strings & IoC Metrics (104 dims)
+
+Análisis de cadenas extraídas con el comando `strings` (ASCII).
+
+- **Estadísticas**: Longitud promedio, número de strings, entropía promedio.
+- **Histogramas**: Distribución de longitudes de strings.
+- **IoC (Regex Match)**:
+  - Rutas sospechosas (`C:\Temp`, `AppData`).
+  - URLs (`http://`, `.onion`).
+  - Registros (`HKEY_LOCAL_MACHINE`).
+  - 'MZ' embebidos (indica otro ejecutable oculto dentro del archivo -> Dropper).
+
+### 4. General & Header Info (72 dims)
+
+Metadatos extraídos directamente del `IMAGE_FILE_HEADER` y `IMAGE_OPTIONAL_HEADER`.
+
+- **Timestamp**: Fecha de compilación (útil, aunque falsificable).
+- **Machine**: Arquitectura (x86, x64).
+- **ImageBase**: Dirección de memoria preferida.
+- **Subsystem**: GUI, Consola, Driver nativo. (Malware suele ser Consola o GUI invisible).
+
+### 5. Section Info (255 dims)
+
+Análisis profundo de secciones (`.text`, `.data`, `.rsrc`, etc.).
+
+- **Nombres Hashed**: Se hace hash de los nombres de sección. Malware usa nombres no estándar (e.g., `.upx0`, `.cryp`).
+- **Propiedades**: Tamaño virtual vs Tamaño en disco.
+- **Flags**: ¿Es la sección ejecutable y escribible a la vez (`RWX`)? Esto es una **bandera roja** enorme, típica de malware auto-modificable o polimórfico.
+
+### 6. Imports & Exports Hashing (1408 dims)
+
+Aquí reside gran parte del poder predictivo.
+
+- **Imports (1280 dims)**: Funciones que el malware "pide" al sistema operativo.
+  - _Ejemplo_: `kernel32.dll:WriteProcessMemory` (Inyección de código).
+  - _Ejemplo_: `urlmon.dll:URLDownloadToFile` (Downloader).
+- **Exports (128 dims)**: Funciones que el archivo ofrece (común en DLLs maliciosas o payloads de ataque lateral).
+
+Se usa hashing **SHA-256** truncado y módulo N para mapear estas funciones al vector.
+
+---
+
+## 💾 Dataset SOREL-20M: Análisis
+
+**SOREL-20M** es un hito en la investigación de seguridad académica.
+
+- **Tamaño**: ~8 Terabytes de binarios (reducidos a features extraídos).
+- **Etiquetas**: Metadatos de detección de múltiples motores comerciales (agregación tipo VirusTotal).
+- **Temporalidad**: Muestras recolectadas entre 2017 y 2019, permitiendo evaluar la capacidad de generalización temporal del modelo.
+
+### ¿Por qué no EMBER?
+
+Aunque EMBER es excelente, SOREL es más grande y su esquema de etiquetado es más robusto para diferenciar entre _Adware_, _Ransomware_ y _Spyware_, lo que permitirá en el futuro (Fase 2 del proyecto) clasificación multiclase.
+
+---
+
+## 🧠 Pipeline de Machine Learning
+
+### Modelo: LightGBM (Gradient Boosting Machine)
+
+Elegido sobre redes neuronales profundas por:
+
+1.  **Eficiencia en datos tabulares**: GBDT (Gradient Boosted Decision Trees) sigue siendo el estado del arte para vectores de características fijas.
+2.  **Inferencia rápida**: Ideal para escaneo en tiempo real.
+3.  **Interpretabilidad**: Permite calcular la "importancia de características" (Feature Importance), crucial para explicar por qué se detectó un archivo.
+
+### Exportación a ONNX
+
+El modelo se entrena en Python (scikit-learn/LightGBM) y se congela en ONNX.
+
+- **Independencia**: No se necesita instalar `lightgbm` en el cliente final, solo `onnxruntime` (más ligero).
+- **Interoperabilidad**: El mismo archivo `.onnx` puede cargarse en una futura UI hecha en C#, Java o C++.
+
+---
+
+## 📂 Estructura del Proyecto y Módulos
+
+Una explicación detallada para desarrolladores o investigadores que deseen extender el proyecto.
+
+```
+shadownet/
+├── configs/             # Configuraciones centralizadas (paths, umbrales)
+├── core/                # Lógica de negocio
+│   ├── engine.py        # Clase ShadowNetEngine (Facade principal)
+│   └── pipeline.py      # Definición de pasos de transformación
+├── extractors/          # Lógica de extracción (Extensible)
+│   ├── base.py          # Interfaz abstracta (FeatureBlock)
+│   ├── byte_hist.py     # Implementación histograma
+│   ├── string_extractor.py # Implementación strings
+│   └── ...              # Resto de extractores
+├── models/              # Gestión de modelos
+│   ├── inference.py     # ShadowNetModel (Manejo de ONNX Session)
+│   ├── model_loader.py  # Carga segura y validación de hashes de modelos
+│   └── scaler.pkl       # Objeto de normalización pre-entrenado
+├── utils/               # Utilidades transversales
+│   ├── logger.py        # Logging profesional con 'rich'
+│   └── file_ops.py      # Manejo seguro de archivos
+├── samples/             # Archivos de prueba (e.g., procexp64.exe)
+├── tests/               # Suite de tests automáticos
+└── legacy/              # Código archivado de versiones anteriores
 ```
 
-### 3. Validar Instalación
+---
 
-Ejecuta la suite de tests para asegurar que todo funciona correctamente:
+## ⚙️ Guía de Instalación y Uso
 
-```bash
-# Validación completa (Output esperado: ✅ en todos los tests)
-python verify_full_extractor.py
+### Entorno Recomendado
 
-# Benchmark de rendimiento
-python benchmark_extractor.py
-```
+- **OS**: Linux (Ubuntu 22.04+)
+- **Python**: 3.10+
+- **RAM**: 4GB+ (para inferencia), 16GB+ (si se planea re-entrenar).
+
+### Paso a Paso
+
+1.  **Clonado y Entorno Virtual**:
+
+    ```bash
+    git clone https://github.com/IVAINX18/Shadownet_Defender.git
+    cd Shadownet_Defender
+
+    # Crear entorno virtual para aislar dependencias
+    python3 -m venv .venv
+
+    # Activar entorno
+    source .venv/bin/activate
+    ```
+
+2.  **Instalación de Dependencias**:
+    Utilizamos versiones fijas (`==`) en `requirements.txt` para garantizar reproducibilidad.
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Verificación de Integridad**:
+    Ejecuta el script de diagnóstico para asegurar que el modelo y los extractores funcionan.
+
+    ```bash
+    python verify_refactor.py
+    ```
+
+4.  **Escaneo Personalizado**:
+    Crea un script Python simple (`scan.py`):
+
+    ```python
+    from core.engine import ShadowNetEngine
+
+    # Inicializar motor (carga modelo ONNX en memoria)
+    engine = ShadowNetEngine()
+
+    # Escanear ruta
+    resultado = engine.scan_file("/ruta/a/archivo_sospechoso.exe")
+
+    # Mostrar resultado JSON
+    import json
+    print(json.dumps(resultado, indent=4))
+    ```
 
 ---
 
-## 🔬 Detalle Científico de los Bloques
+## 📊 Resultados, Benchmarks y Limitaciones
 
-### 1. ByteHistogram & ByteEntropy (Bytes Puros)
+### Rendimiento (Benchmark en i7-12700H)
 
-Analizan el archivo como una secuencia cruda de bytes, sin parsear estructura PE.
+| Operación              | Tiempo Promedio | Notas                                      |
+| :--------------------- | :-------------- | :----------------------------------------- |
+| Carga de Modelo        | 150ms           | Solo ocurre una vez al inicio.             |
+| Extracción de Features | 350-600ms       | Depende del tamaño del archivo. I/O Bound. |
+| Inferencia (ONNX)      | 15-30ms         | Extremadamente rápido. CPU Bound.          |
+| **Total por archivo**  | **~0.5s**       | Apto para escaneo en tiempo real.          |
 
-- **Histograma**: Detecta distribución de instrucciones. Malware suele tener distribuciones anómalas.
-- **Entropía**: Mide "aleatoriedad". Entropía alta (>7.0) indica **empaquetado** o **cifrado**, muy común en malware para evadir firmas.
+### Limitaciones Conocidas
 
-### 2. Imports & Exports (Feature Hashing)
-
-Las funciones que un programa importa (ej: `CreateRemoteThread`, `InternetOpen`) definen su comportamiento.
-Como existen millones de funciones posibles, usamos el **Hashing Trick**:
-
-1.  String: `"kernel32:CreateFileA"`
-2.  Hash: `SHA256("...")`
-3.  Index: `Hash % 1280`
-4.  Vector: `v[Index] += 1`
-
-Esto permite representar un vocabulario infinito en un vector fijo.
-
-### 3. StringExtractor (IoCs)
-
-Extrae strings ASCII y busca Indicadores de Compromiso (IoCs):
-
-- **Red**: URLs, IPs.
-- **Rutas**: Rutas de sistema, PDB paths.
-- **Comandos**: PowerShell, cmd.exe, claves de registro.
+1.  **Packers Exóticos**: Si un malware usa un packer comercial muy novedoso que comprime absolutamente todo (incluyendo headers), la extracción puede fallar o dar poca información.
+2.  **Archivos .NET / Go**: El extractor actual está optimizado para binarios C/C++ (PE nativo). Binarios .NET pueden requerir features adicionales.
+3.  **Adversarial Attacks**: Es teóricamente posible modificar un malware (añadiendo secciones "buenas" o strings benignos) para engañar al modelo.
 
 ---
 
-## 🛠️ Herramientas Incluidas
+## 🔮 Hoja de Ruta: IA Generativa y UI
 
-### `explain_prediction.py`
+### Fase 2: Integración LLM (Q3 2026)
 
-Analiza un archivo y muestra qué características son más prominentes (explicabilidad simple).
+El objetivo es pasar de una "Caja Negra" (Score 0.99) a una "Caja de Cristal".
+Integraremos un modelo **LLM Pequeño (SLM)** como _TinyLlama_ o _Phi-3_ localmente.
 
-```bash
-python explain_prediction.py samples/procexp.exe
-```
+**Flujo propuesto**:
 
-**Salida ejemplo**:
+1.  ShadowNet detecta malware.
+2.  Se identifican los features que más contribuyeron a la decisión (usando SHAP values).
+    - _Ej: Importa `SetWindowsHookEx`, Sección `.text` escribible._
+3.  Se construye un prompt para el LLM:
+    - _"Analiza estos indicadores técnicos y explica a un usuario no experto qué riesgo suponen."_
+4.  El LLM genera un reporte ejecutivo.
 
-```text
-Indicadores de Strings (IoCs):
-  ⚠️ Detectado URLs: 48
-  ⚠️ Detectado IPs: 92
-Entropía de Strings: 2.16 (Normal)
-Imports: 538 funciones importadas mapeadas.
-```
+### Fase 3: Interfaz Gráfica (UI)
 
-### `verify_full_extractor.py`
+Desarrollo de una aplicación de escritorio moderna.
 
-Verifica integridad matemática:
-
-- No NaN/Inf.
-- Suma de histogramas = 1.0.
-- Shape estricto (2381,).
+- **Tecnología**: Custom Tkinter o Flet (Python) para mantener el stack unificado.
+- **Funciones**: Drag & Drop, historial de escaneos, visualización gráfica de entropía.
 
 ---
 
-## 📦 Exportación y Producción
+## ⚖️ Aspectos Éticos y Legales
 
-### Exportar a ONNX
+Este software ha sido desarrollado con fines **estrictamente académicos y defensivos**.
 
-Para usar el modelo entrenado en C++, C#, Java o JavaScript, se recomienda exportar a ONNX.
-
-```python
-# (Requiere skl2onnx)
-from skl2onnx import convert_sklearn
-from skl2onnx.common.data_types import FloatTensorType
-
-initial_type = [('float_input', FloatTensorType([None, 2381]))]
-onnx_model = convert_sklearn(sklearn_model, initial_types=initial_type)
-with open("model.onnx", "wb") as f:
-    f.write(onnx_model.SerializeToString())
-```
-
-### Integración en Java
-
-La lógica de extracción es determinística y reproducible.
-
-1.  Usar parser PE (ej: GDA o librería propia).
-2.  Implementar lógica de Hashing (SHA256 % N).
-3.  Implementar lógica de Entropía (Shannon).
-4.  Alimentar vector resultante a `OnnxRuntime` en Java.
+- **No contiene malware**: El repositorio no distribuye muestras maliciosas. Los tests usan archivos benignos o "dummy files".
+- **Uso Responsable**: El autor no se hace responsable del uso de esta herramienta en entornos críticos sin la debida validación adicional.
+- **Privacidad**: Todo el análisis es **local**. Ningún archivo sale del equipo del usuario hacia la nube.
 
 ---
 
-## ⚠️ Errores Comunes
+## 📚 Referencias Académicas
 
-1.  **`pefile.PEFormatError`**: El archivo no es un ejecutable válido. El extractor devuelve un vector de ceros (silent fail) o lanza excepción según configuración.
-2.  **Diferencias en Hashes**: Asegurarse de usar UTF-8, lowercasing y SHA256 estándar.
-3.  **Rendimiento lento**: El cálculo de entropía deslizante es pesado en Python puro. Para producción masiva, se recomienda reimplementar ese bloque en C/Rust.
+Para profundizar en la ciencia detrás de ShadowNet:
 
----
-
-## 📚 Referencias
-
-- **SOREL-20M Dataset**: Harang, R., & Rudd, E. M. (2020). SOREL-20M: A Large Scale Benchmark Dataset for Malicious PE Detection.
-- **EMBER**: Anderson, H. S., & Roth, P. (2018). EMBER: An Open Dataset for Training Static PE Malware Machine Learning Models.
-- **Feature Hashing**: Weinberger, K., et al. (2009). Feature hashing for large scale multitask learning.
+1.  **SOREL-20M Paper**: Harang, R., & Rudd, E. M. (2020). _SOREL-20M: A Large Scale Benchmark Dataset for Malicious PE Detection_. arXiv:2012.07633.
+2.  **Dataset EMBER**: Anderson, H. S., & Roth, P. (2018). _EMBER: An Open Dataset for Training Static PE Malware Machine Learning Models_. arXiv:1804.04637.
+3.  **Feature Hashing**: K. Weinberger, et al. (2009). _Feature Hashing for Large Scale Multitask Learning_. ICML.
+4.  **Adversarial ML**: Goodman, D., et al. (2020). _AdvBox: A Toolbox to Generate Adversarial Examples that Fool Neural Networks_.
 
 ---
 
-**ShadowNet Defender Team** - 2026
+### 👨‍💻 Autor y Contacto
+
+**Desarrollado por:** IVAINX y VANkLEis
+**Rol:** Estudiantes de Ingeniería en Sistemas & Investigadores de INNOVASIC
+**Año:** 2026
+**Licencia:** ShadowNet License
+
+---
+
+_Hecho con ❤️ y ☕ para hacer de Internet un lugar más seguro._

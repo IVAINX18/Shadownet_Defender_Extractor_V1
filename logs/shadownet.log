@@ -1,0 +1,19 @@
+2026-02-17 18:18:42,054 - models.inference - INFO - Loading model from /home/ivainx/Documentos/Shadownet_Defender/models/best_model.onnx...
+2026-02-17 18:18:42,303 - models.inference - INFO - Loading scaler from /home/ivainx/Documentos/Shadownet_Defender/models/scaler.pkl...
+2026-02-17 18:18:44,005 - models.inference - INFO - Model and scaler loaded successfully.
+2026-02-17 18:18:44,007 - core.engine - INFO - Scanning file: samples/procexp64.exe
+2026-02-17 18:18:46,324 - models.inference - ERROR - Inference error: X has 2351 features, but StandardScaler is expecting 2381 features as input.
+2026-02-17 18:18:46,327 - core.engine - ERROR - Scan failed for samples/procexp64.exe: X has 2351 features, but StandardScaler is expecting 2381 features as input.
+2026-02-17 18:18:46,330 - core.engine - INFO - Scan finished: Unknown (Score: -1.0)
+2026-02-17 18:19:27,802 - models.inference - INFO - Loading model from /home/ivainx/Documentos/Shadownet_Defender/models/best_model.onnx...
+2026-02-17 18:19:27,828 - models.inference - INFO - Loading scaler from /home/ivainx/Documentos/Shadownet_Defender/models/scaler.pkl...
+2026-02-17 18:19:29,112 - models.inference - INFO - Model and scaler loaded successfully.
+2026-02-17 18:19:29,114 - core.engine - INFO - Scanning file: samples/procexp64.exe
+2026-02-17 18:19:31,439 - models.inference - ERROR - Inference error: only 0-dimensional arrays can be converted to Python scalars
+2026-02-17 18:19:31,442 - core.engine - ERROR - Scan failed for samples/procexp64.exe: only 0-dimensional arrays can be converted to Python scalars
+2026-02-17 18:19:31,445 - core.engine - INFO - Scan finished: Unknown (Score: -1.0)
+2026-02-17 18:20:02,048 - models.inference - INFO - Loading model from /home/ivainx/Documentos/Shadownet_Defender/models/best_model.onnx...
+2026-02-17 18:20:02,058 - models.inference - INFO - Loading scaler from /home/ivainx/Documentos/Shadownet_Defender/models/scaler.pkl...
+2026-02-17 18:20:02,501 - models.inference - INFO - Model and scaler loaded successfully.
+2026-02-17 18:20:02,502 - core.engine - INFO - Scanning file: samples/procexp64.exe
+2026-02-17 18:20:03,257 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
