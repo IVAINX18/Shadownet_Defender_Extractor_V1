@@ -3,6 +3,8 @@ import numpy as np
 from .base import FeatureBlock
 from .general import GeneralFileInfo
 from .header import HeaderFileInfo
+from .byte_histogram import ByteHistogram
+from .byte_entropy import ByteEntropy
 
 class PEFeatureExtractor:
     """
@@ -27,6 +29,8 @@ class PEFeatureExtractor:
         ]
         
         # Instanciamos los bloques implementados
+        self.byte_histogram_block = ByteHistogram()
+        self.byte_entropy_block = ByteEntropy()
         self.general_block = GeneralFileInfo()
         self.header_block = HeaderFileInfo()
         
@@ -69,6 +73,14 @@ class PEFeatureExtractor:
         # El usuario indicó 2381. La diferencia de 30 suele ser DataDirectories tratados aparte,
         # pero mi implementación de Header ya incluye DataDirectories, así que mantendremos
         # el offset relativo estándar.
+        
+        # Offset para ByteHistogram: 0-255
+        byte_hist_feats = self.byte_histogram_block.extract(pe, raw_data)
+        final_vector[0:256] = byte_hist_feats
+        
+        # Offset para ByteEntropy: 256-511
+        byte_entropy_feats = self.byte_entropy_block.extract(pe, raw_data)
+        final_vector[256:512] = byte_entropy_feats
         
         # Offset para GeneralFileInfo: 616
         offset_general = 616
