@@ -29,12 +29,14 @@ def main():
         # Check for non-zero values in known blocks
         # ByteHistogram: 0-255
         # ByteEntropy: 256-511
+        # StringExtractor: 512-615
         # General: 616-625
         # Header: 626-687
         # SectionInfo: 688-942
         
         byte_hist = features[0:256]
         byte_entropy = features[256:512]
+        string_feats = features[512:616]
         gen_feats = features[616:626]
         header_feats = features[626:688]
         section_feats = features[688:943]
@@ -44,6 +46,17 @@ def main():
         
         print(f"\n--- ByteEntropy Block ---")
         print(f"Sum: {byte_entropy.sum():.6f}")
+        
+        print(f"\n--- StringExtractor Block ---")
+        print(f"Num Strings (Log): {string_feats[0]:.4f}")
+        print(f"Avg Length: {string_feats[1]:.2f}")
+        # IoCs indices: 5-14 relative to 512 -> 517-526 absolute
+        print(f"IoC Counts (URL, IP, Reg...): {string_feats[6:10]}")
+        
+        if np.all(string_feats == 0):
+             print("WARNING: StringExtractor features are all zero.")
+        else:
+             print("PASS: StringExtractor features contain non-zero values.")
         
         print(f"\n--- General Block ---")
         print(f"General Block (first 5): {gen_feats[:5]}")

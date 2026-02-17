@@ -8,6 +8,8 @@ from .byte_histogram import ByteHistogram
 from .byte_entropy import ByteEntropy
 from .imports import ImportsFeatureBlock
 from .section_info import SectionInfoBlock
+from .string_extractor import StringExtractorBlock
+from .exports import ExportsFeatureBlock
 
 class PEFeatureExtractor:
     """
@@ -34,9 +36,11 @@ class PEFeatureExtractor:
         # Instanciamos los bloques implementados
         self.byte_histogram_block = ByteHistogram()
         self.byte_entropy_block = ByteEntropy()
+        self.string_block = StringExtractorBlock()
         self.general_block = GeneralFileInfo()
         self.header_block = HeaderFileInfo()
         self.section_block = SectionInfoBlock()
+        self.exports_block = ExportsFeatureBlock()
         self.imports_block = ImportsFeatureBlock()
         
         # Dimensión total esperada (definida por el usuario/modelo)
@@ -87,6 +91,11 @@ class PEFeatureExtractor:
         byte_entropy_feats = self.byte_entropy_block.extract(pe, raw_data)
         final_vector[256:512] = byte_entropy_feats
         
+        # Offset para StringExtractor: 512-615 (104 features)
+        offset_strings = 512
+        string_feats = self.string_block.extract(pe, raw_data)
+        final_vector[offset_strings : offset_strings + self.string_block.dim] = string_feats
+        
         # Offset para GeneralFileInfo: 616
         offset_general = 616
         
@@ -112,5 +121,10 @@ class PEFeatureExtractor:
         # Extraer características de Imports (feature hashing)
         imports_feats = self.imports_block.extract(pe, raw_data)
         final_vector[offset_imports : offset_imports + self.imports_block.dim] = imports_feats
+        
+        # Offset para Exports: 2223-2350 (128 features)
+        offset_exports = 2223
+        exports_feats = self.exports_block.extract(pe, raw_data)
+        final_vector[offset_exports : offset_exports + self.exports_block.dim] = exports_feats
         
         return final_vector
