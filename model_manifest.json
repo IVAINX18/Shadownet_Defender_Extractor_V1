@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "model": {
+    "name": "ShadowNet Defender",
+    "version": "v1.0.0",
+    "format": "onnx",
+    "threshold": 0.5,
+    "feature_dim": 2381,
+    "created_at_utc": "2026-02-18T00:00:00Z"
+  },
+  "artifacts": [
+    {
+      "path": "models/best_model.onnx",
+      "sha256": "df832eaceb40043c694d47b40ed8fc77ee68a23213c5ccfd795e404daa89e51c",
+      "size_bytes": 9299
+    },
+    {
+      "path": "models/best_model.onnx.data",
+      "sha256": "7482611c343b83cdcc1ffe22d28b0ce16b059c5a5252110827efbb4c6130a75f",
+      "size_bytes": 5597184
+    },
+    {
+      "path": "models/scaler.pkl",
+      "sha256": "b46e743cceccc7dd5a1d517af93ef432c00c29dcc525321fe6597a6b19f0c882",
+      "size_bytes": 57743
+    }
+  ]
+}

@@ -2,3 +2,5 @@
 # Perfil opcional para desarrollo y testing.
 pytest
 psutil
+fastapi
+uvicorn
