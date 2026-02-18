@@ -1,7 +1,10 @@
 # 🛡️ Shadow-Net: Defender (SND)
+
 ### Sistema Avanzado de Detección de Malware mediante Aprendizaje Profundo y Futura Integración LLM
 
 <div align="center">
+
+![ShadowNet Defender Logo](LogoDefender/Logo-ShadowNet-Defender-FnLb.png)
 
 ![Licencia Académica](https://img.shields.io/badge/Licencia-Propiedad_Académica_Privada-red?style=for-the-badge)
 ![Estado](https://img.shields.io/badge/Estado-Activo-success?style=for-the-badge)
@@ -28,13 +31,13 @@
 
 Este software es el resultado de una investigación académica profunda en el campo de la ciberseguridad y la inteligencia artificial, realizada en el contexto universitario. Su distribución y uso se rigen estrictamente por los siguientes términos:
 
-| # | Término | Descripción |
-|:--|:--------|:------------|
-| 1 | **Uso Educativo y de Investigación** | Se permite el uso de este software únicamente con fines educativos, para la realización de pruebas de concepto en entornos controlados (Sandbox) y para la investigación académica sin ánimo de lucro. |
-| 2 | **Prohibición de Redistribución** | Queda estrictamente prohibida la copia, modificación, distribución, venta o sublicenciamiento del código fuente, los modelos entrenados o los binarios resultantes, total o parcialmente, sin la autorización expresa y por escrito de los autores. |
-| 3 | **Prohibición de Uso Comercial** | Ninguna parte de este software puede ser utilizada en productos comerciales, servicios de seguridad gestionada (MSSP) o consultorías pagadas. |
-| 4 | **Uso Ético** | Se prohíbe terminantemente el uso de este software para el desarrollo de malware, la evasión de sistemas de seguridad, o cualquier actividad ilegal. |
-| 5 | **Sin Garantías** | Este software se proporciona "tal cual", sin garantías de ningún tipo, expresas o implícitas. Los autores no se hacen responsables de daños directos o indirectos derivados de su uso. |
+| #   | Término                              | Descripción                                                                                                                                                                                                                                         |
+| :-- | :----------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Uso Educativo y de Investigación** | Se permite el uso de este software únicamente con fines educativos, para la realización de pruebas de concepto en entornos controlados (Sandbox) y para la investigación académica sin ánimo de lucro.                                              |
+| 2   | **Prohibición de Redistribución**    | Queda estrictamente prohibida la copia, modificación, distribución, venta o sublicenciamiento del código fuente, los modelos entrenados o los binarios resultantes, total o parcialmente, sin la autorización expresa y por escrito de los autores. |
+| 3   | **Prohibición de Uso Comercial**     | Ninguna parte de este software puede ser utilizada en productos comerciales, servicios de seguridad gestionada (MSSP) o consultorías pagadas.                                                                                                       |
+| 4   | **Uso Ético**                        | Se prohíbe terminantemente el uso de este software para el desarrollo de malware, la evasión de sistemas de seguridad, o cualquier actividad ilegal.                                                                                                |
+| 5   | **Sin Garantías**                    | Este software se proporciona "tal cual", sin garantías de ningún tipo, expresas o implícitas. Los autores no se hacen responsables de daños directos o indirectos derivados de su uso.                                                              |
 
 ---
 
@@ -82,17 +85,17 @@ Los métodos clásicos de defensa, basados en **firmas estáticas** (bases de da
 
 Las técnicas de evasión modernas se aprovechan directamente de esta debilidad:
 
-| Técnica de Evasión | Descripción Técnica | Impacto en Detección por Firmas |
-|:---|:---|:---|
-| **Polimorfismo** | El malware muta su código binario en cada nueva infección (reordenando instrucciones, cambiando variables) sin alterar su comportamiento funcional, generando un hash único en cada iteración. | La firma deja de ser válida inmediatamente después de la primera detección. |
-| **Metamorfismo** | Variante avanzada del polimorfismo donde el motor de mutación reescribe el código completo del malware. No solo cambia el cifrado, sino la lógica subyacente. | Prácticamente imposible de detectar con firmas. Requiere análisis semántico profundo. |
-| **Empaquetado (Packing)** | El código malicioso se comprime o cifra dentro de una "cáscara" de software aparentemente benigno. El código real solo se revela en la memoria RAM en tiempo de ejecución. | La firma del archivo en disco no corresponde a ninguna amenaza conocida. |
-| **Ataques Zero-Day** | Vulnerabilidades nunca antes vistas y para las cuales no existe parche ni firma disponible. Son las armas más cotizadas en el mercado negro de exploits. | No existe firma posible. La defensa solo puede ser conductual o predictiva. |
-| **Living off the Land (LotL)** | El malware se vale de herramientas legítimas del sistema operativo (PowerShell, WMI, certutil) para ejecutar sus acciones. No introduce binarios externos. | No hay un binario malicioso que firmar. La detección debe basarse en el comportamiento. |
+| Técnica de Evasión             | Descripción Técnica                                                                                                                                                                            | Impacto en Detección por Firmas                                                         |
+| :----------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
+| **Polimorfismo**               | El malware muta su código binario en cada nueva infección (reordenando instrucciones, cambiando variables) sin alterar su comportamiento funcional, generando un hash único en cada iteración. | La firma deja de ser válida inmediatamente después de la primera detección.             |
+| **Metamorfismo**               | Variante avanzada del polimorfismo donde el motor de mutación reescribe el código completo del malware. No solo cambia el cifrado, sino la lógica subyacente.                                  | Prácticamente imposible de detectar con firmas. Requiere análisis semántico profundo.   |
+| **Empaquetado (Packing)**      | El código malicioso se comprime o cifra dentro de una "cáscara" de software aparentemente benigno. El código real solo se revela en la memoria RAM en tiempo de ejecución.                     | La firma del archivo en disco no corresponde a ninguna amenaza conocida.                |
+| **Ataques Zero-Day**           | Vulnerabilidades nunca antes vistas y para las cuales no existe parche ni firma disponible. Son las armas más cotizadas en el mercado negro de exploits.                                       | No existe firma posible. La defensa solo puede ser conductual o predictiva.             |
+| **Living off the Land (LotL)** | El malware se vale de herramientas legítimas del sistema operativo (PowerShell, WMI, certutil) para ejecutar sus acciones. No introduce binarios externos.                                     | No hay un binario malicioso que firmar. La detección debe basarse en el comportamiento. |
 
 ### 1.2 La Solución Propuesta: ShadowNet Defender
 
-**ShadowNet Defender (SND)** propone un cambio de paradigma fundamental: pasar de la **Detección Reactiva por Firmas** a la **Detección Predictiva por Aprendizaje Automático sobre Análisis Estático** (*Static Analysis ML-based Detection*).
+**ShadowNet Defender (SND)** propone un cambio de paradigma fundamental: pasar de la **Detección Reactiva por Firmas** a la **Detección Predictiva por Aprendizaje Automático sobre Análisis Estático** (_Static Analysis ML-based Detection_).
 
 El principio rector es una distinción conceptual poderosa:
 
@@ -103,13 +106,13 @@ El sistema analiza características estructurales, estadísticas y semánticas d
 
 **Ventajas Clave del Enfoque:**
 
-| Ventaja | Descripción |
-|:---|:---|
-| 🚀 **Velocidad** | Análisis completo en menos de **500ms** por archivo, sin necesidad de ejecutarlo en un entorno virtualizado. |
-| 🔒 **Seguridad del Analista** | Al ser un análisis puramente estático, el archivo nunca se ejecuta. El riesgo de infección de la máquina de análisis es nulo. |
-| 🔮 **Detección Zero-Day** | Puede detectar variantes de malware nunca antes vistas si comparten características estructurales o estadísticas con familias de malware conocidas. El modelo generaliza, no memoriza. |
-| ⚖️ **Independencia de Firmas** | No requiere actualizaciones diarias de bases de datos de firmas. El modelo, una vez entrenado, es autónomo. |
-| 📐 **Reproducibilidad Científica** | El vector de características de 2381 dimensiones se alinea con el estándar de facto en la literatura científica, haciendo los resultados comparables con investigaciones *state-of-the-art*. |
+| Ventaja                            | Descripción                                                                                                                                                                                  |
+| :--------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🚀 **Velocidad**                   | Análisis completo en menos de **500ms** por archivo, sin necesidad de ejecutarlo en un entorno virtualizado.                                                                                 |
+| 🔒 **Seguridad del Analista**      | Al ser un análisis puramente estático, el archivo nunca se ejecuta. El riesgo de infección de la máquina de análisis es nulo.                                                                |
+| 🔮 **Detección Zero-Day**          | Puede detectar variantes de malware nunca antes vistas si comparten características estructurales o estadísticas con familias de malware conocidas. El modelo generaliza, no memoriza.       |
+| ⚖️ **Independencia de Firmas**     | No requiere actualizaciones diarias de bases de datos de firmas. El modelo, una vez entrenado, es autónomo.                                                                                  |
+| 📐 **Reproducibilidad Científica** | El vector de características de 2381 dimensiones se alinea con el estándar de facto en la literatura científica, haciendo los resultados comparables con investigaciones _state-of-the-art_. |
 
 ---
 
@@ -119,7 +122,7 @@ El sistema analiza características estructurales, estadísticas y semánticas d
 
 El proyecto nació como una inquietud académica profunda en la cátedra de **Seguridad Informática** de la Universidad Cooperativa de Colombia. Durante el curso, los autores observaron que las herramientas más populares en el mundo real para la detección de malware, como **YARA** (motor de reglas para clasificación de archivos), eran indudablemente poderosas pero adolecían de un defecto fundamental: requerían la intervención constante de un analista experto humano para crear y mantener las reglas de detección.
 
-La pregunta que motivó este proyecto fue directa y ambiciosa: *¿Es posible automatizar y escalar esa experticia humana utilizando técnicas de Machine Learning?*
+La pregunta que motivó este proyecto fue directa y ambiciosa: _¿Es posible automatizar y escalar esa experticia humana utilizando técnicas de Machine Learning?_
 
 La respuesta, como este repositorio demuestra, es un rotundo sí.
 
@@ -238,15 +241,15 @@ El vector final se compone de la concatenación ordenada de varios sub-vectores 
 
 $$\mathbf{x} = [\mathbf{x}_{\text{hist}} \;|\; \mathbf{x}_{\text{entropy}} \;|\; \mathbf{x}_{\text{strings}} \;|\; \mathbf{x}_{\text{general}} \;|\; \mathbf{x}_{\text{header}} \;|\; \mathbf{x}_{\text{sections}} \;|\; \mathbf{x}_{\text{imports}} \;|\; \mathbf{x}_{\text{exports}}]$$
 
-| Bloque | Dimensiones | Concepto |
-|:---|:---:|:---|
-| Histograma de Bytes | 256 | Distribución estadística de los bytes del archivo |
-| Entropía de Bytes | 256 | Aleatoriedad local medida con ventana deslizante |
-| Cadenas e IoCs | 104 | Análisis de strings ASCII y patrones de amenaza |
-| Metadatos Generales | 72 | Cabeceras DOS/PE, timestamps, flags |
-| Análisis de Secciones | 255 | Nombres, tamaños, permisos de secciones PE |
-| Imports / Exports | 1280 + 128 | Tabla de importaciones/exportaciones (Feature Hashing) |
-| **TOTAL** | **2381** | **Vector completo de características** |
+| Bloque                | Dimensiones | Concepto                                               |
+| :-------------------- | :---------: | :----------------------------------------------------- |
+| Histograma de Bytes   |     256     | Distribución estadística de los bytes del archivo      |
+| Entropía de Bytes     |     256     | Aleatoriedad local medida con ventana deslizante       |
+| Cadenas e IoCs        |     104     | Análisis de strings ASCII y patrones de amenaza        |
+| Metadatos Generales   |     72      | Cabeceras DOS/PE, timestamps, flags                    |
+| Análisis de Secciones |     255     | Nombres, tamaños, permisos de secciones PE             |
+| Imports / Exports     | 1280 + 128  | Tabla de importaciones/exportaciones (Feature Hashing) |
+| **TOTAL**             |  **2381**   | **Vector completo de características**                 |
 
 ---
 
@@ -266,12 +269,12 @@ donde $\mathbf{1}(\cdot)$ es la función indicatriz, que toma el valor 1 si la c
 
 El histograma de bytes es una "huella de identidad" que revela información estructural fundamental sobre la naturaleza del archivo:
 
-| Tipo de Archivo | Patrón Característico en el Histograma |
-|:---|:---|
-| **Scripts / Archivos de Texto** | Alta concentración de valores en el rango ASCII imprimible (0x20–0x7E). Picos pronunciados en bytes de espacios, letras y puntuación. |
-| **Código Nativo Compilado (x86/x64)** | Picos en opcodes frecuentes: `0x00` (padding/null bytes), `0xFF`, `0x55` (`push ebp`), `0xC3` (`ret`), `0xEB` (`jmp short`). |
-| **Binario Legítimo Normal** | Distribución heterogénea con patrones reconocibles. Concentración en rangos bajos y medios. |
-| **Malware Empaquetado o Cifrado** | Distribución sorprendentemente uniforme. Todos los bytes con frecuencia $\approx \frac{1}{256} \approx 0.0039$. El histograma parece "ruido blanco". Esta es una **señal de alerta temprana** de packing, cifrado o compresión. |
+| Tipo de Archivo                       | Patrón Característico en el Histograma                                                                                                                                                                                          |
+| :------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Scripts / Archivos de Texto**       | Alta concentración de valores en el rango ASCII imprimible (0x20–0x7E). Picos pronunciados en bytes de espacios, letras y puntuación.                                                                                           |
+| **Código Nativo Compilado (x86/x64)** | Picos en opcodes frecuentes: `0x00` (padding/null bytes), `0xFF`, `0x55` (`push ebp`), `0xC3` (`ret`), `0xEB` (`jmp short`).                                                                                                    |
+| **Binario Legítimo Normal**           | Distribución heterogénea con patrones reconocibles. Concentración en rangos bajos y medios.                                                                                                                                     |
+| **Malware Empaquetado o Cifrado**     | Distribución sorprendentemente uniforme. Todos los bytes con frecuencia $\approx \frac{1}{256} \approx 0.0039$. El histograma parece "ruido blanco". Esta es una **señal de alerta temprana** de packing, cifrado o compresión. |
 
 ---
 
@@ -286,14 +289,15 @@ Para una ventana de bytes $W$ de tamaño $w$, la entropía de Shannon se define 
 $$H(W) = -\sum_{k=0}^{255} p_k \cdot \log_2(p_k)$$
 
 donde $p_k = \frac{\text{count}(k \text{ en } W)}{w}$ es la probabilidad empírica del byte $k$ dentro de la ventana. Por convención, $0 \cdot \log_2(0) = 0$. El rango de $H$ es $[0, 8]$ bits, donde:
+
 - $H = 0$: La ventana contiene un único valor de byte (máximo orden, sin información).
 - $H = 8$: Todos los 256 valores de bytes aparecen con igual probabilidad (máximo desorden/aleatoriedad).
 
 **Algoritmo de Cálculo:**
 
-1. Se aplica una **ventana deslizante** de tamaño $w = 2048$ bytes con un *stride* (paso) de 1024 bytes sobre el archivo completo.
+1. Se aplica una **ventana deslizante** de tamaño $w = 2048$ bytes con un _stride_ (paso) de 1024 bytes sobre el archivo completo.
 2. Para cada ventana $W_j$, se calcula $H(W_j)$.
-3. Se construye un **histograma de los valores de entropía** obtenidos, dividiendo el rango $[0, 8]$ en *bins* discretos.
+3. Se construye un **histograma de los valores de entropía** obtenidos, dividiendo el rango $[0, 8]$ en _bins_ discretos.
 4. Adicionalmente, se calculan **estadísticas agregadas** (mínimo, máximo, media y varianza) sobre la secuencia de entropías $\{H(W_j)\}$.
 
 La combinación del histograma de entropías y las estadísticas agregadas compone el bloque de 256 dimensiones.
@@ -303,9 +307,9 @@ La combinación del histograma de entropías y las estadísticas agregadas compo
 El ransomware **WannaCry** (2017) contiene una sección de datos que almacena el payload cifrado con AES.
 
 - El análisis de entropía mostrará una región del archivo con $H \approx 7.9$–$8.0$ bits: la sección cifrada.
-- Un archivo benigno como `notepad.exe` presentará entropía variable y coherente: sección de código $\approx 6.0$ bits, sección de datos $\approx 4.0$ bits, y zonas de *padding* con $H = 0$ bits.
+- Un archivo benigno como `notepad.exe` presentará entropía variable y coherente: sección de código $\approx 6.0$ bits, sección de datos $\approx 4.0$ bits, y zonas de _padding_ con $H = 0$ bits.
 
-> **Regla Heurística:** Si $\text{mean}(H) > 7.2$ bits para todo el archivo, con alta probabilidad el binario está comprimido o cifrado. Esto es indicativo de un *packer* (como UPX, ASPack, o packers custom) o de contenido criptográfico, y es una señal de alerta de primer nivel.
+> **Regla Heurística:** Si $\text{mean}(H) > 7.2$ bits para todo el archivo, con alta probabilidad el binario está comprimido o cifrado. Esto es indicativo de un _packer_ (como UPX, ASPack, o packers custom) o de contenido criptográfico, y es una señal de alerta de primer nivel.
 
 ---
 
@@ -315,25 +319,25 @@ El ransomware **WannaCry** (2017) contiene una sección de datos que almacena el
 
 **Proceso de Extracción:**
 
-Se extraen todas las cadenas ASCII imprimibles de longitud mínima $\ge 5$ caracteres del binario crudo (fuera del contexto del parseo PE, para capturar strings en secciones de datos comprimidas o en el *overlay*).
+Se extraen todas las cadenas ASCII imprimibles de longitud mínima $\ge 5$ caracteres del binario crudo (fuera del contexto del parseo PE, para capturar strings en secciones de datos comprimidas o en el _overlay_).
 
 **Dimensiones del Sub-vector (104 d):**
 
-- **Estadísticas de Longitud de Strings (50 d):** Un histograma de la distribución de longitudes de las cadenas encontradas. El malware generado automáticamente (*polymorphic generators*) a menudo produce cadenas aleatorias de longitud muy corta y uniforme, lo cual es detectable estadísticamente.
+- **Estadísticas de Longitud de Strings (50 d):** Un histograma de la distribución de longitudes de las cadenas encontradas. El malware generado automáticamente (_polymorphic generators_) a menudo produce cadenas aleatorias de longitud muy corta y uniforme, lo cual es detectable estadísticamente.
 - **Metadatos Globales (4 d):** Número total de strings encontrados, longitud promedio, longitud máxima, entropía del conjunto de caracteres.
-- **Indicadores de Compromiso — IoCs (50 d):** Se aplican expresiones regulares (*RegEx*) sobre el corpus de strings para buscar patrones de amenaza conocidos. El vector registra la presencia/ausencia (`0/1`) o el conteo normalizado de cada patrón.
+- **Indicadores de Compromiso — IoCs (50 d):** Se aplican expresiones regulares (_RegEx_) sobre el corpus de strings para buscar patrones de amenaza conocidos. El vector registra la presencia/ausencia (`0/1`) o el conteo normalizado de cada patrón.
 
 **Patrones de IoC Buscados:**
 
-| Categoría | Patrones RegEx / Keywords | Relevancia en Malware |
-|:---|:---|:---|
-| **Rutas de Sistema Sensibles** | `C:\Windows\System32`, `\AppData\Local\Temp`, `\ProgramData` | Malware frecuentemente se copia a estas rutas para persistir o ejecutarse con privilegios. |
-| **Red y Comunicación C2** | `http://`, `https://`, IPv4 RegEx, puertos altos (`:8080`, `:4444`) | Indica capacidades de *Command & Control*, descarga de payloads secundarios o exfiltración de datos. |
-| **Persistencia en Registro** | `HKEY_CURRENT_USER`, `HKEY_LOCAL_MACHINE`, `\Run`, `\RunOnce`, `\CurrentVersion\Run` | Técnicas clásicas de persistencia: el malware se ejecuta automáticamente al iniciar Windows. |
-| **Criptografía y Ransomware** | `Bitcoin`, `Wallet`, `.wallet`, `.kdbx`, extensiones `_encrypted`, notas de rescate | Indicativo de ransomware o de malware financiero. |
-| **Ofuscación y Evasión** | `Base64` strings largos, `PowerShell -EncodedCommand`, `FromBase64String`, `Invoke-Expression` | Técnicas de *Living off the Land* y ofuscación de comandos. |
-| **Artefactos de Dropper** | Cabecera `MZ` (hex `4D5A`) embebida dentro del binario | Indica un ejecutable dentro de otro: técnica *Dropper*. El archivo "carga" otro ejecutable en memoria y lo lanza. |
-| **Anti-análisis** | Nombres de herramientas de análisis: `wireshark`, `procmon`, `OllyDbg`, `x64dbg`, VirtualBox strings | Malware que detecta si está siendo analizado y cambia su comportamiento (*Anti-VM/Anti-Debug*). |
+| Categoría                      | Patrones RegEx / Keywords                                                                            | Relevancia en Malware                                                                                             |
+| :----------------------------- | :--------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| **Rutas de Sistema Sensibles** | `C:\Windows\System32`, `\AppData\Local\Temp`, `\ProgramData`                                         | Malware frecuentemente se copia a estas rutas para persistir o ejecutarse con privilegios.                        |
+| **Red y Comunicación C2**      | `http://`, `https://`, IPv4 RegEx, puertos altos (`:8080`, `:4444`)                                  | Indica capacidades de _Command & Control_, descarga de payloads secundarios o exfiltración de datos.              |
+| **Persistencia en Registro**   | `HKEY_CURRENT_USER`, `HKEY_LOCAL_MACHINE`, `\Run`, `\RunOnce`, `\CurrentVersion\Run`                 | Técnicas clásicas de persistencia: el malware se ejecuta automáticamente al iniciar Windows.                      |
+| **Criptografía y Ransomware**  | `Bitcoin`, `Wallet`, `.wallet`, `.kdbx`, extensiones `_encrypted`, notas de rescate                  | Indicativo de ransomware o de malware financiero.                                                                 |
+| **Ofuscación y Evasión**       | `Base64` strings largos, `PowerShell -EncodedCommand`, `FromBase64String`, `Invoke-Expression`       | Técnicas de _Living off the Land_ y ofuscación de comandos.                                                       |
+| **Artefactos de Dropper**      | Cabecera `MZ` (hex `4D5A`) embebida dentro del binario                                               | Indica un ejecutable dentro de otro: técnica _Dropper_. El archivo "carga" otro ejecutable en memoria y lo lanza. |
+| **Anti-análisis**              | Nombres de herramientas de análisis: `wireshark`, `procmon`, `OllyDbg`, `x64dbg`, VirtualBox strings | Malware que detecta si está siendo analizado y cambia su comportamiento (_Anti-VM/Anti-Debug_).                   |
 
 ---
 
@@ -343,16 +347,16 @@ Se extraen todas las cadenas ASCII imprimibles de longitud mínima $\ge 5$ carac
 
 **Características Extraídas y su Relevancia:**
 
-| Campo PE | Descripción | Anomalía / Indicador Malicioso |
-|:---|:---|:---|
-| `TimeDateStamp` | Timestamp de compilación del binario, en formato Unix. | **Timestomping:** Fechas imposibles (año 2099 o < 1995) indican manipulación anti-forense deliberada para confundir el análisis temporal. |
-| `Machine` | Arquitectura objetivo del binario: `x86` (0x014C), `x64` (0x8664), `ARM`. | Una arquitectura inusual en el contexto donde se analiza el archivo puede ser sospechosa. |
-| `NumberOfSections` | Número de secciones PE declaradas. | Un número anormalmente bajo (1-2) o alto (>10) puede indicar un binario sintético o manualmente construido. |
-| `Characteristics` | Flags del binario: `DLL`, `EXECUTABLE`, `SYSTEM`, `LARGE_ADDRESS_AWARE`. | Flags inconsistentes (e.g., `DLL` flag en un `.exe`) son indicativos de manipulación manual. |
-| `Subsystem` | Tipo de subsistema: `WINDOWS_GUI` (aplicación gráfica) o `WINDOWS_CUI` (consola). | Malware que se declara `WINDOWS_GUI` pero **nunca crea una ventana visible** es altamente sospechoso. |
-| `DllCharacteristics` | Features de seguridad: `ASLR`, `DEP/NX`, `CFG`. | La **ausencia** de mitigaciones de seguridad modernas en un binario reciente (post-2015) es un indicador de que fue compilado con herramientas de construcción de malware (*toolkits*). |
-| `SizeOfCode` | Tamaño declarado del código ejecutable. | Discrepancias grandes entre el tamaño declarado y el real pueden indicar relleno malicioso. |
-| `AddressOfEntryPoint` | Dirección virtual del punto de entrada del código. | Un punto de entrada que apunta a la sección de datos (y no a `.text`) es una técnica de evasión de packers. |
+| Campo PE              | Descripción                                                                       | Anomalía / Indicador Malicioso                                                                                                                                                          |
+| :-------------------- | :-------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TimeDateStamp`       | Timestamp de compilación del binario, en formato Unix.                            | **Timestomping:** Fechas imposibles (año 2099 o < 1995) indican manipulación anti-forense deliberada para confundir el análisis temporal.                                               |
+| `Machine`             | Arquitectura objetivo del binario: `x86` (0x014C), `x64` (0x8664), `ARM`.         | Una arquitectura inusual en el contexto donde se analiza el archivo puede ser sospechosa.                                                                                               |
+| `NumberOfSections`    | Número de secciones PE declaradas.                                                | Un número anormalmente bajo (1-2) o alto (>10) puede indicar un binario sintético o manualmente construido.                                                                             |
+| `Characteristics`     | Flags del binario: `DLL`, `EXECUTABLE`, `SYSTEM`, `LARGE_ADDRESS_AWARE`.          | Flags inconsistentes (e.g., `DLL` flag en un `.exe`) son indicativos de manipulación manual.                                                                                            |
+| `Subsystem`           | Tipo de subsistema: `WINDOWS_GUI` (aplicación gráfica) o `WINDOWS_CUI` (consola). | Malware que se declara `WINDOWS_GUI` pero **nunca crea una ventana visible** es altamente sospechoso.                                                                                   |
+| `DllCharacteristics`  | Features de seguridad: `ASLR`, `DEP/NX`, `CFG`.                                   | La **ausencia** de mitigaciones de seguridad modernas en un binario reciente (post-2015) es un indicador de que fue compilado con herramientas de construcción de malware (_toolkits_). |
+| `SizeOfCode`          | Tamaño declarado del código ejecutable.                                           | Discrepancias grandes entre el tamaño declarado y el real pueden indicar relleno malicioso.                                                                                             |
+| `AddressOfEntryPoint` | Dirección virtual del punto de entrada del código.                                | Un punto de entrada que apunta a la sección de datos (y no a `.text`) es una técnica de evasión de packers.                                                                             |
 
 ---
 
@@ -367,6 +371,7 @@ Las secciones PE organizan el contenido del ejecutable en regiones lógicas: `.t
 **1. Anomalías en Nombres de Sección:**
 
 Los nombres de sección estándar (`.text`, `.data`) son bien conocidos y establecidos por el compilador. ShadowNet aplica un hash al nombre para detectar:
+
 - Nombres generados aleatoriamente: `.x867z`, `.aaaa` — típicos de packers y malware compilado ad-hoc.
 - Nombres vacíos o con bytes nulos.
 - Nombres que imitan secciones legítimas con diferencias sutiles (e.g., `.text0`, `.textX`).
@@ -374,6 +379,7 @@ Los nombres de sección estándar (`.text`, `.data`) son bien conocidos y establ
 **2. Discrepancia de Tamaños `VirtualSize` vs `RawSize`:**
 
 Cada sección declara dos tamaños:
+
 - `VirtualSize`: Tamaño que ocupa la sección **en memoria RAM** cuando el ejecutable es cargado por el OS.
 - `SizeOfRawData` (`RawSize`): Tamaño que ocupa la sección **en el archivo en disco**.
 
@@ -384,13 +390,14 @@ Si $\Delta_{\text{size}} \gg 0$ (el archivo en disco tiene la sección casi vac�
 **3. Permisos de Sección — La Política W^X:**
 
 Cada sección tiene flags de permisos que el OS respeta al cargar el binario en memoria:
+
 - `MEM_READ` (`R`): La sección puede ser leída.
 - `MEM_WRITE` (`W`): La sección puede ser escrita (modificada en memoria).
 - `MEM_EXECUTE` (`X`): La sección puede ser ejecutada como código.
 
-La política de seguridad **W⊕X (Write XOR Execute)**, implementada por el hardware moderno mediante el bit NX/XD y por el OS mediante DEP (*Data Execution Prevention*), estipula que una región de memoria puede ser escribible O ejecutable, **pero nunca ambas simultáneamente**.
+La política de seguridad **W⊕X (Write XOR Execute)**, implementada por el hardware moderno mediante el bit NX/XD y por el OS mediante DEP (_Data Execution Prevention_), estipula que una región de memoria puede ser escribible O ejecutable, **pero nunca ambas simultáneamente**.
 
-> ⚠️ **Alerta Roja:** Si una sección tiene los flags `MEM_WRITE | MEM_EXECUTE` simultáneamente activados, es una señal de **Inyección de Código** (*Code Injection*), **Polimorfismo** (el malware se reescribe a sí mismo en memoria) o preparación para **ROP (*Return-Oriented Programming*)**.
+> ⚠️ **Alerta Roja:** Si una sección tiene los flags `MEM_WRITE | MEM_EXECUTE` simultáneamente activados, es una señal de **Inyección de Código** (_Code Injection_), **Polimorfismo** (el malware se reescribe a sí mismo en memoria) o preparación para **ROP (_Return-Oriented Programming_)**.
 
 **4. Entropía por Sección:**
 
@@ -402,7 +409,7 @@ Se calcula $H$ (entropía de Shannon) de forma individual para cada sección. Un
 
 **El Problema de la Alta Dimensionalidad:**
 
-La **Import Address Table (IAT)** de un PE lista cada función de la API de Windows que el ejecutable utiliza. Existen miles de funciones en `kernel32.dll`, `user32.dll`, `ntdll.dll`, `advapi32.dll`, `ws2_32.dll`, etc. Un vector *One-Hot* clásico ("¿Importa la función X?") necesitaría decenas de miles de dimensiones, haciendo el espacio de características inmanejable (*curse of dimensionality*).
+La **Import Address Table (IAT)** de un PE lista cada función de la API de Windows que el ejecutable utiliza. Existen miles de funciones en `kernel32.dll`, `user32.dll`, `ntdll.dll`, `advapi32.dll`, `ws2_32.dll`, etc. Un vector _One-Hot_ clásico ("¿Importa la función X?") necesitaría decenas de miles de dimensiones, haciendo el espacio de características inmanejable (_curse of dimensionality_).
 
 **La Solución Elegante: Feature Hashing (Hashing Trick)**
 
@@ -420,20 +427,20 @@ Para las exportaciones, el proceso es idéntico con $D_{\text{exports}} = 128$.
 
 **Sobre las Colisiones:**
 
-El hashing introduce la posibilidad de colisiones: dos funciones distintas mapeando al mismo índice. Sin embargo, en la práctica del aprendizaje automático, esto es sorprendentemente benigno. La redundancia en los datos de entrenamiento y la robustez estadística del modelo compensan las colisiones, y los resultados empíricos confirman que el *hashing trick* funciona extremadamente bien en este contexto.
+El hashing introduce la posibilidad de colisiones: dos funciones distintas mapeando al mismo índice. Sin embargo, en la práctica del aprendizaje automático, esto es sorprendentemente benigno. La redundancia en los datos de entrenamiento y la robustez estadística del modelo compensan las colisiones, y los resultados empíricos confirman que el _hashing trick_ funciona extremadamente bien en este contexto.
 
 **Firma de API de Familias de Malware Conocidas:**
 
 La IAT es el "carnet de identidad conductual" del malware. El modelo aprende que ciertos patrones de imports son indicativos de amenazas específicas:
 
-| Familia de Malware | APIs Características Importadas | Familia de DLL |
-|:---|:---|:---|
-| **Ransomware** | `CryptGenKey`, `CryptEncrypt`, `CryptDestroyKey`, `WriteFile`, `FindFirstFile`, `FindNextFile`, `DeleteFile` | `advapi32.dll`, `kernel32.dll` |
-| **Keylogger** | `SetWindowsHookExA/W`, `GetAsyncKeyState`, `GetKeyState`, `CallNextHookEx`, `OpenClipboard` | `user32.dll` |
-| **Downloader / Dropper** | `URLDownloadToFileA/W`, `WinHttpOpen`, `InternetOpenA`, `ShellExecuteA/W`, `CreateProcessA/W` | `wininet.dll`, `shell32.dll` |
-| **RAT / Backdoor** | `WSAStartup`, `socket`, `connect`, `send`, `recv`, `CreateRemoteThread` | `ws2_32.dll`, `kernel32.dll` |
-| **Rootkit / Privilege Escalation** | `NtOpenProcess`, `ZwSetInformationProcess`, `AdjustTokenPrivileges`, `OpenProcessToken` | `ntdll.dll`, `advapi32.dll` |
-| **Anti-análisis** | `IsDebuggerPresent`, `CheckRemoteDebuggerPresent`, `OutputDebugStringA`, `GetTickCount` | `kernel32.dll` |
+| Familia de Malware                 | APIs Características Importadas                                                                              | Familia de DLL                 |
+| :--------------------------------- | :----------------------------------------------------------------------------------------------------------- | :----------------------------- |
+| **Ransomware**                     | `CryptGenKey`, `CryptEncrypt`, `CryptDestroyKey`, `WriteFile`, `FindFirstFile`, `FindNextFile`, `DeleteFile` | `advapi32.dll`, `kernel32.dll` |
+| **Keylogger**                      | `SetWindowsHookExA/W`, `GetAsyncKeyState`, `GetKeyState`, `CallNextHookEx`, `OpenClipboard`                  | `user32.dll`                   |
+| **Downloader / Dropper**           | `URLDownloadToFileA/W`, `WinHttpOpen`, `InternetOpenA`, `ShellExecuteA/W`, `CreateProcessA/W`                | `wininet.dll`, `shell32.dll`   |
+| **RAT / Backdoor**                 | `WSAStartup`, `socket`, `connect`, `send`, `recv`, `CreateRemoteThread`                                      | `ws2_32.dll`, `kernel32.dll`   |
+| **Rootkit / Privilege Escalation** | `NtOpenProcess`, `ZwSetInformationProcess`, `AdjustTokenPrivileges`, `OpenProcessToken`                      | `ntdll.dll`, `advapi32.dll`    |
+| **Anti-análisis**                  | `IsDebuggerPresent`, `CheckRemoteDebuggerPresent`, `OutputDebugStringA`, `GetTickCount`                      | `kernel32.dll`                 |
 
 ---
 
@@ -441,15 +448,15 @@ La IAT es el "carnet de identidad conductual" del malware. El modelo aprende que
 
 Un modelo de Machine Learning es tan bueno como los datos con los que se entrena. Para ShadowNet, el "combustible" es **SOREL-20M**.
 
-| Característica | Detalle |
-|:---|:---|
-| **Nombre Completo** | Sophos-ReversingLabs 20 Million dataset |
-| **Publicado por** | Sophos AI + ReversingLabs (2020) |
-| **Volumen Total** | ~20 Millones de muestras |
-| **Distribución** | ~10 Millones de muestras benignas / ~10 Millones de muestras maliciosas |
-| **Etiquetado** | Multi-motor: cada muestra tiene veredictos de múltiples motores AV y etiquetas de familia de malware |
-| **Metadatos** | Metadatos ricos por muestra: tipo de familia, fecha de primera aparición, nivel de confianza del etiquetado |
-| **Año de referencia** | Muestras recientes (hasta 2020), significativamente más modernas que EMBER 2018 |
+| Característica        | Detalle                                                                                                     |
+| :-------------------- | :---------------------------------------------------------------------------------------------------------- |
+| **Nombre Completo**   | Sophos-ReversingLabs 20 Million dataset                                                                     |
+| **Publicado por**     | Sophos AI + ReversingLabs (2020)                                                                            |
+| **Volumen Total**     | ~20 Millones de muestras                                                                                    |
+| **Distribución**      | ~10 Millones de muestras benignas / ~10 Millones de muestras maliciosas                                     |
+| **Etiquetado**        | Multi-motor: cada muestra tiene veredictos de múltiples motores AV y etiquetas de familia de malware        |
+| **Metadatos**         | Metadatos ricos por muestra: tipo de familia, fecha de primera aparición, nivel de confianza del etiquetado |
+| **Año de referencia** | Muestras recientes (hasta 2020), significativamente más modernas que EMBER 2018                             |
 
 **¿Por qué SOREL-20M sobre otras alternativas?**
 
@@ -470,13 +477,14 @@ Los datos crudos extraídos de un binario presentan magnitudes y escalas radical
 - Conteo de strings: $n \in [0, 10^4]$
 - Valores del histograma de bytes: $\in [0.0, 1.0]$
 
-Entrenar una red neuronal directamente con estos datos provocaría inestabilidad en los gradientes durante la retropropagación (*gradient instability*): las dimensiones con valores grandes dominarían el aprendizaje, haciendo que el modelo prácticamente ignore las dimensiones con valores pequeños.
+Entrenar una red neuronal directamente con estos datos provocaría inestabilidad en los gradientes durante la retropropagación (_gradient instability_): las dimensiones con valores grandes dominarían el aprendizaje, haciendo que el modelo prácticamente ignore las dimensiones con valores pequeños.
 
 Para corregir esto, aplicamos **Normalización Z-Score (Estandarización)** a cada dimensión $j$ del vector de características:
 
 $$z_j = \frac{x_j - \mu_j}{\sigma_j + \epsilon}$$
 
 donde:
+
 - $\mu_j$: Media aritmética de la característica $j$ calculada sobre el dataset completo de entrenamiento.
 - $\sigma_j$: Desviación estándar de la característica $j$ calculada sobre el dataset completo de entrenamiento.
 - $\epsilon = 10^{-8}$: Pequeña constante para prevenir división por cero en características con varianza nula (e.g., bits de flags que son siempre 0 en el set de entrenamiento).
@@ -493,21 +501,21 @@ A diferencia de la versión anterior (V2, basada en un clasificador **LightGBM**
 
 Para prevenir el sesgo de un único proveedor de datos y mejorar la robustez frente a amenazas recientes, se construyó un **dataset híbrido**:
 
-| Fuente | Muestras | Propósito |
-|:---|:---:|:---|
-| **SOREL-20M** (subconjunto aleatorio estratificado) | 5,000,000 | Aporta la varianza global del malware industrial: familias establecidas, distribución representativa del ecosistema real. |
-| **ShadowNet-Original** (colección propia *in-the-wild*) | 100,000 | Aporta **frescura**: amenazas recientes de 2024-2026 que no están en SOREL. Mejora la detección de vectores de ataque emergentes. |
-| **TOTAL** | **5,100,000** | — |
+| Fuente                                                  |   Muestras    | Propósito                                                                                                                         |
+| :------------------------------------------------------ | :-----------: | :-------------------------------------------------------------------------------------------------------------------------------- |
+| **SOREL-20M** (subconjunto aleatorio estratificado)     |   5,000,000   | Aporta la varianza global del malware industrial: familias establecidas, distribución representativa del ecosistema real.         |
+| **ShadowNet-Original** (colección propia _in-the-wild_) |    100,000    | Aporta **frescura**: amenazas recientes de 2024-2026 que no están en SOREL. Mejora la detección de vectores de ataque emergentes. |
+| **TOTAL**                                               | **5,100,000** | —                                                                                                                                 |
 
 **Sampling Eficiente con Memory Mapping:**
 
 Procesar 5.1 millones de vectores de 2381 dimensiones (en formato `float32`) requiere teóricamente $5.1 \times 10^6 \times 2381 \times 4 \text{ bytes} \approx 48 \text{ GB}$ de RAM, lo cual excede la capacidad de cualquier servidor estándar.
 
-La solución implementada usa **Memory-Mapped Files** (`numpy.memmap` con `mmap_mode='r'`): los datos se mantienen en disco y el OS gestiona dinámicamente qué páginas están en RAM en cada momento, cargando únicamente los *mini-batches* necesarios para cada iteración de entrenamiento.
+La solución implementada usa **Memory-Mapped Files** (`numpy.memmap` con `mmap_mode='r'`): los datos se mantienen en disco y el OS gestiona dinámicamente qué páginas están en RAM en cada momento, cargando únicamente los _mini-batches_ necesarios para cada iteración de entrenamiento.
 
 #### 6.2.2 Arquitectura del Perceptrón Multicapa (MLP)
 
-Se diseñó una topología de "embudo cónico" (*funnel architecture*) que comprime progresivamente la representación de alta dimensión hasta una única neurona de salida:
+Se diseñó una topología de "embudo cónico" (_funnel architecture_) que comprime progresivamente la representación de alta dimensión hasta una única neurona de salida:
 
 $$\text{Input}(2381) \xrightarrow{\text{BN}+\text{ReLU}+\text{Drop}(0.3)} \text{Dense}(512) \xrightarrow{\text{BN}+\text{ReLU}+\text{Drop}(0.2)} \text{Dense}(256) \xrightarrow{\text{BN}+\text{ReLU}+\text{Drop}(0.1)} \text{Dense}(128) \xrightarrow{\sigma} \text{Output}(1)$$
 
@@ -547,23 +555,23 @@ class MalwareDetector(nn.Module):
 
 **Justificación de Componentes Arquitecturales:**
 
-| Componente | Justificación |
-|:---|:---|
-| **BatchNorm1d** | Normaliza las activaciones dentro de cada mini-batch, acelerando la convergencia y actuando como regularizador implícito. Permite usar tasas de aprendizaje más altas. |
-| **ReLU** | Función de activación estándar que resuelve el problema del gradiente evanescente (*vanishing gradient*). Computacionalmente eficiente y comprobada en redes de clasificación. |
-| **Dropout** | Técnica de regularización que previene el sobreajuste (*overfitting*) al obligar a la red a aprender representaciones redundantes. El rate decrece progresivamente (0.3 → 0.2 → 0.1) desde la entrada a la salida. |
-| **Sigmoid en Salida** | Produce una salida en $[0, 1]$ directamente interpretable como una probabilidad de maliciosidad $P(\text{malware} \mid \mathbf{x})$. |
+| Componente            | Justificación                                                                                                                                                                                                      |
+| :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **BatchNorm1d**       | Normaliza las activaciones dentro de cada mini-batch, acelerando la convergencia y actuando como regularizador implícito. Permite usar tasas de aprendizaje más altas.                                             |
+| **ReLU**              | Función de activación estándar que resuelve el problema del gradiente evanescente (_vanishing gradient_). Computacionalmente eficiente y comprobada en redes de clasificación.                                     |
+| **Dropout**           | Técnica de regularización que previene el sobreajuste (_overfitting_) al obligar a la red a aprender representaciones redundantes. El rate decrece progresivamente (0.3 → 0.2 → 0.1) desde la entrada a la salida. |
+| **Sigmoid en Salida** | Produce una salida en $[0, 1]$ directamente interpretable como una probabilidad de maliciosidad $P(\text{malware} \mid \mathbf{x})$.                                                                               |
 
 #### 6.2.3 Configuración del Entrenamiento
 
-| Hiperparámetro | Valor | Justificación |
-|:---|:---|:---|
-| **Loss Function** | Binary Cross-Entropy (BCE) | Estándar para clasificación binaria. Penaliza desproporcionadamente las predicciones incorrectas con alta confianza. |
-| **Optimizador** | Adam (`lr=0.001`) | Optimizador adaptativo que ajusta la tasa de aprendizaje por parámetro. Robusto y con baja sensibilidad a la elección inicial de `lr`. |
-| **Weight Decay** | $\lambda = 10^{-5}$ | Regularización L2 implícita sobre los pesos del modelo. Previene que los pesos crezcan indefinidamente. |
-| **LR Scheduler** | `ReduceLROnPlateau (patience=3, factor=0.5)` | Si la pérdida de validación no mejora en 3 épocas consecutivas, el LR se reduce a la mitad: $\alpha_{\text{new}} = 0.5 \cdot \alpha_{\text{old}}$. Evita estancamientos en mínimos locales. |
-| **Épocas** | 15 | Suficiente para convergencia con el volumen de datos disponible. |
-| **Hardware** | GPU NVIDIA A100 (CUDA) | Entrenado con tensores CUDA para aprovechar el paralelismo masivo de la GPU. Carga de datos asíncrona con `num_workers=4`. |
+| Hiperparámetro    | Valor                                        | Justificación                                                                                                                                                                               |
+| :---------------- | :------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Loss Function** | Binary Cross-Entropy (BCE)                   | Estándar para clasificación binaria. Penaliza desproporcionadamente las predicciones incorrectas con alta confianza.                                                                        |
+| **Optimizador**   | Adam (`lr=0.001`)                            | Optimizador adaptativo que ajusta la tasa de aprendizaje por parámetro. Robusto y con baja sensibilidad a la elección inicial de `lr`.                                                      |
+| **Weight Decay**  | $\lambda = 10^{-5}$                          | Regularización L2 implícita sobre los pesos del modelo. Previene que los pesos crezcan indefinidamente.                                                                                     |
+| **LR Scheduler**  | `ReduceLROnPlateau (patience=3, factor=0.5)` | Si la pérdida de validación no mejora en 3 épocas consecutivas, el LR se reduce a la mitad: $\alpha_{\text{new}} = 0.5 \cdot \alpha_{\text{old}}$. Evita estancamientos en mínimos locales. |
+| **Épocas**        | 15                                           | Suficiente para convergencia con el volumen de datos disponible.                                                                                                                            |
+| **Hardware**      | GPU NVIDIA A100 (CUDA)                       | Entrenado con tensores CUDA para aprovechar el paralelismo masivo de la GPU. Carga de datos asíncrona con `num_workers=4`.                                                                  |
 
 **Función de Pérdida BCE:**
 
@@ -608,10 +616,10 @@ torch.onnx.export(
 
 > Este repositorio **NO requiere instalar PyTorch** para ejecutarse. El motor de inferencia (`core/inference.py`) utiliza exclusivamente `onnxruntime`.
 
-| Librería | Tamaño de Instalación | Tiempo de Inferencia (batch=1) |
-|:---|:---:|:---:|
-| **PyTorch** | ~700 MB | ~20 ms |
-| **ONNX Runtime** | ~5 MB | **< 15 ms** |
+| Librería         | Tamaño de Instalación | Tiempo de Inferencia (batch=1) |
+| :--------------- | :-------------------: | :----------------------------: |
+| **PyTorch**      |        ~700 MB        |             ~20 ms             |
+| **ONNX Runtime** |         ~5 MB         |          **< 15 ms**           |
 
 `onnxruntime` aprovecha instrucciones vectoriales modernas del CPU (**AVX2/AVX512**) para acelerar la inferencia sin requerir GPU, haciendo el sistema totalmente portable a cualquier servidor, contenedor Docker o dispositivo de edge computing.
 
@@ -623,7 +631,7 @@ La calidad de código es un ciudadano de primera clase en este proyecto. ShadowN
 
 ### Validación del Extractor — `verify_extractor.py`
 
-Script de validación de extremo a extremo que ejecuta el pipeline completo sobre una muestra conocida (e.g., `procexp64.exe`, el legítimo *Process Explorer* de Sysinternals) y verifica:
+Script de validación de extremo a extremo que ejecuta el pipeline completo sobre una muestra conocida (e.g., `procexp64.exe`, el legítimo _Process Explorer_ de Sysinternals) y verifica:
 
 1. **Integridad Dimensional:** Confirma que el vector de salida tiene exactamente **2381 elementos**. Un número diferente indica un bug en la concatenación de bloques.
 2. **Sanity Checks de Rango:**
@@ -637,13 +645,13 @@ Script de validación de extremo a extremo que ejecuta el pipeline completo sobr
 
 Suite de pruebas unitarias con `pytest` que valida cada componente de forma aislada:
 
-| Archivo de Test | Componente Probado | Qué Valida |
-|:---|:---|:---|
-| `test_byte_entropy.py` | `ByteEntropy` extractor | Validación matemática: entropía de un archivo de bytes uniformes $= 8.0$ bits; entropía de un archivo de un solo byte $= 0.0$ bits. Comparación con valores teóricos conocidos. |
-| `test_byte_histogram.py` | `ByteHistogram` extractor | Que el vector suma exactamente 1.0 y que los counts individuales son correctos para inputs sintéticos conocidos. |
-| `test_hashed_features.py` | `HashedImports` / `HashedExports` extractor | **Determinismo:** La misma lista de imports siempre produce el mismo vector de hashing. **Dimensionalidad:** El vector resultante tiene exactamente 1280 (o 128 para exports) dimensiones. |
-| `test_section_features.py` | `SectionFeatures` extractor | Que la detección de permisos RWX funciona correctamente; que las anomalías en VirtualSize vs RawSize son detectadas. |
-| `test_full_pipeline.py` | Pipeline completo | Integración end-to-end: verifica que un archivo pasa por todo el pipeline sin errores y produce un score en $[0, 1]$. |
+| Archivo de Test            | Componente Probado                          | Qué Valida                                                                                                                                                                                 |
+| :------------------------- | :------------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `test_byte_entropy.py`     | `ByteEntropy` extractor                     | Validación matemática: entropía de un archivo de bytes uniformes $= 8.0$ bits; entropía de un archivo de un solo byte $= 0.0$ bits. Comparación con valores teóricos conocidos.            |
+| `test_byte_histogram.py`   | `ByteHistogram` extractor                   | Que el vector suma exactamente 1.0 y que los counts individuales son correctos para inputs sintéticos conocidos.                                                                           |
+| `test_hashed_features.py`  | `HashedImports` / `HashedExports` extractor | **Determinismo:** La misma lista de imports siempre produce el mismo vector de hashing. **Dimensionalidad:** El vector resultante tiene exactamente 1280 (o 128 para exports) dimensiones. |
+| `test_section_features.py` | `SectionFeatures` extractor                 | Que la detección de permisos RWX funciona correctamente; que las anomalías en VirtualSize vs RawSize son detectadas.                                                                       |
+| `test_full_pipeline.py`    | Pipeline completo                           | Integración end-to-end: verifica que un archivo pasa por todo el pipeline sin errores y produce un score en $[0, 1]$.                                                                      |
 
 ### Benchmark de Rendimiento — `legacy/benchmark_extractor.py`
 
@@ -661,30 +669,30 @@ Resultados obtenidos en un equipo de desarrollo estándar (**Intel Core i7, 16GB
 
 ### 8.1 Métricas de Precisión
 
-| Métrica | Valor | Interpretación |
-|:---|:---:|:---|
-| **AUC-ROC** | **0.985** | Área bajo la curva ROC. 1.0 es perfección; 0.5 es aleatoriedad. Un valor de 0.985 indica discriminación excelente entre malware y software benigno. |
+| Métrica                       |        Valor         | Interpretación                                                                                                                                                                                                  |
+| :---------------------------- | :------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AUC-ROC**                   |      **0.985**       | Área bajo la curva ROC. 1.0 es perfección; 0.5 es aleatoriedad. Un valor de 0.985 indica discriminación excelente entre malware y software benigno.                                                             |
 | **False Positive Rate (FPR)** | **< 0.5%** @ TPR=90% | En el punto de operación donde el 90% del malware es correctamente detectado, menos del 0.5% del software legítimo es incorrectamente marcado como malicioso. Esto es crítico para la usabilidad en producción. |
-| **True Positive Rate (TPR)** | **> 96%** @ FPR=1% | Con una tasa de falsos positivos del 1%, el modelo detecta más del 96% del malware real. |
+| **True Positive Rate (TPR)**  |  **> 96%** @ FPR=1%  | Con una tasa de falsos positivos del 1%, el modelo detecta más del 96% del malware real.                                                                                                                        |
 
 ### 8.2 Rendimiento de Latencia (Single Thread, SSD NVMe)
 
-| Componente del Pipeline | Tiempo Promedio | Notas |
-|:---|:---|:---|
-| **I/O — Lectura del Archivo** | 10 – 50 ms | Lectura secuencial del binario desde disco. Altamente dependiente del hardware de almacenamiento (NVMe vs HDD). |
-| **Parsing PE** | 50 – 100 ms | Parseo de la estructura del formato PE con la librería `pefile`. Incluye validación de cabeceras y resolución de tablas. |
-| **Análisis de Bytes** | 200 – 300 ms | El paso más costoso computacionalmente: procesar el binario completo byte a byte para el histograma y la entropía con ventana deslizante. Escala linealmente con el tamaño del archivo. |
-| **Análisis de Strings + IoCs** | 30 – 60 ms | Extracción de cadenas ASCII y aplicación de patrones RegEx. |
-| **Inferencia ONNX** | **10 – 25 ms** | Extremadamente rápido gracias a ONNX Runtime con AVX2/AVX512. |
-| **TOTAL** | **~400 ms** | Tiempo total de respuesta end-to-end al usuario, incluyendo I/O. |
+| Componente del Pipeline        | Tiempo Promedio | Notas                                                                                                                                                                                   |
+| :----------------------------- | :-------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **I/O — Lectura del Archivo**  | 10 – 50 ms      | Lectura secuencial del binario desde disco. Altamente dependiente del hardware de almacenamiento (NVMe vs HDD).                                                                         |
+| **Parsing PE**                 | 50 – 100 ms     | Parseo de la estructura del formato PE con la librería `pefile`. Incluye validación de cabeceras y resolución de tablas.                                                                |
+| **Análisis de Bytes**          | 200 – 300 ms    | El paso más costoso computacionalmente: procesar el binario completo byte a byte para el histograma y la entropía con ventana deslizante. Escala linealmente con el tamaño del archivo. |
+| **Análisis de Strings + IoCs** | 30 – 60 ms      | Extracción de cadenas ASCII y aplicación de patrones RegEx.                                                                                                                             |
+| **Inferencia ONNX**            | **10 – 25 ms**  | Extremadamente rápido gracias a ONNX Runtime con AVX2/AVX512.                                                                                                                           |
+| **TOTAL**                      | **~400 ms**     | Tiempo total de respuesta end-to-end al usuario, incluyendo I/O.                                                                                                                        |
 
-> 📝 **Nota:** El análisis actual se ejecuta en un solo hilo (*Single Thread*). La arquitectura modular permite su **paralelización trivial** para el escaneo de directorios completos: cada archivo puede ser asignado a un worker independiente, escalando el throughput linealmente con el número de cores disponibles.
+> 📝 **Nota:** El análisis actual se ejecuta en un solo hilo (_Single Thread_). La arquitectura modular permite su **paralelización trivial** para el escaneo de directorios completos: cada archivo puede ser asignado a un worker independiente, escalando el throughput linealmente con el número de cores disponibles.
 
 ---
 
 ## 9. Integración Futura: Inteligencia Artificial Generativa (LLM)
 
-En su estado actual, ShadowNet Defender produce un veredicto cuantitativo: *"Este archivo tiene una probabilidad del 99% de ser Malware"*. Si bien esto es valioso para sistemas automatizados, un analista de seguridad humano necesita algo más: una **explicación**. Necesita saber *por qué* el modelo tomó esa decisión.
+En su estado actual, ShadowNet Defender produce un veredicto cuantitativo: _"Este archivo tiene una probabilidad del 99% de ser Malware"_. Si bien esto es valioso para sistemas automatizados, un analista de seguridad humano necesita algo más: una **explicación**. Necesita saber _por qué_ el modelo tomó esa decisión.
 
 El futuro de ShadowNet apunta directamente hacia la **XAI (Explainable Artificial Intelligence)**: sistemas que no solo clasifican, sino que razonan y explican su razonamiento en lenguaje natural.
 
@@ -725,7 +733,7 @@ la cadena de ataque inferida y las recomendaciones de respuesta inmediata.
 
 **Respuesta Esperada del LLM:**
 
-> *"El análisis converge fuertemente hacia un **Ransomware con capacidades de Keylogging secundario**, consistente con la familia **REvil/Sodinokibi**. La evidencia es multidimensional: (1) La combinación de APIs criptográficas (`CryptEncrypt`) con acceso masivo al sistema de archivos (`FindFirstFile`) es la firma clásica del proceso de cifrado de ransomware. (2) Los permisos RWX en `.text` y la enorme discrepancia VirtualSize/RawSize en `.data` apuntan a un packer custom que se descomprime en memoria en tiempo de ejecución, evadiendo antivirus basados en firmas. (3) La importación de `GetAsyncKeyState` sin interfaz gráfica sugiere un módulo secundario de captura de keystrokes, posiblemente para exfiltrar credenciales antes de cifrar. (4) La URL de C2 embebida confirma comunicación activa con infraestructura de comando y control. **Recomendación inmediata:** Aislar el endpoint de la red, preservar imagen forense de RAM, bloquear el IoC de red en el firewall perimetral y escalar al equipo de IR."*
+> _"El análisis converge fuertemente hacia un **Ransomware con capacidades de Keylogging secundario**, consistente con la familia **REvil/Sodinokibi**. La evidencia es multidimensional: (1) La combinación de APIs criptográficas (`CryptEncrypt`) con acceso masivo al sistema de archivos (`FindFirstFile`) es la firma clásica del proceso de cifrado de ransomware. (2) Los permisos RWX en `.text` y la enorme discrepancia VirtualSize/RawSize en `.data` apuntan a un packer custom que se descomprime en memoria en tiempo de ejecución, evadiendo antivirus basados en firmas. (3) La importación de `GetAsyncKeyState` sin interfaz gráfica sugiere un módulo secundario de captura de keystrokes, posiblemente para exfiltrar credenciales antes de cifrar. (4) La URL de C2 embebida confirma comunicación activa con infraestructura de comando y control. **Recomendación inmediata:** Aislar el endpoint de la red, preservar imagen forense de RAM, bloquear el IoC de red en el firewall perimetral y escalar al equipo de IR."_
 
 ---
 
@@ -733,13 +741,13 @@ la cadena de ataque inferida y las recomendaciones de respuesta inmediata.
 
 ### Requisitos Previos
 
-| Requisito | Versión Mínima | Notas |
-|:---|:---|:---|
+| Requisito             | Versión Mínima                                | Notas                                                                       |
+| :-------------------- | :-------------------------------------------- | :-------------------------------------------------------------------------- |
 | **Sistema Operativo** | Linux Ubuntu 22.04+, Windows 10/11, macOS 12+ | Linux recomendado para producción. Windows soportado vía PowerShell o WSL2. |
-| **Python** | 3.10+ | Requerido para soporte de *match statements* y type hints modernos. |
-| **RAM** | 4 GB mínimo | 8 GB recomendado para análisis de lotes grandes. |
-| **Disco** | 500 MB libres | Para el entorno virtual y los modelos. |
-| **Internet** | Solo para instalación | El análisis funciona completamente offline. |
+| **Python**            | 3.10+                                         | Requerido para soporte de _match statements_ y type hints modernos.         |
+| **RAM**               | 4 GB mínimo                                   | 8 GB recomendado para análisis de lotes grandes.                            |
+| **Disco**             | 500 MB libres                                 | Para el entorno virtual y los modelos.                                      |
+| **Internet**          | Solo para instalación                         | El análisis funciona completamente offline.                                 |
 
 ### Instalación Paso a Paso
 
@@ -784,6 +792,7 @@ python verify_refactor.py
 ```
 
 La salida esperada incluye:
+
 ```
 [INFO] Cargando modelo ONNX: models/best_model.onnx ... OK
 [INFO] Cargando scaler: models/scaler.pkl ... OK
@@ -816,13 +825,13 @@ python shadownet.py scan --file /ruta/al/archivo.exe --output report.json
 
 ## 11. Conclusiones y Trabajo Futuro
 
-ShadowNet Defender representa un hito significativo en nuestra formación académica como investigadores de ciberseguridad. El proyecto demuestra de forma empírica y reproducible la viabilidad de aplicar técnicas de *Big Data* y *Deep Learning* a uno de los problemas más críticos de la seguridad informática moderna: la detección automatizada de malware a escala.
+ShadowNet Defender representa un hito significativo en nuestra formación académica como investigadores de ciberseguridad. El proyecto demuestra de forma empírica y reproducible la viabilidad de aplicar técnicas de _Big Data_ y _Deep Learning_ a uno de los problemas más críticos de la seguridad informática moderna: la detección automatizada de malware a escala.
 
 **Aprendizajes Principales Consolidados:**
 
-1. **La Calidad del Dato es Suprema sobre los Algoritmos:** La transición de EMBER 2018 a SOREL-20M mejoró las métricas del modelo de forma más significativa que cualquier ajuste de hiperparámetros o cambio arquitectural. Este es un aprendizaje fundamental para cualquier proyecto de ML aplicado: *garbage in, garbage out*.
+1. **La Calidad del Dato es Suprema sobre los Algoritmos:** La transición de EMBER 2018 a SOREL-20M mejoró las métricas del modelo de forma más significativa que cualquier ajuste de hiperparámetros o cambio arquitectural. Este es un aprendizaje fundamental para cualquier proyecto de ML aplicado: _garbage in, garbage out_.
 
-2. **Feature Hashing como Solución Elegante:** El *hashing trick* para las tablas de imports es un ejemplo brillante de pragmatismo en Machine Learning: sacrifica un poco de precisión teórica (colisiones) a cambio de escalabilidad práctica, y funciona extraordinariamente bien porque la redundancia del dataset compensa las colisiones.
+2. **Feature Hashing como Solución Elegante:** El _hashing trick_ para las tablas de imports es un ejemplo brillante de pragmatismo en Machine Learning: sacrifica un poco de precisión teórica (colisiones) a cambio de escalabilidad práctica, y funciona extraordinariamente bien porque la redundancia del dataset compensa las colisiones.
 
 3. **La Arquitectura Modular es una Inversión, no un Gasto:** Construir el sistema con Clean Architecture requirió más tiempo inicial que un script monolítico. Pero cada mejora posterior (nuevo bloque de features, cambio de dataset, integración de ONNX) se implementó en horas en lugar de días, sin romper el resto del sistema. La arquitectura modular pagó su inversión inicial con creces.
 
@@ -830,33 +839,33 @@ ShadowNet Defender representa un hito significativo en nuestra formación acadé
 
 **Roadmap — Próximas Fases:**
 
-| Fase | Objetivo | Tecnología Propuesta | Impacto Esperado |
-|:---|:---|:---|:---|
-| **Optimización del Extractor** | Reducir el tiempo de análisis de ~400ms a < 50ms | Reescritura del extractor en **Rust** con bindings Python (PyO3) | Permite análisis en tiempo real de tráfico de red y copias masivas de archivos |
-| **Análisis Dinámico Ligero** | Complementar el análisis estático con evidencia conductual | Sandbox ligero basado en **Cuckoo** o instrumentación con **frida**: ejecutar el malware 5 segundos y capturar syscalls reales | Detectar malware que se comporta de forma benigna en disco |
-| **Integración LLM (XAI)** | Generar reportes forenses explicativos en lenguaje natural | LLM local (Llama-3-8B) + SHAP values + Prompt Engineering dinámico | Reducir el tiempo de análisis forense de un analista humano de horas a minutos |
-| **UI Gráfica (SOC Dashboard)** | Interfaz visual para centros de operaciones de seguridad | Dashboard en Python (**Flet** o **Streamlit**) con visualizaciones de entropía, grafos de imports y timeline de escaneos | Democratizar el acceso a la herramienta para equipos no técnicos |
-| **Integración MISP/Cortex** | Conectar con plataformas de inteligencia de amenazas | API REST + plugins **MISP** y **TheHive/Cortex** | Enriquecer automáticamente los IoCs detectados con contexto de amenazas globales |
+| Fase                           | Objetivo                                                   | Tecnología Propuesta                                                                                                           | Impacto Esperado                                                                 |
+| :----------------------------- | :--------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------- |
+| **Optimización del Extractor** | Reducir el tiempo de análisis de ~400ms a < 50ms           | Reescritura del extractor en **Rust** con bindings Python (PyO3)                                                               | Permite análisis en tiempo real de tráfico de red y copias masivas de archivos   |
+| **Análisis Dinámico Ligero**   | Complementar el análisis estático con evidencia conductual | Sandbox ligero basado en **Cuckoo** o instrumentación con **frida**: ejecutar el malware 5 segundos y capturar syscalls reales | Detectar malware que se comporta de forma benigna en disco                       |
+| **Integración LLM (XAI)**      | Generar reportes forenses explicativos en lenguaje natural | LLM local (Llama-3-8B) + SHAP values + Prompt Engineering dinámico                                                             | Reducir el tiempo de análisis forense de un analista humano de horas a minutos   |
+| **UI Gráfica (SOC Dashboard)** | Interfaz visual para centros de operaciones de seguridad   | Dashboard en Python (**Flet** o **Streamlit**) con visualizaciones de entropía, grafos de imports y timeline de escaneos       | Democratizar el acceso a la herramienta para equipos no técnicos                 |
+| **Integración MISP/Cortex**    | Conectar con plataformas de inteligencia de amenazas       | API REST + plugins **MISP** y **TheHive/Cortex**                                                                               | Enriquecer automáticamente los IoCs detectados con contexto de amenazas globales |
 
 ---
 
 ## 12. Referencias Bibliográficas
 
-1. **Harang, R., & Rudd, E. M. (2020).** *SOREL-20M: A Large Scale Benchmark Dataset for Malicious PE Detection.* arXiv preprint arXiv:2012.07633. Sophos AI. [https://arxiv.org/abs/2012.07633](https://arxiv.org/abs/2012.07633)
+1. **Harang, R., & Rudd, E. M. (2020).** _SOREL-20M: A Large Scale Benchmark Dataset for Malicious PE Detection._ arXiv preprint arXiv:2012.07633. Sophos AI. [https://arxiv.org/abs/2012.07633](https://arxiv.org/abs/2012.07633)
 
-2. **Anderson, H. S., & Roth, P. (2018).** *EMBER: An Open Dataset for Training Static PE Malware Machine Learning Models.* arXiv preprint arXiv:1804.04637. Endgame Inc. [https://arxiv.org/abs/1804.04637](https://arxiv.org/abs/1804.04637)
+2. **Anderson, H. S., & Roth, P. (2018).** _EMBER: An Open Dataset for Training Static PE Malware Machine Learning Models._ arXiv preprint arXiv:1804.04637. Endgame Inc. [https://arxiv.org/abs/1804.04637](https://arxiv.org/abs/1804.04637)
 
-3. **Raff, E., Barker, J., Sylvester, J., Brim, R., Catanzaro, B., & Nicholas, C. K. (2017).** *Malware Detection by Eating a Whole EXE.* arXiv preprint arXiv:1710.09435. [https://arxiv.org/abs/1710.09435](https://arxiv.org/abs/1710.09435)
+3. **Raff, E., Barker, J., Sylvester, J., Brim, R., Catanzaro, B., & Nicholas, C. K. (2017).** _Malware Detection by Eating a Whole EXE._ arXiv preprint arXiv:1710.09435. [https://arxiv.org/abs/1710.09435](https://arxiv.org/abs/1710.09435)
 
-4. **Weinberger, K., Dasgupta, A., Langford, J., Smola, A., & Attenberg, J. (2009).** *Feature Hashing for Large Scale Multitask Learning.* Proceedings of the 26th Annual International Conference on Machine Learning (ICML). [https://dl.acm.org/doi/10.1145/1553374.1553516](https://dl.acm.org/doi/10.1145/1553374.1553516)
+4. **Weinberger, K., Dasgupta, A., Langford, J., Smola, A., & Attenberg, J. (2009).** _Feature Hashing for Large Scale Multitask Learning._ Proceedings of the 26th Annual International Conference on Machine Learning (ICML). [https://dl.acm.org/doi/10.1145/1553374.1553516](https://dl.acm.org/doi/10.1145/1553374.1553516)
 
-5. **Saxe, J., & Berlin, K. (2015).** *Deep Neural Network Based Malware Detection Using Two Dimensional Binary Program Features.* 10th International Conference on Malicious and Unwanted Software (MALWARE). IEEE. [https://ieeexplore.ieee.org/document/7413680](https://ieeexplore.ieee.org/document/7413680)
+5. **Saxe, J., & Berlin, K. (2015).** _Deep Neural Network Based Malware Detection Using Two Dimensional Binary Program Features._ 10th International Conference on Malicious and Unwanted Software (MALWARE). IEEE. [https://ieeexplore.ieee.org/document/7413680](https://ieeexplore.ieee.org/document/7413680)
 
-6. **Lundberg, S. M., & Lee, S.-I. (2017).** *A Unified Approach to Interpreting Model Predictions.* Advances in Neural Information Processing Systems (NeurIPS). [https://arxiv.org/abs/1705.07874](https://arxiv.org/abs/1705.07874)
+6. **Lundberg, S. M., & Lee, S.-I. (2017).** _A Unified Approach to Interpreting Model Predictions._ Advances in Neural Information Processing Systems (NeurIPS). [https://arxiv.org/abs/1705.07874](https://arxiv.org/abs/1705.07874)
 
-7. **Martin, R. C. (2017).** *Clean Architecture: A Craftsman's Guide to Software Structure and Design.* Prentice Hall. ISBN: 978-0134494166.
+7. **Martin, R. C. (2017).** _Clean Architecture: A Craftsman's Guide to Software Structure and Design._ Prentice Hall. ISBN: 978-0134494166.
 
-8. **Ye, Y., Li, T., Adjeroh, D., & Iyengar, S. S. (2017).** *A Survey on Malware Detection Using Data Mining Techniques.* ACM Computing Surveys, 50(3), 1–40. [https://dl.acm.org/doi/10.1145/3073559](https://dl.acm.org/doi/10.1145/3073559)
+8. **Ye, Y., Li, T., Adjeroh, D., & Iyengar, S. S. (2017).** _A Survey on Malware Detection Using Data Mining Techniques._ ACM Computing Surveys, 50(3), 1–40. [https://dl.acm.org/doi/10.1145/3073559](https://dl.acm.org/doi/10.1145/3073559)
 
 ---
 
@@ -866,6 +875,6 @@ ShadowNet Defender representa un hito significativo en nuestra formación acadé
 
 [INNOVASIC Research Lab](https://innovasicucc.wordpress.com/pagina/) — Universidad Cooperativa de Colombia — 2026
 
-*Ivan Velasco (IVAINX_21) · Santiago Cubillos (VANkLEis)*
+_Ivan Velasco (IVAINX_21) · Santiago Cubillos (VANkLEis)_
 
 </div>
