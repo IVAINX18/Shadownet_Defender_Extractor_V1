@@ -189,7 +189,7 @@ Esta transformación es determinística y debe ser robusta a errores de formato 
 ### 4.1 Fundamentos de Vectorización
 
 El vector final se compone de la concatenación de varios sub-vectores o "bloques".
-$$ \mathbf{x} = [\mathbf{x}_{hist}, \mathbf{x}_{entropy}, \mathbf{x}_{strings}, \mathbf{x}_{general}, \mathbf{x}_{header}, \mathbf{x}_{sections}, \mathbf{x}_{imports}, \mathbf{x}_{exports}] $$
+**x** = [ **x**_hist, **x**_entropy, **x**_strings, **x**_general, **x**_header, **x**_sections, **x**_imports, **x**_exports ]
 
 Cada bloque captura una "vista" diferente del archivo.
 
@@ -202,8 +202,8 @@ Cada bloque captura una "vista" diferente del archivo.
 **Matemáticas**:
 Sea $B = \{b_1, b_2, ..., b_N\}$ la secuencia de bytes del archivo.
 El valor para la dimensión $i$ (donde $0 \le i \le 255$) es:
-$$ x*i = \frac{\sum*{j=1}^{N} \mathbb{1}(b_j = i)}{N} $$
-Donde $\mathbb{1}$ es la función indicatriz que retorna 1 si la condición es cierta, 0 de lo contrario.
+$$ x*i = \frac{1}{N} \sum*{j=1}^{N} \mathbb{1}(b_j = i) $$
+Donde $\mathbb{1}$ es la función indicatriz (1 si la condición es cierta, 0 de lo contrario).
 
 **Interpretación en Ciberseguridad**:
 
@@ -305,9 +305,10 @@ Utilizamos una función de hash determinística para proyectar este espacio infi
 **Matemáticas**:
 Sea $F$ el conjunto de funciones importadas (e.g., `kernel32.dll:WriteFile`).
 Para cada $f \in F$:
-$$ h = \text{MurmurHash3}(f) $$
-$$ \text{idx} = h \pmod{1280} $$
-$$ \mathbf{x}\_{imports}[\text{idx}] \leftarrow 1 $$
+
+1.  `h = MurmurHash3(f)`
+2.  `idx = h % 1280`
+3.  `x_imports[idx] = 1`
 
 **Interpretación**:
 El modelo aprende que el índice $345$ corresponde (con alta probabilidad) a funciones de encriptación, y el índice $890$ a funciones de red.
@@ -344,11 +345,11 @@ Entrenar una red neuronal con estos datos provocaría inestabilidad en los gradi
 
 Utilizamos **StandardScaler** para normalizar cada dimensión $j$ del vector de características $\mathbf{x}$:
 
-$$ z_j = \frac{x_j - \mu_j}{\sigma_j} $$
+**z_j** = (x_j - μ_j) / σ_j
 
 Donde:
 
-- $\mu_j$: Media aritmética de la característica $j$ pre-calculada sobre el dataset de entrenamiento.
+- $\mu_j$: Media aritmética de la característica $j$.
 - $\sigma_j$: Desviación estándar de la característica $j$.
 - $\epsilon$: Pequeña constante para evitar división por cero.
 
