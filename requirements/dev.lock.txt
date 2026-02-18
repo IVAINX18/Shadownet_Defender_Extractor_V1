@@ -1,0 +1,4 @@
+-r base.lock.txt
+# Locked optional development dependencies (Python 3.11.x)
+pytest==8.2.2
+psutil==6.0.0

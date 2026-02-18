@@ -1,22 +1,7 @@
-# Core Dependencies
-pefile>=2023.2.7
-numpy>=1.24.0
-pandas>=2.0.0
-scipy>=1.10.0
+# Default reproducible install profile (runtime only)
+-r requirements/base.lock.txt
 
-# Machine Learning & AI
-torch>=2.0.0
-scikit-learn>=1.2.0
-onnx>=1.14.0
-onnxruntime>=1.15.0
-joblib>=1.2.0
-
-# Visualization
-matplotlib>=3.7.0
-seaborn>=0.12.0
-
-# Utilities
-tqdm>=4.65.0
-rich>=13.0.0  # For beautiful CLI output
-colorama>=0.4.6
-pytest>=7.0.0 # For testing
+# Optional profiles:
+# pip install -r requirements/ml.lock.txt
+# pip install -r requirements/viz.lock.txt
+# pip install -r requirements/dev.lock.txt

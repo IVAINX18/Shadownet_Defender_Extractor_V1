@@ -1,9 +1,15 @@
-import onnxruntime as ort
 import numpy as np
 import joblib
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Optional, Any
 from utils.logger import setup_logger
+from utils.runtime_checks import validate_python_version, import_optional_dependency
+
+validate_python_version()
+ort = import_optional_dependency(
+    "onnxruntime",
+    install_profile="requirements/base.lock.txt",
+)
 
 logger = setup_logger(__name__)
 
@@ -16,7 +22,7 @@ class ShadowNetModel:
     def __init__(self, model_path: Path, scaler_path: Path):
         self.model_path = model_path
         self.scaler_path = scaler_path
-        self.session: Optional[ort.InferenceSession] = None
+        self.session: Optional[Any] = None
         self.scaler = None
         self.input_name = None
         

@@ -7,6 +7,7 @@ from extractors.extractor import PEFeatureExtractor
 from models.inference import ShadowNetModel
 from configs.settings import MODEL_PATH, SCALER_PATH, MALWARE_THRESHOLD, HIGH_CONFIDENCE_THRESHOLD
 from utils.logger import setup_logger
+from utils.runtime_checks import validate_python_version
 
 logger = setup_logger(__name__)
 
@@ -17,6 +18,7 @@ class ShadowNetEngine:
     """
     
     def __init__(self):
+        validate_python_version()
         self.extractor = PEFeatureExtractor()
         self.model = None
         self._load_model()

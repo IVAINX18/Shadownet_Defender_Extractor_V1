@@ -1,0 +1,4 @@
+-r base.lock.txt
+# Locked optional visualization dependencies (Python 3.11.x)
+matplotlib==3.8.4
+seaborn==0.13.2

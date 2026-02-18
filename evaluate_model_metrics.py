@@ -47,7 +47,7 @@ def evaluate_model():
         print(f"Cargando modelo real: {model_path}")
         model = joblib.load(model_path)
     else:
-        print("⚠️ Modelo real no encontrado. Usando MockModel heurístico para demostración.")
+        print("⚠️ Modelo real no encontrado. Usando MockModel heurístico para demostracion.")
         model = MockModel()
         
     # 3. Inferencia

@@ -1,0 +1,4 @@
+-r base.in
+# Perfil opcional para entrenamiento/experimentos de ML pesado.
+torch
+pandas

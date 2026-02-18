@@ -744,7 +744,7 @@ la cadena de ataque inferida y las recomendaciones de respuesta inmediata.
 | Requisito             | Versión Mínima                                | Notas                                                                       |
 | :-------------------- | :-------------------------------------------- | :-------------------------------------------------------------------------- |
 | **Sistema Operativo** | Linux Ubuntu 22.04+, Windows 10/11, macOS 12+ | Linux recomendado para producción. Windows soportado vía PowerShell o WSL2. |
-| **Python**            | 3.10+                                         | Requerido para soporte de _match statements_ y type hints modernos.         |
+| **Python**            | 3.11.x                                        | Política oficial: `>=3.11,<3.12` para máxima reproducibilidad.              |
 | **RAM**               | 4 GB mínimo                                   | 8 GB recomendado para análisis de lotes grandes.                            |
 | **Disco**             | 500 MB libres                                 | Para el entorno virtual y los modelos.                                      |
 | **Internet**          | Solo para instalación                         | El análisis funciona completamente offline.                                 |
@@ -761,8 +761,8 @@ cd Shadownet_Defender
 **Paso 2 — Crear y activar el entorno virtual (Best Practice):**
 
 ```bash
-# Crear el entorno virtual aislado
-python3 -m venv .venv
+# Crear el entorno virtual aislado (Python 3.11)
+python3.11 -m venv .venv
 
 # Activar en Linux/macOS (Bash/Zsh)
 source .venv/bin/activate
@@ -776,11 +776,22 @@ source .venv/bin/activate
 
 > ⚠️ Siempre verifique que el entorno esté activado antes de instalar dependencias (el prompt debería mostrar `(.venv)`).
 
-**Paso 3 — Instalar dependencias:**
+**Paso 3 — Instalar dependencias (lockfiles reproducibles):**
 
 ```bash
 pip install --upgrade pip
-pip install -r requirements.txt
+# Perfil recomendado (runtime mínimo reproducible)
+pip install -r requirements/base.lock.txt
+
+# Perfiles opcionales:
+# ML pesado (entrenamiento/experimentos)
+# pip install -r requirements/ml.lock.txt
+#
+# Visualización
+# pip install -r requirements/viz.lock.txt
+#
+# Desarrollo/testing
+# pip install -r requirements/dev.lock.txt
 ```
 
 **Paso 4 — Verificar la instalación:**
@@ -788,7 +799,7 @@ pip install -r requirements.txt
 Ejecute el script de diagnóstico completo. Una instalación exitosa mostrará logs con los tiempos de extracción y un score de probabilidad cercano a 0.0 (archivo benigno conocido):
 
 ```bash
-python verify_refactor.py
+python -m legacy.verify_refactor
 ```
 
 La salida esperada incluye:
@@ -819,6 +830,22 @@ python shadownet.py scan --directory /ruta/al/directorio/ --workers 4
 
 # Exportar reporte en formato JSON
 python shadownet.py scan --file /ruta/al/archivo.exe --output report.json
+```
+
+**Paso 7 — Diagnóstico rápido de entorno:**
+
+```bash
+# 1) Verificar versión de Python (debe ser 3.11.x)
+python --version
+
+# 2) Verificar que el entorno virtual está activo
+which python
+
+# 3) Verificar integridad de dependencias instaladas
+pip check
+
+# 4) Smoke test de imports mínimos del runtime
+python -c "import pefile, numpy, scipy, sklearn, onnx, onnxruntime, joblib, rich, colorama, tqdm; print('runtime imports: OK')"
 ```
 
 ---

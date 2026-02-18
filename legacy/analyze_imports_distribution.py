@@ -24,14 +24,18 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from core.features.imports import ImportsFeatureBlock
 import pefile
+from utils.runtime_checks import import_optional_dependency
 
 # Intentar importar matplotlib, pero no requerir
 try:
-    import matplotlib.pyplot as plt
+    plt = import_optional_dependency(
+        "matplotlib.pyplot",
+        install_profile="requirements/viz.lock.txt",
+    )
     HAS_MATPLOTLIB = True
-except ImportError:
+except RuntimeError as e:
     HAS_MATPLOTLIB = False
-    print("⚠️  matplotlib no disponible, gráficos deshabilitados")
+    print(f"⚠️  {e}. Gráficos deshabilitados.")
 
 
 def analyze_file(file_path: str, label: str = "Unknown"):
