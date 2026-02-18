@@ -26,20 +26,12 @@
 
 ---
 
-## 📜 Licencia Académica Propietaria
+## 📜 Licencia Privada – Proyecto Académico Investigativo
 
-**Copyright © 2026 Ivan Velasco (IVAINX_21) y Santiago Cubillos (VANkLEis).**  
-**[INNOVASIC Research Lab](https://innovasicucc.wordpress.com/pagina/) — Universidad Cooperativa de Colombia.**
-
-Este software es el resultado de una investigación académica profunda en el campo de la ciberseguridad y la inteligencia artificial, realizada en el contexto universitario. Su distribución y uso se rigen estrictamente por los siguientes términos:
-
-| #   | Término                              | Descripción                                                                                                                                                                                                                                         |
-| :-- | :----------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **Uso Educativo y de Investigación** | Se permite el uso de este software únicamente con fines educativos, para la realización de pruebas de concepto en entornos controlados (Sandbox) y para la investigación académica sin ánimo de lucro.                                              |
-| 2   | **Prohibición de Redistribución**    | Queda estrictamente prohibida la copia, modificación, distribución, venta o sublicenciamiento del código fuente, los modelos entrenados o los binarios resultantes, total o parcialmente, sin la autorización expresa y por escrito de los autores. |
-| 3   | **Prohibición de Uso Comercial**     | Ninguna parte de este software puede ser utilizada en productos comerciales, servicios de seguridad gestionada (MSSP) o consultorías pagadas.                                                                                                       |
-| 4   | **Uso Ético**                        | Se prohíbe terminantemente el uso de este software para el desarrollo de malware, la evasión de sistemas de seguridad, o cualquier actividad ilegal.                                                                                                |
-| 5   | **Sin Garantías**                    | Este software se proporciona "tal cual", sin garantías de ningún tipo, expresas o implícitas. Los autores no se hacen responsables de daños directos o indirectos derivados de su uso.                                                              |
+Este software es propiedad de los autores **Ivan Velasco (IVAINX_18)** y **Santiago Cubillos (VANkLEis)**.  
+Forma parte del desarrollo del primer producto comercial de la startup **SHADOW-NET** llamado **SHADOW-NET: DEFENDER**.  
+El código **no es open source** ni de dominio público.  
+Su uso está restringido a fines académicos, investigativos y de evaluación interna del proyecto.
 
 ---
 
@@ -738,6 +730,7 @@ la cadena de ataque inferida y las recomendaciones de respuesta inmediata.
 > _"El análisis converge fuertemente hacia un **Ransomware con capacidades de Keylogging secundario**, consistente con la familia **REvil/Sodinokibi**. La evidencia es multidimensional: (1) La combinación de APIs criptográficas (`CryptEncrypt`) con acceso masivo al sistema de archivos (`FindFirstFile`) es la firma clásica del proceso de cifrado de ransomware. (2) Los permisos RWX en `.text` y la enorme discrepancia VirtualSize/RawSize en `.data` apuntan a un packer custom que se descomprime en memoria en tiempo de ejecución, evadiendo antivirus basados en firmas. (3) La importación de `GetAsyncKeyState` sin interfaz gráfica sugiere un módulo secundario de captura de keystrokes, posiblemente para exfiltrar credenciales antes de cifrar. (4) La URL de C2 embebida confirma comunicación activa con infraestructura de comando y control. **Recomendación inmediata:** Aislar el endpoint de la red, preservar imagen forense de RAM, bloquear el IoC de red en el firewall perimetral y escalar al equipo de IR."_
 
 ---
+
 ## 10. Integración LLM y Automatización (Actualización Técnica)
 
 Esta sección documenta las mejoras implementadas para dejar ShadowNet Defender preparado para integración operativa con agentes LLM (Ollama y Google Opal/Gemini), manteniendo el flujo actual por consola y compatibilidad con el pipeline existente.
@@ -1032,7 +1025,7 @@ source .venv/bin/activate
 
 **Paso 3 — Instalar dependencias (lockfiles reproducibles):**
 
-```bash
+````bash
 pip install --upgrade pip
 pip install -r requirements.txt
 
@@ -1043,7 +1036,7 @@ Ejecute el script de diagnóstico completo. Una instalación exitosa mostrará l
 
 ```bash
 python -m legacy.verify_refactor
-```
+````
 
 La salida esperada incluye:
 
@@ -1147,5 +1140,4 @@ ShadowNet Defender representa un hito significativo en nuestra formación acadé
 
 _Ivan Velasco (IVAINX_21) · Santiago Cubillos (VANkLEis)_
 
-</div>
----
+## </div>

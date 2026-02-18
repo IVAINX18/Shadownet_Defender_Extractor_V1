@@ -13,8 +13,23 @@ logger = setup_logger(__name__)
 
 class ShadowNetEngine:
     """
-    Core engine for ShadowNet Defender.
-    Orchestrates the scanning process.
+    Motor central de ShadowNet Defender. Orquesta el proceso de escaneo.
+
+    📚 PARA JUNIORS — Patrón Facade (Fachada):
+
+        Esta clase es la "puerta de entrada" al sistema. Ni la CLI, ni la API,
+        ni ningún otro módulo necesitan saber cómo funcionan internamente los
+        extractores o el modelo ONNX. Solo llaman a `engine.scan_file(path)`
+        y reciben un diccionario con el resultado.
+
+        El flujo interno es:
+        1. PEFeatureExtractor → lee el archivo y genera un vector de 2381 dims
+        2. ShadowNetModel    → normaliza el vector y ejecuta inferencia ONNX
+        3. Labeling           → convierte el score numérico en etiqueta legible
+
+        Si en el futuro cambiamos el modelo (ej: de LightGBM a PyTorch),
+        solo modificamos esta clase y los módulos internos, sin afectar a
+        la CLI ni a la API. Esto es Clean Architecture en acción.
     """
     
     def __init__(self):

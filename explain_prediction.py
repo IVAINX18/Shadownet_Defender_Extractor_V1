@@ -13,7 +13,7 @@ from pathlib import Path
 # Añadir ruta del proyecto
 sys.path.insert(0, str(Path(__file__).parent))
 
-from core.features.extractor import PEFeatureExtractor
+from extractors.extractor import PEFeatureExtractor
 
 def explain_features(features):
     print("\n--- EXPLICACIÓN DE CARACTERÍSTICAS ---")

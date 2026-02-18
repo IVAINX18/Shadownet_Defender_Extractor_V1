@@ -11,6 +11,11 @@ from extractors.section_info import SectionInfoBlock
 from extractors.header import HeaderFileInfo
 from extractors.string_extractor import StringExtractorBlock
 from extractors.general import GeneralFileInfo
+from utils.logger import setup_logger
+
+# 📚 Usamos logger en vez de print() para que los errores
+# queden registrados en el archivo de log y con formato consistente.
+logger = setup_logger(__name__)
 
 class PEFeatureExtractor:
     """
@@ -44,7 +49,7 @@ class PEFeatureExtractor:
                 raw_data = f.read()
             pe = pefile.PE(data=raw_data)
         except Exception as e:
-            print(f"Error parsing PE {file_path}: {e}")
+            logger.error(f"Error parsing PE {file_path}: {e}")
             return {}
 
         results = {}
@@ -52,7 +57,7 @@ class PEFeatureExtractor:
             try:
                 results[block.name] = block.extract(pe, raw_data)
             except Exception as e:
-                print(f"Error extracting {block.name}: {e}")
+                logger.warning(f"Error extracting {block.name}: {e}")
                 results[block.name] = np.zeros(block.dim, dtype=np.float32)
                 
         pe.close()

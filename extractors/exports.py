@@ -1,7 +1,7 @@
 from .base import FeatureBlock
+from ._math_utils import hash_feature_sha256
 import pefile
 import numpy as np
-import hashlib
 
 class ExportsFeatureBlock(FeatureBlock):
     """
@@ -22,14 +22,8 @@ class ExportsFeatureBlock(FeatureBlock):
     def dim(self) -> int:
         return self.DIM
 
-    def _hash_feature(self, feature: str) -> int:
-        """
-        Applies deterministic hashing using SHA256.
-        Returns an index in range [0, 127].
-        """
-        digest = hashlib.sha256(feature.encode('utf-8', errors='replace')).digest()
-        val = int.from_bytes(digest[:8], 'little')
-        return val % self.DIM
+    # 📚 NOTA: _hash_feature se movió a _math_utils.hash_feature_sha256()
+    # para evitar duplicación con imports.py y section_info.py.
 
     def extract(self, pe: pefile.PE, raw_data: bytes) -> np.ndarray:
         """
@@ -47,13 +41,13 @@ class ExportsFeatureBlock(FeatureBlock):
                 if exp.name:
                     try:
                         func_name = exp.name.decode('utf-8', errors='ignore').strip().lower()
-                    except:
+                    except Exception:
                         func_name = f"ord{exp.ordinal}"
                 else:
                     func_name = f"ord{exp.ordinal}"
                 
                 # Hashing
-                idx = self._hash_feature(func_name)
+                idx = hash_feature_sha256(func_name, self.DIM)
                 
                 # Vectorization
                 vector[idx] += 1

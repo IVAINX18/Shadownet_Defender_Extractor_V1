@@ -1,7 +1,7 @@
 from .base import FeatureBlock
+from ._math_utils import hash_feature_sha256
 import pefile
 import numpy as np
-import hashlib
 
 class ImportsFeatureBlock(FeatureBlock):
     """
@@ -52,34 +52,8 @@ class ImportsFeatureBlock(FeatureBlock):
         
         return normalized
     
-    @staticmethod
-    def _hash_feature(feature: str) -> int:
-        """
-        Calculates deterministic hash of a feature string.
-        
-        Uses SHA256 (cryptographic hash) to guarantee:
-        - Uniform distribution in [0, DIM-1]
-        - Resistance to adversarial patterns
-        - Cross-platform determinism
-        
-        Formula:
-            hash_value = SHA256(feature)[:8]  # First 8 bytes
-            index = hash_value mod 1280
-            
-        Args:
-            feature: String in format "dll_name:function_name"
-            
-        Returns:
-            Index in range [0, 1279]
-        """
-        # Calculate SHA256 hash
-        digest = hashlib.sha256(feature.encode('utf-8', errors='replace')).digest()
-        
-        # Convert first 8 bytes to int (little-endian)
-        hash_value = int.from_bytes(digest[:8], byteorder='little')
-        
-        # Map to range [0, DIM-1] using modulo
-        return hash_value % ImportsFeatureBlock.DIM
+    # 📚 NOTA: _hash_feature se movió a _math_utils.hash_feature_sha256()
+    # para evitar duplicación con exports.py y section_info.py.
     
     def extract(self, pe: pefile.PE, raw_data: bytes) -> np.ndarray:
         """
@@ -137,7 +111,7 @@ class ImportsFeatureBlock(FeatureBlock):
                 feature = f"{dll_name}:{func_name}"
                 
                 # Calculate hash and get index
-                index = self._hash_feature(feature)
+                index = hash_feature_sha256(feature, self.DIM)
                 
                 # Increment counter
                 vector[index] += 1

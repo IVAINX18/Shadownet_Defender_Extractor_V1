@@ -1,8 +1,8 @@
 from .base import FeatureBlock
+from ._math_utils import calculate_shannon_entropy, hash_feature_sha256
 import pefile
 import numpy as np
 import math
-import hashlib
 
 class SectionInfoBlock(FeatureBlock):
     """
@@ -36,23 +36,15 @@ class SectionInfoBlock(FeatureBlock):
     def dim(self) -> int:
         return self.DIM
         
-    def _calculate_entropy(self, data: bytes) -> float:
-        """Calculates Shannon entropy."""
-        if not data:
-            return 0.0
-        counts = np.bincount(np.frombuffer(data, dtype=np.uint8), minlength=256)
-        probs = counts / len(data)
-        probs = probs[probs > 0]
-        return float(-np.sum(probs * np.log2(probs)))
+    # 📚 NOTA: _calculate_entropy y _hash_name se movieron a _math_utils.py
+    # para evitar duplicación DRY. Se usan las funciones compartidas importadas arriba.
 
     def _hash_name(self, name: str) -> int:
-        """Deterministic hash for section names."""
+        """Deterministic hash for section names using shared utility."""
         if not name:
             return 0
         normalized = name.strip().lower().replace('\x00', '')
-        digest = hashlib.sha256(normalized.encode('utf-8', errors='replace')).digest()
-        val = int.from_bytes(digest[:8], 'little')
-        return val % self.NAME_HASH_BINS
+        return hash_feature_sha256(normalized, self.NAME_HASH_BINS)
 
     def extract(self, pe: pefile.PE, raw_data: bytes) -> np.ndarray:
         vector = np.zeros(self.DIM, dtype=np.float32)
@@ -85,7 +77,7 @@ class SectionInfoBlock(FeatureBlock):
                 
                 try:
                     sect_data = section.get_data()
-                    entropy = self._calculate_entropy(sect_data)
+                    entropy = calculate_shannon_entropy(sect_data)
                 except Exception:
                     entropy = 0.0
                 entropies.append(entropy)
@@ -106,7 +98,7 @@ class SectionInfoBlock(FeatureBlock):
                 # Name Hashing
                 try:
                     name = section.Name.decode('utf-8', errors='replace')
-                except:
+                except Exception:
                     name = ""
                 name_idx = self._hash_name(name)
                 hist_names[name_idx] += 1

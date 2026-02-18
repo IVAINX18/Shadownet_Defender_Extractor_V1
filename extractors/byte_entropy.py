@@ -1,4 +1,5 @@
 from .base import FeatureBlock
+from ._math_utils import calculate_shannon_entropy
 import pefile
 import numpy as np
 
@@ -26,34 +27,8 @@ class ByteEntropy(FeatureBlock):
     def dim(self) -> int:
         return self.NUM_BINS
     
-    def _calculate_shannon_entropy(self, data: bytes) -> float:
-        """
-        Calculates Shannon entropy of a data block.
-        
-        H(X) = -Σ p(x) * log2(p(x))
-        
-        Args:
-            data: Block bytes
-            
-        Returns:
-            Entropy in bits (range [0, 8] for bytes)
-        """
-        if not data:
-            return 0.0
-        
-        # Count frequency of each byte
-        counts = np.bincount(np.frombuffer(data, dtype=np.uint8), minlength=256)
-        
-        # Calculate probabilities (relative frequency)
-        probabilities = counts / len(data)
-        
-        # Filter zero probabilities to avoid log(0)
-        probabilities = probabilities[probabilities > 0]
-        
-        # Calculate entropy: -Σ p(x) * log2(p(x))
-        entropy = -np.sum(probabilities * np.log2(probabilities))
-        
-        return float(entropy)
+    # 📚 NOTA: _calculate_shannon_entropy se movió a _math_utils.py
+    # para evitar duplicación. Se usa calculate_shannon_entropy importado arriba.
     
     def extract(self, pe: pefile.PE, raw_data: bytes) -> np.ndarray:
         """
@@ -80,7 +55,7 @@ class ByteEntropy(FeatureBlock):
         # Special case: file smaller than one window
         if len(raw_data) < self.WINDOW_SIZE:
             # Calculate entropy of the full file as a single window
-            entropy = self._calculate_shannon_entropy(raw_data)
+            entropy = calculate_shannon_entropy(raw_data)
             entropy_values.append(entropy)
         else:
             # Normal sliding windows
@@ -88,7 +63,7 @@ class ByteEntropy(FeatureBlock):
             # Convert to numpy array once for faster slicing if needed, but bytes slicing is fast enough.
             for i in range(0, len(raw_data) - self.WINDOW_SIZE + 1, self.STEP_SIZE):
                 window = raw_data[i:i + self.WINDOW_SIZE]
-                entropy = self._calculate_shannon_entropy(window)
+                entropy = calculate_shannon_entropy(window)
                 entropy_values.append(entropy)
         
         if not entropy_values:

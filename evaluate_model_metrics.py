@@ -11,21 +11,10 @@ import sys
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, classification_report
 import joblib
 
-# Mock model si no existe ONNX real cargado via sklearn wrapper
-class MockModel:
-    def predict(self, X):
-        # Simula predicción basada en entropía promedio (heurística simple para test)
-        # Malware tiene entropía más alta en mock data -> values closer to 1
-        entropy_mean = np.mean(X[:, 256:512], axis=1) # Bloque entropía
-        return (entropy_mean > 0.5).astype(int)
-        
-    def predict_proba(self, X):
-        entropy_mean = np.mean(X[:, 256:512], axis=1)
-        # Scanear range [0.3, 0.7] to [0, 1] prob approx
-        probs = (entropy_mean - 0.2) * 2
-        probs = np.clip(probs, 0, 1)
-        # Return [prob_0, prob_1]
-        return np.vstack([1-probs, probs]).T
+from evaluation._mock_model import MockModel
+
+# 📚 MockModel se importa de evaluation/_mock_model.py
+# para evitar duplicación con test_robustness.py y explain_global_model.py
 
 def evaluate_model():
     print("=== EVALUACIÓN EXPERIMENTAL DEL MODELO ===")
@@ -55,7 +44,7 @@ def evaluate_model():
     y_pred = model.predict(X_test)
     try:
         y_prob = model.predict_proba(X_test)[:, 1] # Probabilidad de clase 1 (Malware)
-    except:
+    except Exception:
         y_prob = y_pred # Fallback si no soporta proba
         
     # 4. Cálculo de Métricas
@@ -65,7 +54,7 @@ def evaluate_model():
     f1 = f1_score(y_test, y_pred)
     try:
         auc = roc_auc_score(y_test, y_prob)
-    except:
+    except Exception:
         auc = 0.0
         
     cm = confusion_matrix(y_test, y_pred)

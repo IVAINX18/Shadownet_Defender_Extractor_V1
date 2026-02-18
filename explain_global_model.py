@@ -10,11 +10,10 @@ import os
 import joblib
 from sklearn.metrics import accuracy_score
 
-# Reutilizar MockModel si necesario
-class MockModel:
-    def predict(self, X):
-        entropy_mean = np.mean(X[:, 256:512], axis=1)
-        return (entropy_mean > 0.5).astype(int)
+from evaluation._mock_model import MockModel
+
+# 📚 MockModel se importa de evaluation/_mock_model.py
+# para evitar duplicación con evaluate_model_metrics.py y test_robustness.py
 
 def explain_global_importance():
     print("=== EXPLICABILIDAD GLOBAL (FEATURE IMPORTANCE) ===")
@@ -23,7 +22,8 @@ def explain_global_importance():
     try:
         X_test = np.load("data/test_set/X_test.npy")
         y_test = np.load("data/test_set/y_test.npy")
-    except:
+    except FileNotFoundError:
+        print("❌ Dataset no encontrado. Ejecuta generate_mock_dataset.py primero.")
         return
         
     # Cargar modelo

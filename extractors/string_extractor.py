@@ -1,4 +1,5 @@
 from .base import FeatureBlock
+from ._math_utils import calculate_shannon_entropy
 import pefile
 import numpy as np
 import re
@@ -43,11 +44,7 @@ class StringExtractorBlock(FeatureBlock):
     def dim(self) -> int:
         return self.DIM
 
-    def _calculate_entropy(self, data: bytes) -> float:
-        if not data: return 0.0
-        counts = np.bincount(np.frombuffer(data, dtype=np.uint8), minlength=256)
-        probs = counts[counts > 0] / len(data)
-        return -np.sum(probs * np.log2(probs))
+    # 📚 NOTA: _calculate_entropy se movió a _math_utils.py para evitar duplicación.
 
     def extract(self, pe: pefile.PE, raw_data: bytes) -> np.ndarray:
         vector = np.zeros(self.DIM, dtype=np.float32)
@@ -86,7 +83,7 @@ class StringExtractorBlock(FeatureBlock):
             lengths.append(slen)
             total_chars += slen
             
-            ent = self._calculate_entropy(s)
+            ent = calculate_shannon_entropy(s)
             entropies.append(ent)
             
             # IoC Check
@@ -160,6 +157,8 @@ class StringExtractorBlock(FeatureBlock):
             vector[99] = c_special / total_chars
             vector[100] = (c_digits + c_special) / total_chars
             vector[101] = c_lower / (c_upper + c_lower + 1e-6)
+            # 📚 Índices 102-103: Reservados para features futuras
+            # (ej: ratio de strings ofuscadas, diversidad léxica)
             vector[102] = 0
             vector[103] = 0
             
