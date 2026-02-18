@@ -832,6 +832,165 @@ Las mejoras respetan los principios del proyecto:
 - Se mantiene compatibilidad de inferencia con ONNX + scaler.
 - El flujo principal por consola continúa operativo.
 
+## 14. Integración con LMM usando Ollama y Mistral
+
+> Importante: el LMM **no detecta malware**. La detección permanece en el modelo ML (ONNX + scaler).
+> El LMM únicamente explica resultados del `scan_result` ya generado por ShadowNet Defender.
+
+### 14.1 Arquitectura implementada
+
+Se añadieron capas específicas para explicación LMM:
+
+```text
+core/
+  llm/
+    prompt_builder.py       # Prompt seguro y estructurado
+    ollama_client.py        # Cliente HTTP para Ollama
+    explanation_service.py  # Servicio desacoplado para explicación
+```
+
+Principios aplicados:
+
+- Separación de responsabilidades por capa.
+- Entrada controlada al LMM (solo resumen de escaneo).
+- Contrato desacoplado para reemplazar proveedor futuro.
+
+### 14.2 Flujo de datos
+
+```mermaid
+flowchart TD
+  A[Archivo PE] --> B[Extractor SOREL-20M 2381 features]
+  B --> C[Modelo ONNX + Scaler]
+  C --> D[scan_result JSON]
+  D --> E[Prompt Builder Seguro]
+  E --> F[Ollama API /api/generate]
+  F --> G[Explicación técnica estructurada]
+  G --> H[CLI/API/Telemetría]
+```
+
+### 14.3 Seguridad contra alucinaciones
+
+Medidas implementadas:
+
+- El prompt declara explícitamente que el LMM **no clasifica** malware.
+- Solo se usan campos controlados:
+  - `label`
+  - `score`
+  - `confidence`
+  - `entropy`
+  - `suspicious_imports`
+  - `suspicious_sections`
+  - `top_features`
+- Si faltan datos, la instrucción obliga a indicar `dato no disponible`.
+- Se exige salida en JSON estructurado para facilitar validación y auditoría.
+
+### 14.4 Uso en CLI
+
+Escaneo estándar:
+
+```bash
+python cli.py scan samples/procexp64.exe
+```
+
+Escaneo + explicación LMM (Mistral en Ollama):
+
+```bash
+python cli.py scan samples/procexp64.exe --explain --provider ollama --model mistral
+```
+
+Explicar un resultado ya calculado:
+
+```bash
+python cli.py llm-explain --scan-json /tmp/scan_result_demo.json --provider ollama --model mistral
+```
+
+### 14.5 Uso en API
+
+Levantar API:
+
+```bash
+uvicorn api_server:app --host 127.0.0.1 --port 8000
+```
+
+Endpoint de explicación:
+
+- `POST /llm/explain`
+- Entrada: `scan_result` (recomendado) o `file_path`
+- Salida: explicación LMM basada en resultado real del motor
+
+Ejemplo:
+
+```bash
+curl -X POST "http://127.0.0.1:8000/llm/explain" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "provider": "ollama",
+    "model": "mistral",
+    "scan_result": {
+      "label": "MALWARE",
+      "score": 0.91,
+      "confidence": "High",
+      "details": {
+        "entropy": 7.2,
+        "suspicious_imports": ["VirtualAlloc"],
+        "suspicious_sections": [".rwx"],
+        "top_features": [{"name": "imports_hash_10", "value": 0.8, "impact": "high"}]
+      }
+    }
+  }'
+```
+
+### 14.6 Instalación de Ollama + Mistral
+
+```bash
+# Instalar Ollama (según tu sistema)
+# https://ollama.com/
+
+ollama pull mistral
+ollama serve
+```
+
+Variables opcionales:
+
+```bash
+export OLLAMA_BASE_URL="http://127.0.0.1:11434"
+export OLLAMA_MODEL="mistral"
+```
+
+### 14.7 Extensibilidad futura
+
+La clase `ExplanationService` usa un contrato de cliente (`LLMClient`) que permite registrar nuevos proveedores sin alterar la lógica de CLI/API:
+
+- OpenAI API
+- Gemini
+- Claude
+
+Con esto, el sistema queda portable y escalable sin tocar el pipeline de detección.
+
+### 14.8 Samples de prueba para validación LMM
+
+Para facilitar pruebas controladas sin riesgo, se añadieron dos artefactos en `samples/`:
+
+- `samples/malware_simulated_scan.json`  
+  Resultado de escaneo simulado con etiqueta `MALWARE` y señales técnicas (entropía alta, imports/secciones sospechosas, top features).  
+  Uso recomendado: validar el flujo de explicación del LMM sin ejecutar binarios maliciosos reales.
+
+- `samples/eicar_test.txt`  
+  Cadena estándar EICAR para pruebas de herramientas de seguridad.  
+  Nota: es un archivo de test reconocido por antivirus; no es malware funcional.
+
+Ejemplo de validación con el sample simulado:
+
+```bash
+python cli.py llm-explain --scan-json samples/malware_simulated_scan.json --provider ollama --model mistral
+```
+
+Resultado esperado:
+
+- JSON con bloque `scan_result`
+- bloque `llm` con `provider`, `model`, `response_text`
+- si Ollama no está activo, salida de error controlado sin romper el pipeline
+
 ## 11. Instalación y Guía de Uso
 
 ### Requisitos Previos
@@ -989,3 +1148,4 @@ ShadowNet Defender representa un hito significativo en nuestra formación acadé
 _Ivan Velasco (IVAINX_21) · Santiago Cubillos (VANkLEis)_
 
 </div>
+---

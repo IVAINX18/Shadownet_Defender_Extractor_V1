@@ -65,13 +65,16 @@ def scan_batch(file_paths: List[str]) -> Dict[str, List[Dict]]:
 @app.post("/llm/explain")
 def llm_explain(payload: Dict) -> Dict:
     provider = payload.get("provider", "ollama")
-    model = payload.get("model")
+    model = payload.get("model", "mistral")
     file_path = payload.get("file_path")
     scan_result = payload.get("scan_result")
 
     if scan_result is None:
         if not file_path:
-            return {"ok": False, "error": "Provide 'file_path' or 'scan_result' in payload."}
+            return {
+                "ok": False,
+                "error": "Provide 'scan_result' (preferred) or 'file_path' in payload.",
+            }
         scan_result = engine.scan_file(file_path)
 
     start = time.time()
@@ -87,7 +90,7 @@ def llm_explain(payload: Dict) -> Dict:
     except Exception as exc:
         telemetry.record_llm_interaction(
             provider=str(provider),
-            model=str(model or "default"),
+            model=str(model or "mistral"),
             ok=False,
             latency_ms=(time.time() - start) * 1000,
             error=str(exc),

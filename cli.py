@@ -16,11 +16,70 @@ from telemetry_client import TelemetryClient
 from updater import apply_update
 
 
+def _run_llm_explanation(
+    scan_result: dict,
+    *,
+    provider: str | None,
+    model: str | None,
+    telemetry: TelemetryClient,
+) -> tuple[int, dict]:
+    """
+    Ejecuta explicación LLM y registra telemetría.
+    Retorna (exit_code, payload_json).
+    """
+    bridge = LLMAgentBridge()
+    start = time.time()
+    try:
+        out = bridge.explain_scan(
+            scan_result,
+            provider=provider,
+            model=model,
+        )
+        latency_ms = (time.time() - start) * 1000
+        telemetry.record_llm_interaction(
+            provider=out["provider"],
+            model=out["model"],
+            ok=True,
+            latency_ms=latency_ms,
+        )
+        return 0, {"scan_result": scan_result, "llm": out}
+    except Exception as exc:
+        latency_ms = (time.time() - start) * 1000
+        telemetry.record_llm_interaction(
+            provider=provider or "ollama",
+            model=model or "mistral",
+            ok=False,
+            latency_ms=latency_ms,
+            error=str(exc),
+        )
+        return 1, {
+            "scan_result": scan_result,
+            "llm": {
+                "provider": provider or "ollama",
+                "model": model or "mistral",
+                "error": str(exc),
+            },
+        }
+
+
 def _cmd_scan(args: argparse.Namespace) -> int:
     engine = ShadowNetEngine()
     result = engine.scan_file(args.file)
-    print(json.dumps(result, indent=2, ensure_ascii=True))
-    return 0 if result.get("error") is None else 1
+    if not args.explain:
+        print(json.dumps(result, indent=2, ensure_ascii=True))
+        return 0 if result.get("error") is None else 1
+
+    telemetry = TelemetryClient()
+    code, payload = _run_llm_explanation(
+        result,
+        provider=args.provider,
+        model=args.model,
+        telemetry=telemetry,
+    )
+    print(json.dumps(payload, indent=2, ensure_ascii=True))
+    if result.get("error") is not None:
+        return 1
+    return code
 
 
 def _cmd_verify_model(args: argparse.Namespace) -> int:
@@ -65,7 +124,6 @@ def _cmd_update_model(args: argparse.Namespace) -> int:
 
 def _cmd_llm_explain(args: argparse.Namespace) -> int:
     telemetry = TelemetryClient()
-    bridge = LLMAgentBridge()
 
     if not args.scan_json and not args.file:
         raise ValueError("Provide --file or --scan-json.")
@@ -76,47 +134,14 @@ def _cmd_llm_explain(args: argparse.Namespace) -> int:
         engine = ShadowNetEngine()
         scan_result = engine.scan_file(args.file)
 
-    start = time.time()
-    try:
-        out = bridge.explain_scan(
-            scan_result,
-            provider=args.provider,
-            model=args.model,
-        )
-        latency_ms = (time.time() - start) * 1000
-        telemetry.record_llm_interaction(
-            provider=out["provider"],
-            model=out["model"],
-            ok=True,
-            latency_ms=latency_ms,
-        )
-    except Exception as exc:
-        latency_ms = (time.time() - start) * 1000
-        telemetry.record_llm_interaction(
-            provider=args.provider or "ollama",
-            model=args.model or "default",
-            ok=False,
-            latency_ms=latency_ms,
-            error=str(exc),
-        )
-        print(
-            json.dumps(
-                {
-                    "scan_result": scan_result,
-                    "llm": {
-                        "provider": args.provider or "ollama",
-                        "model": args.model or "default",
-                        "error": str(exc),
-                    },
-                },
-                indent=2,
-                ensure_ascii=True,
-            )
-        )
-        return 1
-
-    print(json.dumps({"scan_result": scan_result, "llm": out}, indent=2, ensure_ascii=True))
-    return 0
+    code, payload = _run_llm_explanation(
+        scan_result,
+        provider=args.provider,
+        model=args.model,
+        telemetry=telemetry,
+    )
+    print(json.dumps(payload, indent=2, ensure_ascii=True))
+    return code
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -125,6 +150,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     scan_parser = subparsers.add_parser("scan", help="Scan a PE file")
     scan_parser.add_argument("file", help="Path to file to scan")
+    scan_parser.add_argument("--explain", action="store_true", help="Generate LLM explanation with Ollama")
+    scan_parser.add_argument("--provider", default="ollama", help="Current supported provider: ollama")
+    scan_parser.add_argument("--model", default="mistral", help="LLM model name for Ollama")
     scan_parser.set_defaults(func=_cmd_scan)
 
     verify_parser = subparsers.add_parser("verify-model", help="Verify artifact hashes and sizes")
@@ -150,8 +178,8 @@ def build_parser() -> argparse.ArgumentParser:
     llm_parser = subparsers.add_parser("llm-explain", help="Generate LLM incident explanation from scan result")
     llm_parser.add_argument("--file", help="File to scan before asking LLM")
     llm_parser.add_argument("--scan-json", help="Path to precomputed scan result JSON")
-    llm_parser.add_argument("--provider", default="ollama", help="ollama | google_opal | opal")
-    llm_parser.add_argument("--model", default=None, help="Override provider model")
+    llm_parser.add_argument("--provider", default="ollama", help="Current supported provider: ollama")
+    llm_parser.add_argument("--model", default="mistral", help="Override model (default: mistral)")
     llm_parser.set_defaults(func=_cmd_llm_explain)
 
     return parser
