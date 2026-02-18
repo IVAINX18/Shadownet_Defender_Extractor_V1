@@ -202,8 +202,8 @@ Cada bloque captura una "vista" diferente del archivo.
 **Matemáticas**:
 Sea $B = \{b_1, b_2, ..., b_N\}$ la secuencia de bytes del archivo.
 El valor para la dimensión $i$ (donde $0 \le i \le 255$) es:
-$$ x*i = \frac{1}{N} \sum*{j=1}^{N} \mathbb{1}(b_j = i) $$
-Donde $\mathbb{1}$ es la función indicatriz (1 si la condición es cierta, 0 de lo contrario).
+**x_i** = (1/N) \* Σ **1**(b_j = i)
+Donde **1** es la función indicatriz (1 si la condición es cierta, 0 de lo contrario).
 
 **Interpretación en Ciberseguridad**:
 
@@ -218,8 +218,8 @@ Donde $\mathbb{1}$ es la función indicatriz (1 si la condición es cierta, 0 de
 **Concepto**: Mide el desorden o aleatoriedad de la información. No miramos el archivo globalmente, sino "localmente" mediante una ventana deslizante.
 
 **Matemáticas (Entropía de Shannon)**:
-$$ H(W) = - \sum\_{k=0}^{255} p_k \log_2(p_k) $$
-Donde $p_k$ es la probabilidad del byte $k$ en la ventana $W$.
+**H(W)** = - Σ [ p_k * log2(p_k) ]
+Donde _p_k_ es la probabilidad del byte _k_ en la ventana _W_.
 
 **Algoritmo**:
 
@@ -410,7 +410,7 @@ class MalwareDetector(nn.Module):
 #### 6.2.3 Configuración del Entrenamiento
 
 - **Función de Costo (Loss Function)**: Binary Cross Entropy.
-  $$ \mathcal{L}(\mathbf{w}) = -\frac{1}{N} \sum\_{i=1}^N [y_i \cdot \log(\hat{y}_i) + (1-y_i) \cdot \log(1-\hat{y}_i)] $$
+  **L(w)** = - (1/N) _ Σ [ y_i _ log(ŷ_i) + (1-y_i) \* log(1-ŷ_i) ]
 - **Optimizador**: **Adam** con tasa de aprendizaje adaptativa (`lr=0.001`) y _Weight Decay_ ($1e-5$) para regularización L2.
 - **Scheduler**: `ReduceLROnPlateau`. Si la pérdida de validación se estanca por 3 épocas, el _Learning Rate_ se reduce a la mitad ($\alpha_{new} = 0.5 \cdot \alpha_{old}$).
 - **Hardware**: Entrenado en 15 épocas sobre GPU NVIDIA A100 usando tensores CUDA y carga de datos asíncrona (`num_workers=4`).
