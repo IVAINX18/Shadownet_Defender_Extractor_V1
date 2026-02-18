@@ -754,7 +754,7 @@ la cadena de ataque inferida y las recomendaciones de respuesta inmediata.
 **Paso 1 — Clonar el repositorio:**
 
 ```bash
-git clone https://github.com/IVAINX18/Shadownet_Defender.git
+git clone https://github.com/IVAINX18/Shadownet_Defender_Extractor_V2.git
 cd Shadownet_Defender
 ```
 
