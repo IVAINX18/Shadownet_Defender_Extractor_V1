@@ -738,8 +738,101 @@ la cadena de ataque inferida y las recomendaciones de respuesta inmediata.
 > _"El análisis converge fuertemente hacia un **Ransomware con capacidades de Keylogging secundario**, consistente con la familia **REvil/Sodinokibi**. La evidencia es multidimensional: (1) La combinación de APIs criptográficas (`CryptEncrypt`) con acceso masivo al sistema de archivos (`FindFirstFile`) es la firma clásica del proceso de cifrado de ransomware. (2) Los permisos RWX en `.text` y la enorme discrepancia VirtualSize/RawSize en `.data` apuntan a un packer custom que se descomprime en memoria en tiempo de ejecución, evadiendo antivirus basados en firmas. (3) La importación de `GetAsyncKeyState` sin interfaz gráfica sugiere un módulo secundario de captura de keystrokes, posiblemente para exfiltrar credenciales antes de cifrar. (4) La URL de C2 embebida confirma comunicación activa con infraestructura de comando y control. **Recomendación inmediata:** Aislar el endpoint de la red, preservar imagen forense de RAM, bloquear el IoC de red en el firewall perimetral y escalar al equipo de IR."_
 
 ---
+## 10. Integración LLM y Automatización (Actualización Técnica)
 
-## 10. Instalación y Guía de Uso
+Esta sección documenta las mejoras implementadas para dejar ShadowNet Defender preparado para integración operativa con agentes LLM (Ollama y Google Opal/Gemini), manteniendo el flujo actual por consola y compatibilidad con el pipeline existente.
+
+### 10.1 Componentes Nuevos Implementados
+
+Se añadieron los siguientes módulos al repositorio:
+
+- `llm_agent_bridge.py`  
+  Adaptador unificado para proveedores LLM:
+  - **Ollama local** (`http://127.0.0.1:11434/api/generate`)
+  - **Google Opal/Gemini** (API Generative Language)
+
+- `api_server.py`  
+  API local con FastAPI para integración con GUI futura, n8n u orquestadores externos.
+
+- `cli.py`  
+  CLI unificada con comandos de escaneo, verificación de artefactos, actualización de modelo y explicación LLM.
+
+- `security/artifact_verifier.py` + `model_manifest.json`  
+  Validación criptográfica (SHA256) de artefactos críticos del modelo antes de despliegues o actualizaciones.
+
+- `updater.py`  
+  Actualización de artefactos con **staging + rollback** en caso de fallo de integridad.
+
+- `telemetry_client.py`  
+  Telemetría local en `logs/telemetry.jsonl` para observabilidad de escaneo y llamadas LLM.
+
+### 10.2 Endpoints API Disponibles
+
+Al levantar el servidor:
+
+```bash
+uvicorn api_server:app --host 127.0.0.1 --port 8000
+```
+
+Rutas disponibles:
+
+- `GET /health`
+- `GET /verify-model`
+- `GET /scan?file_path=...`
+- `POST /scan-batch`
+- `POST /llm/explain`
+
+### 10.3 Comandos CLI Disponibles
+
+```bash
+# Verificar integridad de artefactos del modelo
+python cli.py verify-model --manifest model_manifest.json
+
+# Escanear archivo PE y obtener JSON
+python cli.py scan samples/procexp64.exe
+
+# Regenerar manifest de artefactos actuales
+python cli.py init-manifest --version v1.0.1 --output model_manifest.json
+
+# Explicación LLM desde resultado de escaneo
+python cli.py llm-explain --file samples/procexp64.exe --provider ollama
+python cli.py llm-explain --file samples/procexp64.exe --provider google_opal
+```
+
+### 10.4 Variables de Entorno para LLM
+
+**Ollama**
+
+- `OLLAMA_BASE_URL` (default: `http://127.0.0.1:11434`)
+- `OLLAMA_MODEL` (default: `llama3.1:8b`)
+
+**Google Opal/Gemini**
+
+- `GOOGLE_OPAL_API_KEY` (obligatoria para llamadas remotas)
+- `GOOGLE_OPAL_MODEL` (default: `gemini-1.5-flash`)
+
+### 10.5 Dependencias de Desarrollo Actualizadas
+
+Se incorporaron dependencias para la capa API:
+
+- `fastapi`
+- `uvicorn`
+
+Estas dependencias fueron añadidas en:
+
+- `requirements/dev.in`
+- `requirements/dev.lock.txt`
+
+### 10.6 Garantías de Compatibilidad
+
+Las mejoras respetan los principios del proyecto:
+
+- No se modificó el extractor EMBER existente.
+- No se alteró el pipeline de features ni la dimensión esperada.
+- Se mantiene compatibilidad de inferencia con ONNX + scaler.
+- El flujo principal por consola continúa operativo.
+
+## 11. Instalación y Guía de Uso
 
 ### Requisitos Previos
 
@@ -841,7 +934,7 @@ python -c "import pefile, numpy, scipy, sklearn, onnx, onnxruntime, joblib, rich
 
 ---
 
-## 11. Conclusiones y Trabajo Futuro
+## 12. Conclusiones y Trabajo Futuro
 
 ShadowNet Defender representa un hito significativo en nuestra formación académica como investigadores de ciberseguridad. El proyecto demuestra de forma empírica y reproducible la viabilidad de aplicar técnicas de _Big Data_ y _Deep Learning_ a uno de los problemas más críticos de la seguridad informática moderna: la detección automatizada de malware a escala.
 
@@ -867,7 +960,7 @@ ShadowNet Defender representa un hito significativo en nuestra formación acadé
 
 ---
 
-## 12. Referencias Bibliográficas
+## 13. Referencias Bibliográficas
 
 1. **Harang, R., & Rudd, E. M. (2020).** _SOREL-20M: A Large Scale Benchmark Dataset for Malicious PE Detection._ arXiv preprint arXiv:2012.07633. Sophos AI. [https://arxiv.org/abs/2012.07633](https://arxiv.org/abs/2012.07633)
 
@@ -896,99 +989,3 @@ ShadowNet Defender representa un hito significativo en nuestra formación acadé
 _Ivan Velasco (IVAINX_21) · Santiago Cubillos (VANkLEis)_
 
 </div>
-
----
-
-## 13. Integración LLM y Automatización (Actualización Técnica)
-
-Esta sección documenta las mejoras implementadas para dejar ShadowNet Defender preparado para integración operativa con agentes LLM (Ollama y Google Opal/Gemini), manteniendo el flujo actual por consola y compatibilidad con el pipeline existente.
-
-### 13.1 Componentes Nuevos Implementados
-
-Se añadieron los siguientes módulos al repositorio:
-
-- `llm_agent_bridge.py`  
-  Adaptador unificado para proveedores LLM:
-  - **Ollama local** (`http://127.0.0.1:11434/api/generate`)
-  - **Google Opal/Gemini** (API Generative Language)
-
-- `api_server.py`  
-  API local con FastAPI para integración con GUI futura, n8n u orquestadores externos.
-
-- `cli.py`  
-  CLI unificada con comandos de escaneo, verificación de artefactos, actualización de modelo y explicación LLM.
-
-- `security/artifact_verifier.py` + `model_manifest.json`  
-  Validación criptográfica (SHA256) de artefactos críticos del modelo antes de despliegues o actualizaciones.
-
-- `updater.py`  
-  Actualización de artefactos con **staging + rollback** en caso de fallo de integridad.
-
-- `telemetry_client.py`  
-  Telemetría local en `logs/telemetry.jsonl` para observabilidad de escaneo y llamadas LLM.
-
-### 13.2 Endpoints API Disponibles
-
-Al levantar el servidor:
-
-```bash
-uvicorn api_server:app --host 127.0.0.1 --port 8000
-```
-
-Rutas disponibles:
-
-- `GET /health`
-- `GET /verify-model`
-- `GET /scan?file_path=...`
-- `POST /scan-batch`
-- `POST /llm/explain`
-
-### 13.3 Comandos CLI Disponibles
-
-```bash
-# Verificar integridad de artefactos del modelo
-python cli.py verify-model --manifest model_manifest.json
-
-# Escanear archivo PE y obtener JSON
-python cli.py scan samples/procexp64.exe
-
-# Regenerar manifest de artefactos actuales
-python cli.py init-manifest --version v1.0.1 --output model_manifest.json
-
-# Explicación LLM desde resultado de escaneo
-python cli.py llm-explain --file samples/procexp64.exe --provider ollama
-python cli.py llm-explain --file samples/procexp64.exe --provider google_opal
-```
-
-### 13.4 Variables de Entorno para LLM
-
-**Ollama**
-
-- `OLLAMA_BASE_URL` (default: `http://127.0.0.1:11434`)
-- `OLLAMA_MODEL` (default: `llama3.1:8b`)
-
-**Google Opal/Gemini**
-
-- `GOOGLE_OPAL_API_KEY` (obligatoria para llamadas remotas)
-- `GOOGLE_OPAL_MODEL` (default: `gemini-1.5-flash`)
-
-### 13.5 Dependencias de Desarrollo Actualizadas
-
-Se incorporaron dependencias para la capa API:
-
-- `fastapi`
-- `uvicorn`
-
-Estas dependencias fueron añadidas en:
-
-- `requirements/dev.in`
-- `requirements/dev.lock.txt`
-
-### 13.6 Garantías de Compatibilidad
-
-Las mejoras respetan los principios del proyecto:
-
-- No se modificó el extractor EMBER existente.
-- No se alteró el pipeline de features ni la dimensión esperada.
-- Se mantiene compatibilidad de inferencia con ONNX + scaler.
-- El flujo principal por consola continúa operativo.
