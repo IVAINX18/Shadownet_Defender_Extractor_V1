@@ -20,6 +20,8 @@
 
 ---
 
+---
+
 > **"Un enfoque científico para la detección proactiva de amenazas cibernéticas, cerrando la brecha entre la teoría académica y la defensa práctica."**
 
 ---
@@ -894,3 +896,99 @@ ShadowNet Defender representa un hito significativo en nuestra formación acadé
 _Ivan Velasco (IVAINX_21) · Santiago Cubillos (VANkLEis)_
 
 </div>
+
+---
+
+## 13. Integración LLM y Automatización (Actualización Técnica)
+
+Esta sección documenta las mejoras implementadas para dejar ShadowNet Defender preparado para integración operativa con agentes LLM (Ollama y Google Opal/Gemini), manteniendo el flujo actual por consola y compatibilidad con el pipeline existente.
+
+### 13.1 Componentes Nuevos Implementados
+
+Se añadieron los siguientes módulos al repositorio:
+
+- `llm_agent_bridge.py`  
+  Adaptador unificado para proveedores LLM:
+  - **Ollama local** (`http://127.0.0.1:11434/api/generate`)
+  - **Google Opal/Gemini** (API Generative Language)
+
+- `api_server.py`  
+  API local con FastAPI para integración con GUI futura, n8n u orquestadores externos.
+
+- `cli.py`  
+  CLI unificada con comandos de escaneo, verificación de artefactos, actualización de modelo y explicación LLM.
+
+- `security/artifact_verifier.py` + `model_manifest.json`  
+  Validación criptográfica (SHA256) de artefactos críticos del modelo antes de despliegues o actualizaciones.
+
+- `updater.py`  
+  Actualización de artefactos con **staging + rollback** en caso de fallo de integridad.
+
+- `telemetry_client.py`  
+  Telemetría local en `logs/telemetry.jsonl` para observabilidad de escaneo y llamadas LLM.
+
+### 13.2 Endpoints API Disponibles
+
+Al levantar el servidor:
+
+```bash
+uvicorn api_server:app --host 127.0.0.1 --port 8000
+```
+
+Rutas disponibles:
+
+- `GET /health`
+- `GET /verify-model`
+- `GET /scan?file_path=...`
+- `POST /scan-batch`
+- `POST /llm/explain`
+
+### 13.3 Comandos CLI Disponibles
+
+```bash
+# Verificar integridad de artefactos del modelo
+python cli.py verify-model --manifest model_manifest.json
+
+# Escanear archivo PE y obtener JSON
+python cli.py scan samples/procexp64.exe
+
+# Regenerar manifest de artefactos actuales
+python cli.py init-manifest --version v1.0.1 --output model_manifest.json
+
+# Explicación LLM desde resultado de escaneo
+python cli.py llm-explain --file samples/procexp64.exe --provider ollama
+python cli.py llm-explain --file samples/procexp64.exe --provider google_opal
+```
+
+### 13.4 Variables de Entorno para LLM
+
+**Ollama**
+
+- `OLLAMA_BASE_URL` (default: `http://127.0.0.1:11434`)
+- `OLLAMA_MODEL` (default: `llama3.1:8b`)
+
+**Google Opal/Gemini**
+
+- `GOOGLE_OPAL_API_KEY` (obligatoria para llamadas remotas)
+- `GOOGLE_OPAL_MODEL` (default: `gemini-1.5-flash`)
+
+### 13.5 Dependencias de Desarrollo Actualizadas
+
+Se incorporaron dependencias para la capa API:
+
+- `fastapi`
+- `uvicorn`
+
+Estas dependencias fueron añadidas en:
+
+- `requirements/dev.in`
+- `requirements/dev.lock.txt`
+
+### 13.6 Garantías de Compatibilidad
+
+Las mejoras respetan los principios del proyecto:
+
+- No se modificó el extractor EMBER existente.
+- No se alteró el pipeline de features ni la dimensión esperada.
+- Se mantiene compatibilidad de inferencia con ONNX + scaler.
+- El flujo principal por consola continúa operativo.
