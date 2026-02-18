@@ -1,7 +1,8 @@
-# Default reproducible install profile (runtime only)
--r requirements/base.lock.txt
+# Default reproducible install profile (full project)
+-r requirements/full.lock.txt
 
-# Optional profiles:
+# Profile-specific installs:
+# pip install -r requirements/base.lock.txt
 # pip install -r requirements/ml.lock.txt
 # pip install -r requirements/viz.lock.txt
 # pip install -r requirements/dev.lock.txt

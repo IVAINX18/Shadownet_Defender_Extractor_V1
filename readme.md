@@ -780,19 +780,8 @@ source .venv/bin/activate
 
 ```bash
 pip install --upgrade pip
-# Perfil recomendado (runtime mínimo reproducible)
-pip install -r requirements/base.lock.txt
+pip install -r requirements.txt
 
-# Perfiles opcionales:
-# ML pesado (entrenamiento/experimentos)
-# pip install -r requirements/ml.lock.txt
-#
-# Visualización
-# pip install -r requirements/viz.lock.txt
-#
-# Desarrollo/testing
-# pip install -r requirements/dev.lock.txt
-```
 
 **Paso 4 — Verificar la instalación:**
 

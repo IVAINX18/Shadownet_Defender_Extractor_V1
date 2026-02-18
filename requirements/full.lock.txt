@@ -1,0 +1,5 @@
+# Locked full project dependencies (Python 3.11.x)
+-r base.lock.txt
+-r ml.lock.txt
+-r viz.lock.txt
+-r dev.lock.txt
