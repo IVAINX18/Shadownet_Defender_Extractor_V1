@@ -14,7 +14,8 @@
 
 ## 📜 Licencia Académica Propietaria
 
-**Copyright © 2026 IVAINX y VANkLEis (INNOVASIC Research Lab). Todos los derechos reservados.**
+**Copyright © 2026 Ivan Velasco (IVAINX_21) y Santiago Cubillos (VANkLEis).**
+**[INNOVASIC Research Lab](https://innovasicucc.wordpress.com/pagina/) - Universidad Cooperativa de Colombia.**
 
 Este software es el resultado de una investigación académica profunda en el campo de la ciberseguridad y la inteligencia artificial realizada en el contexto universitario. Su distribución y uso se rigen estrictamente por los siguientes términos:
 
