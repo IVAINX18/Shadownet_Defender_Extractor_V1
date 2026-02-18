@@ -373,7 +373,7 @@ Se utilizó _Memory Mapping_ (`mmap_mode='r'`) para procesar los 120GB de caract
 Diseñamos una topología de "embudo" para comprimir la información de alta dimensión en una única probabilidad de maliciosidad.
 
 **Topología Matemática**:
-$$ \text{Input}^{2381} \xrightarrow{\text{ReLU}} \text{Dense}^{512} \xrightarrow{\text{ReLU}} \text{Dense}^{256} \xrightarrow{\text{ReLU}} \text{Dense}^{128} \xrightarrow{\text{Sigmoid}} \hat{y} $$
+$$ \text{Input}^{(2381)} \xrightarrow{\text{ReLU}} \text{Dense}^{(512)} \xrightarrow{\text{ReLU}} \text{Dense}^{(256)} \xrightarrow{\text{ReLU}} \text{Dense}^{(128)} \xrightarrow{\sigma} \hat{y} $$
 
 **Implementación en PyTorch**:
 
