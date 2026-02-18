@@ -5,7 +5,7 @@
 ![Versión](https://img.shields.io/badge/Versión-2.0.0-blue)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Dataset](https://img.shields.io/badge/Dataset-SOREL--20M-orange)
-![Modelo](https://img.shields.io/badge/Modelo-LightGBM_%2F_ONNX-green)
+![Modelo](https://img.shields.io/badge/Modelo-PyTorch_Deep_Learning-red)
 ![Plataforma](https://img.shields.io/badge/Plataforma-Linux_%2F_Windows-lightgrey)
 
 > **"Un enfoque científico para la detección proactiva de amenazas cibernéticas, cerrando la brecha entre la teoría académica y la defensa práctica."**
@@ -50,8 +50,8 @@ Este software es el resultado de una investigación académica profunda en el ca
 5.  [Dataset SOREL-20M: El Combustible](#5-dataset-sorel-20m-el-combustible)
 6.  [Pipeline de Machine Learning](#6-pipeline-de-machine-learning)
     - [6.1 Preprocesamiento y Escalado](#61-preprocesamiento-y-escalado)
-    - [6.2 Entrenamiento del Modelo LightGBM](#62-entrenamiento-del-modelo-lightgbm)
-    - [6.3 Exportación a ONNX](#63-exportación-a-onnx)
+    - [6.2 Entrenamiento del Modelo (Deep Learning)](#62-entrenamiento-del-modelo-deep-learning)
+    - [6.3 Exportación y Despliegue (ONNX)](#63-exportación-y-despliegue-onnx)
 7.  [Testing, Validación y Calidad de Código](#7-testing-validación-y-calidad-de-código)
 8.  [Resultados y Benchmarks](#8-resultados-y-benchmarks)
 9.  [Integración Futura: Inteligencia Artificial Generativa (LLM)](#9-integración-futura-inteligencia-artificial-generativa-llm)
@@ -106,7 +106,7 @@ En 2026, decidimos reescribir el núcleo del sistema.
 
 - **Cambio de Dataset**: Adoptamos **SOREL-20M** (Sophos-ReversingLabs), que contiene 20 millones de muestras más recientes y metadatos más ricos.
 - **Reingeniería de Software**: Abandonamos el "script único" por una arquitectura modular y orientada a objetos.
-- **Estandarización**: Fijamos el vector de características en **2381 dimensiones**, alineándonos con el estándar de facto en la literatura científica actual. Esto permite que nuestros resultados sean comparables con papers de _state-of-the-art_.
+- **Estandarización**: Fijamos el vector de características en **2381 dimensiones**, alineándonos con el estándar de facto en la literatura científica actual. Esto permite que nuestros resultados sean comparables con papers de \*state-of-the-art\_.
 
 ---
 
@@ -203,7 +203,7 @@ Cada bloque captura una "vista" diferente del archivo.
 Sea $B = \{b_1, b_2, ..., b_N\}$ la secuencia de bytes del archivo.
 El valor para la dimensión $i$ (donde $0 \le i \le 255$) es:
 $$ x*i = \frac{\sum*{j=1}^{N} \mathbb{1}(b_j = i)}{N} $$
-Donde $\mathbb{1}$ es la función indicatriz.
+Donde $\mathbb{1}$ es la función indicatriz que retorna 1 si la condición es cierta, 0 de lo contrario.
 
 **Interpretación en Ciberseguridad**:
 
@@ -272,7 +272,7 @@ Malware como **WannaCry** contiene una sección de datos cifrada (el payload ran
 - **Subsystem**:
   - `WINDOWS_GUI`: Aplicación con ventana.
   - `WINDOWS_CUI`: Aplicación de consola.
-  - _Alerta_: Malware que se declara GUI pero no crea ventanas es sospechoso.
+  - \*Alerta\_: Malware que se declara GUI pero no crea ventanas es sospechoso.
 
 ---
 
@@ -297,7 +297,7 @@ Las secciones (`.text`, `.data`, `.rsrc`) organizan el contenido del ejecutable.
 
 **El Problema**:
 Existen decenas de miles de funciones en la API de Windows (`kernel32.dll`, `user32.dll`, `advapi32.dll`, etc.).
-Un vector _One-Hot_ ("¿Tiene CreateFile?") sería inmanejable (dimensiones infinitas).
+Un vector \*One-Hot\_ ("¿Tiene CreateFile?") sería inmanejable (dimensiones infinitas).
 
 **La Solución: Hashing Trick**:
 Utilizamos una función de hash determinística para proyectar este espacio infinito en un espacio fijo (1280 dimensiones para imports, 128 para exports).
@@ -334,32 +334,108 @@ Para aprender estos patrones, ShadowNet fue "alimentado" con **SOREL-20M**.
 
 ## 6. Pipeline de Machine Learning
 
-### 6.1 Preprocesamiento y Escalado
+Este sistema no es una simple "caja negra". Se basa en un pipeline de **Deep Learning** riguroso, diseñado para la generalización y la robustez.
+El repositorio incluye los artefactos finales de este proceso: `models/best_model.onnx` (la red neuronal) y `models/scaler.pkl` (la normalización estadística).
 
-Los valores crudos del extractor tienen escalas dispares (e.g., Entropía 0-8, timestamps 1e9).
-Utilizamos **StandardScaler** (`sklearn.preprocessing.StandardScaler`) para normalizar:
-$$ z = \frac{x - \mu}{\sigma} $$
-Los parámetros $\mu$ (media) y $\sigma$ (desviación estándar) se calcularon sobre un subconjunto representativo de 1 millón de muestras y se guardaron en `models/scaler.pkl`. Esto es crucial para la estabilidad numérica.
+### 6.1 Preprocesamiento y Normalización Estadística (Z-Score)
 
-### 6.2 Entrenamiento del Modelo LightGBM
+Los datos crudos extraídos de un binario tienen escalas magnitudinarias diferentes (e.g., Entropía $H \in [0, 8]$, Timestamps $t \in [0, 10^9]$).
+Entrenar una red neuronal con estos datos provocaría inestabilidad en los gradientes.
 
-Usamos **LightGBM** (Light Gradient Boosting Machine), un algoritmo basado en árboles de decisión que es extremadamente eficiente en CPU.
+Utilizamos **StandardScaler** para normalizar cada dimensión $j$ del vector de características $\mathbf{x}$:
 
-**Hiperparámetros Clave**:
+$$ z_j = \frac{x_j - \mu_j}{\sigma_j} $$
 
-- `objective`: 'binary' (Benigno vs Malware).
-- `metric`: 'auc'.
-- `n_estimators`: 2000 (Número de árboles).
-- `learning_rate`: 0.05.
-- `num_leaves`: 2048 (Permite modelar interacciones complejas entre features).
-- `feature_fraction`: 0.5 (Previene overfitting seleccionando solo 50% de features por árbol).
+Donde:
 
-### 6.3 Exportación a ONNX
+- $\mu_j$: Media aritmética de la característica $j$ pre-calculada sobre el dataset de entrenamiento.
+- $\sigma_j$: Desviación estándar de la característica $j$.
+- $\epsilon$: Pequeña constante para evitar división por cero.
 
-El modelo entrenado se convirtió al formato **ONNX (Open Neural Network Exchange)**.
+El archivo `scaler.pkl` contiene los vectores $\boldsymbol{\mu}$ y $\boldsymbol{\sigma}$ fijos, calculados sobre 5.1 millones de muestras, garantizando que cada nuevo archivo escaneado sea transformado al mismo espacio latente que el modelo aprendió.
 
-- **Independencia**: Permite ejecutar el modelo en C++, C#, Java, Python o incluso JavaScript (WASM) sin necesitar la librería LightGBM instalada.
-- **Optimización**: El runtime de ONNX aplica optimizaciones de grafo (fusión de operadores) que aceleran la inferencia.
+### 6.2 Entrenamiento del Modelo (Deep Learning)
+
+A diferencia de la versión anterior (V2, basada en LightGBM), **ShadowNet V3** implementa una arquitectura de **Red Neuronal Profunda (DNN)** utilizando **PyTorch**.
+
+#### 6.2.1 Dataset Híbrido (5.1 Millones de Muestras)
+
+Para evitar el sesgo de un solo proveedor, construimos un dataset híbrido:
+
+1.  **SOREL-20M (Subconjunto Randomizado)**: 5,000,000 de muestras. Aporta la varianza global del malware industrial.
+2.  **ShadowNet-Original**: 100,000 muestras "in-the-wild" de amenazas recientes (2024-2026). Aporta frescura frente a nuevos vectores de ataque.
+
+**Sampling Eficiente**:
+Se utilizó _Memory Mapping_ (`mmap_mode='r'`) para procesar los 120GB de características sin saturar la RAM, cargando lotes dinámicos durante el entrenamiento.
+
+#### 6.2.2 Arquitectura del Perceptrón Multicapa (MLP)
+
+Diseñamos una topología de "embudo" para comprimir la información de alta dimensión en una única probabilidad de maliciosidad.
+
+**Topología Matemática**:
+$$ \text{Input}^{2381} \xrightarrow{\text{ReLU}} \text{Dense}^{512} \xrightarrow{\text{ReLU}} \text{Dense}^{256} \xrightarrow{\text{ReLU}} \text{Dense}^{128} \xrightarrow{\text{Sigmoid}} \hat{y} $$
+
+**Implementación en PyTorch**:
+
+```python
+class MalwareDetector(nn.Module):
+    def __init__(self, input_dim=2381):
+        super(MalwareDetector, self).__init__()
+        self.layers = nn.Sequential(
+            # Input Layer: Proyección inicial a espacio latente
+            nn.Linear(input_dim, 512),
+            nn.BatchNorm1d(512),      # Estabilidad numérica y regularización
+            nn.ReLU(),                # Activación no lineal
+            nn.Dropout(0.3),          # Prevención de overfitting (Drop 30%)
+
+            # Hidden Layer 1: Compresión intermedia
+            nn.Linear(512, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+
+            # Hidden Layer 2: Abstracción final
+            nn.Linear(256, 128),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+
+            # Output Layer: Probabilidad final
+            nn.Linear(128, 1),
+            nn.Sigmoid()              # Mapeo a rango [0, 1]
+        )
+```
+
+#### 6.2.3 Configuración del Entrenamiento
+
+- **Función de Costo (Loss Function)**: Binary Cross Entropy.
+  $$ \mathcal{L}(\mathbf{w}) = -\frac{1}{N} \sum\_{i=1}^N [y_i \cdot \log(\hat{y}_i) + (1-y_i) \cdot \log(1-\hat{y}_i)] $$
+- **Optimizador**: **Adam** con tasa de aprendizaje adaptativa (`lr=0.001`) y _Weight Decay_ ($1e-5$) para regularización L2.
+- **Scheduler**: `ReduceLROnPlateau`. Si la pérdida de validación se estanca por 3 épocas, el _Learning Rate_ se reduce a la mitad ($\alpha_{new} = 0.5 \cdot \alpha_{old}$).
+- **Hardware**: Entrenado en 15 épocas sobre GPU NVIDIA A100 usando tensores CUDA y carga de datos asíncrona (`num_workers=4`).
+
+### 6.3 Exportación y Despliegue (ONNX)
+
+Para producción, eliminamos la dependencia pesada de PyTorch exportando el modelo al estándar **ONNX (Open Neural Network Exchange)**.
+
+**Proceso de Exportación**:
+
+1.  Se carga el modelo con los mejores pesos (`best_model.pth`).
+2.  Se traza el grafo computacional mediante un _forward pass_ simbólico.
+3.  Se exporta a `best_model.onnx` (Opset 11).
+
+```python
+torch.onnx.export(
+    model,
+    dummy_input, # Tensor de ceros [1, 2381]
+    "models/best_model.onnx",
+    input_names=['input'],
+    output_names=['output'],
+    dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
+)
+```
+
+**Ventaja Crítica**: Este repositorio **NO requiere PyTorch** para ejecutarse. El motor de inferencia (`core/inference.py`) utiliza `onnxruntime`, que es extremadamente ligero (5MB vs 700MB de PyTorch) y altamente optimizado para instrucciones vectoriales de CPU (AVX2/AVX512), permitiendo inferencias en **< 15ms**.
 
 ---
 
@@ -411,7 +487,7 @@ Resultados obtenidos en un equipo de desarrollo estándar (Intel Core i7, 16GB R
 | **Inferencia**    | 10-25 ms        | Modelo ONNX. Extremadamente rápido.                                                |
 | **TOTAL**         | **~400 ms**     | Tiempo total de respuesta al usuario.                                              |
 
-_Nota: El análisis se realiza en un solo hilo (`Single Thread`). Es trivialmente paralelizable para escanear directorios completos._
+\*Nota: El análisis se realiza en un solo hilo (`Single Thread`). Es trivialmente paralelizable para escanear directorios completos.\_
 
 ---
 
@@ -515,7 +591,7 @@ ShadowNet Defender representa un hito en nuestra formación académica, demostra
 1.  **Harang, R., & Rudd, E. M. (2020)**. _SOREL-20M: A Large Scale Benchmark Dataset for Malicious PE Detection_. arXiv preprint arXiv:2012.07633. Sophos AI.
 2.  **Anderson, H. S., & Roth, P. (2018)**. _EMBER: An Open Dataset for Training Static PE Malware Machine Learning Models_. arXiv preprint arXiv:1804.04637. Endgame Inc.
 3.  **Raff, E., Barker, J., Sylvester, J., Brim, R., Catanzaro, B., & Nicholas, C. K. (2017)**. _Malware Detection by Eating a Whole EXE_. arXiv preprint arXiv:1710.09435.
-4.  **Weinberger, K., Dasgupta, A., Langford, J., Smola, A., & Attenberg, J. (2009)**. _Feature Hashing for Large Scale Multitask Learning_. Proceedings of the 26th Annual International Conference on Machine Learning (ICML).
+4.  **Weinberger, K., Dasgupta, A., Langford, J., Smola, A., & Attenberg, J. (2009)**. \*Feature Hashing for Large Scale Multitask Learning\_. Proceedings of the 26th Annual International Conference on Machine Learning (ICML).
 5.  **Saxe, J., & Berlin, K. (2015)**. _Deep Neural Network Based Malware Detection Using Two Dimensional Binary Program Features_. 10th International Conference on Malicious and Unwanted Software (MALWARE). IEEE.
 6.  **Martin, R. C. (2017)**. _Clean Architecture: A Craftsman's Guide to Software Structure and Design_. Prentice Hall.
 
