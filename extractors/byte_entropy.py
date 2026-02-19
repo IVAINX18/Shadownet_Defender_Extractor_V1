@@ -27,7 +27,7 @@ class ByteEntropy(FeatureBlock):
     def dim(self) -> int:
         return self.NUM_BINS
     
-    # 📚 NOTA: _calculate_shannon_entropy se movió a _math_utils.py
+    # NOTA: _calculate_shannon_entropy se movió a _math_utils.py
     # para evitar duplicación. Se usa calculate_shannon_entropy importado arriba.
     
     def extract(self, pe: pefile.PE, raw_data: bytes) -> np.ndarray:

@@ -7,7 +7,7 @@ class FeatureBlock(ABC):
     """
     Clase base abstracta para todos los bloques de extracción de features.
 
-    📚 PARA JUNIORS — ¿Qué es una Clase Abstracta (ABC)?
+    PARA JUNIORS — ¿Qué es una Clase Abstracta (ABC)?
 
         Una ABC define un "contrato" que todas las subclases DEBEN cumplir.
         En ShadowNet, cada bloque de features (ByteHistogram, ByteEntropy,
@@ -21,7 +21,7 @@ class FeatureBlock(ABC):
         de estos métodos, Python lanzará un TypeError al instanciar la clase.
         Esto previene bugs silenciosos.
 
-    📚 ¿Por qué usamos este patrón?
+    ¿Por qué usamos este patrón?
 
         Gracias a esta abstracción, PEFeatureExtractor (en extractor.py) puede
         iterar sobre una lista de FeatureBlock sin saber qué tipo concreto es

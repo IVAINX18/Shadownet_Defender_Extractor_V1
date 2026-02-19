@@ -4,7 +4,7 @@ Utilidades matemáticas compartidas para los bloques de extracción de features.
 Este módulo centraliza funciones que antes estaban duplicadas en múltiples
 extractores (byte_entropy, section_info, string_extractor, imports, exports).
 
-📚 PARA JUNIORS:
+PARA JUNIORS:
     La regla DRY (Don't Repeat Yourself) es fundamental en ingeniería de software.
     Si una función aparece copiada en 3 archivos distintos, cualquier bug debe
     corregirse en los 3 lugares. Al centralizarla aquí, el bug se corrige UNA vez.

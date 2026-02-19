@@ -1,7 +1,7 @@
 """
 MockModel compartido para scripts de evaluación y testing.
 
-📚 PARA JUNIORS:
+PARA JUNIORS:
     Cuando el modelo real (LightGBM o ONNX) no está disponible,
     este MockModel proporciona predicciones heurísticas basadas en
     la entropía del bloque ByteEntropy (posiciones 256-511 del vector).
