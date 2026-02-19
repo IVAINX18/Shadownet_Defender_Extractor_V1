@@ -1247,7 +1247,6 @@ Shadownet_Defender/
 ├── logs/
 ├── ui/
 ├── ui_future/
-├── legacy/
 └── LogoDefender/
 ```
 
@@ -1272,7 +1271,6 @@ Shadownet_Defender/
 | `logs/` | `shadownet.log`, `telemetry.jsonl` | Registro de eventos operativos y telemetría local. |
 | `ui/` | `app.py` | Prototipo de interfaz local. |
 | `ui_future/` | (placeholder) | Reserva para GUI futura. |
-| `legacy/` | Versiones y verificadores históricos | Referencia y compatibilidad de código previo. |
 | `LogoDefender/` | Recursos gráficos (`.png`) | Identidad visual del producto. |
 
 ### Archivos en raíz: qué hacen y si deben integrarse a carpetas
