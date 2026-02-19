@@ -322,6 +322,9 @@ python -m uvicorn api_server:app --host 127.0.0.1 --port 8000
 curl http://localhost:8000/health
 curl -X POST http://localhost:8000/llm/explain -H "Content-Type: application/json" -d '{"scan_result":{"label":"MALWARE","score":0.97,"confidence":"High","details":{}}}'
 
+# ── DEMO: API en Render (producción) ──
+curl https://shadownet-defender-extractor-v2.onrender.com/health
+
 # Tests
 python -m pytest tests/test_ollama_client.py tests/test_llm_prompt_builder.py -v
 

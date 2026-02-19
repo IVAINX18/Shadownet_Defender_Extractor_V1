@@ -72,7 +72,7 @@ curl https://random-string.trycloudflare.com/v1/models
 # OLLAMA_MODEL = llama3.2:3b
 
 # Health check del API:
-curl https://shadownet-defender-api.onrender.com/health
+curl https://shadownet-defender-extractor-v2.onrender.com/health
 # Respuesta esperada: {"status":"ok","model":"loaded"}
 ```
 
@@ -81,7 +81,7 @@ curl https://shadownet-defender-api.onrender.com/health
 ## Paso 4: Test del endpoint /scan
 
 ```bash
-curl "https://shadownet-defender-api.onrender.com/scan?file_path=samples/procexp64.exe"
+curl "https://shadownet-defender-extractor-v2.onrender.com/scan?file_path=samples/procexp64.exe"
 ```
 
 Respuesta esperada:
@@ -103,7 +103,7 @@ Respuesta esperada:
 ## Paso 5: Test del endpoint /llm/explain (Ollama vía Cloudflare Tunnel)
 
 ```bash
-curl -X POST "https://shadownet-defender-api.onrender.com/llm/explain" \
+curl -X POST "https://shadownet-defender-extractor-v2.onrender.com/llm/explain" \
   -H "Content-Type: application/json" \
   -d '{
     "provider": "ollama",
@@ -162,7 +162,7 @@ Después de llamar a `/scan`, verifica en n8n:
 
 ```bash
 # Test manual del webhook:
-curl -X POST "https://shadownet-defender-api.onrender.com/automation/test"
+curl -X POST "https://shadownet-defender-extractor-v2.onrender.com/automation/test"
 ```
 
 ---

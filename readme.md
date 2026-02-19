@@ -1056,7 +1056,7 @@ OLLAMA_MODEL    = llama3.2:3b
 curl https://random-string.trycloudflare.com/v1/models
 
 # Desde Render (API desplegada):
-curl https://shadownet-defender-api.onrender.com/llm/explain \
+curl https://shadownet-defender-extractor-v2.onrender.com/llm/explain \
   -X POST -H "Content-Type: application/json" \
   -d '{"file_path": "samples/procexp64.exe"}'
 ```
