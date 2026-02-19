@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import time
 from pathlib import Path
 from typing import Dict, List
 
+from core.automation.n8n_client import N8NClient
 from core.engine import ShadowNetEngine
 from llm_agent_bridge import LLMAgentBridge
 from security.artifact_verifier import verify_artifacts
@@ -16,6 +19,84 @@ app = fastapi.FastAPI(title="ShadowNet Defender API", version="1.0.0")
 engine = ShadowNetEngine()
 telemetry = TelemetryClient()
 llm_bridge = LLMAgentBridge()
+n8n_client = N8NClient()
+
+
+def _record_scan_telemetry(file_path: str, result: Dict) -> None:
+    telemetry.record_scan(
+        file_path=file_path,
+        status=result.get("status", "error"),
+        score=float(result.get("score", -1.0)),
+        label=result.get("label", "Unknown"),
+        scan_time_ms=float(result.get("scan_time_ms", -1.0)),
+        error=result.get("error"),
+    )
+
+
+def _safe_sha256(path_value: str | None) -> str:
+    if not path_value:
+        return "dato_no_disponible"
+    file_path = Path(path_value)
+    if not file_path.exists() or not file_path.is_file():
+        return "dato_no_disponible"
+    digest = hashlib.sha256()
+    with file_path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _infer_risk_level(score: float) -> str:
+    if score >= 0.90:
+        return "critical"
+    if score >= 0.70:
+        return "high"
+    if score >= 0.50:
+        return "medium"
+    return "low"
+
+
+def _extract_recommended_action(llm_response_text: str) -> str:
+    try:
+        payload = json.loads(llm_response_text)
+    except json.JSONDecodeError:
+        return "Revisar explicacion LLM y ejecutar playbook SOC."
+    if not isinstance(payload, dict):
+        return "Revisar explicacion LLM y ejecutar playbook SOC."
+    recommendations = payload.get("recomendaciones")
+    if isinstance(recommendations, list) and recommendations:
+        first = recommendations[0]
+        if isinstance(first, str) and first.strip():
+            return first.strip()
+    return "Revisar explicacion LLM y ejecutar playbook SOC."
+
+
+def _read_model_version(manifest_path: Path = Path("model_manifest.json")) -> str:
+    try:
+        data = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except Exception:
+        return "unknown"
+    version = data.get("version")
+    return str(version) if version else "unknown"
+
+
+def _build_n8n_payload(scan_result: Dict, llm_out: Dict) -> Dict:
+    file_path = scan_result.get("file")
+    file_name = Path(file_path).name if isinstance(file_path, str) and file_path else "unknown"
+    ml_score = float(scan_result.get("score", -1.0))
+    llm_response_text = str(llm_out.get("response_text", ""))
+    return {
+        "file_name": file_name,
+        "file_hash": _safe_sha256(file_path if isinstance(file_path, str) else None),
+        "file_path": file_path or "dato_no_disponible",
+        "ml_score": ml_score,
+        "confidence": str(scan_result.get("confidence", "Low")),
+        "risk_level": _infer_risk_level(ml_score),
+        "llm_explanation": llm_response_text,
+        "recommended_action": _extract_recommended_action(llm_response_text),
+        "model_version": _read_model_version(),
+        "timestamp": scan_result.get("timestamp") or time.strftime("%Y-%m-%d %H:%M:%S"),
+    }
 
 
 @app.get("/health")
@@ -34,14 +115,7 @@ def verify_model(manifest: str = "model_manifest.json") -> Dict:
 @app.get("/scan")
 def scan(file_path: str) -> Dict:
     result = engine.scan_file(file_path)
-    telemetry.record_scan(
-        file_path=file_path,
-        status=result.get("status", "error"),
-        score=float(result.get("score", -1.0)),
-        label=result.get("label", "Unknown"),
-        scan_time_ms=float(result.get("scan_time_ms", -1.0)),
-        error=result.get("error"),
-    )
+    _record_scan_telemetry(file_path, result)
     return result
 
 
@@ -50,14 +124,7 @@ def scan_batch(file_paths: List[str]) -> Dict[str, List[Dict]]:
     results: List[Dict] = []
     for file_path in file_paths:
         result = engine.scan_file(file_path)
-        telemetry.record_scan(
-            file_path=file_path,
-            status=result.get("status", "error"),
-            score=float(result.get("score", -1.0)),
-            label=result.get("label", "Unknown"),
-            scan_time_ms=float(result.get("scan_time_ms", -1.0)),
-            error=result.get("error"),
-        )
+        _record_scan_telemetry(file_path, result)
         results.append(result)
     return {"results": results}
 
@@ -80,6 +147,8 @@ def llm_explain(payload: Dict) -> Dict:
     start = time.time()
     try:
         llm_out = llm_bridge.explain_scan(scan_result, provider=provider, model=model)
+        n8n_payload = _build_n8n_payload(scan_result, llm_out)
+        n8n_client.send_analysis_event(n8n_payload)
         telemetry.record_llm_interaction(
             provider=llm_out["provider"],
             model=llm_out["model"],

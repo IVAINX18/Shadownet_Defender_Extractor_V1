@@ -49,8 +49,4 @@ class LLMAgentBridge:
         provider: Optional[str] = None,
         model: Optional[str] = None,
     ) -> Dict[str, Any]:
-        # Por requerimiento actual solo se habilita Ollama en producción local.
-        if provider and provider.strip().lower() != "ollama":
-            raise ValueError("Proveedor no soportado en esta fase. Use provider='ollama'.")
-        return self.service.explain(scan_result, provider="ollama", model=model)
-
+        return self.service.explain(scan_result, provider=provider, model=model)

@@ -28,10 +28,12 @@
 
 ## 📜 Licencia Privada – Proyecto Académico Investigativo
 
-Este software es propiedad de los autores **Ivan Velasco (IVAINX_18)** y **Santiago Cubillos (VANkLEis)**.  
-Forma parte del desarrollo del primer producto comercial de la startup **SHADOW-NET** llamado **SHADOW-NET: DEFENDER**.  
-El código **no es open source** ni de dominio público.  
-Su uso está restringido a fines académicos, investigativos y de evaluación interna del proyecto.
+Licencia privada de investigación.  
+Proyecto en desarrollo como primer producto oficial de **SHADOW-NET**.  
+Autores: **Ivan Velasco (IVAINX_18)** y **Santiago Cubillos (VANkLEis)**.  
+Este software **no es open-source**.  
+Uso permitido únicamente para fines académicos e investigativos.  
+No se permite distribución, sublicenciamiento ni uso comercial sin autorización expresa y escrita de los autores.
 
 ---
 
@@ -733,16 +735,14 @@ la cadena de ataque inferida y las recomendaciones de respuesta inmediata.
 
 ## 10. Integración LLM y Automatización (Actualización Técnica)
 
-Esta sección documenta las mejoras implementadas para dejar ShadowNet Defender preparado para integración operativa con agentes LLM (Ollama y Google Opal/Gemini), manteniendo el flujo actual por consola y compatibilidad con el pipeline existente.
+Esta sección documenta las mejoras implementadas para dejar ShadowNet Defender preparado para integración operativa con LLM (Ollama) y automatización externa desacoplada, manteniendo el flujo actual por consola y compatibilidad con el pipeline existente.
 
 ### 10.1 Componentes Nuevos Implementados
 
 Se añadieron los siguientes módulos al repositorio:
 
 - `llm_agent_bridge.py`  
-  Adaptador unificado para proveedores LLM:
-  - **Ollama local** (`http://127.0.0.1:11434/api/generate`)
-  - **Google Opal/Gemini** (API Generative Language)
+  Adaptador unificado para proveedores LLM (actualmente Ollama local).
 
 - `api_server.py`  
   API local con FastAPI para integración con GUI futura, n8n u orquestadores externos.
@@ -789,7 +789,6 @@ python cli.py init-manifest --version v1.0.1 --output model_manifest.json
 
 # Explicación LLM desde resultado de escaneo
 python cli.py llm-explain --file samples/procexp64.exe --provider ollama
-python cli.py llm-explain --file samples/procexp64.exe --provider google_opal
 ```
 
 ### 10.4 Variables de Entorno para LLM
@@ -799,10 +798,50 @@ python cli.py llm-explain --file samples/procexp64.exe --provider google_opal
 - `OLLAMA_BASE_URL` (default: `http://127.0.0.1:11434`)
 - `OLLAMA_MODEL` (default: `llama3.1:8b`)
 
-**Google Opal/Gemini**
+## Automation Layer (n8n Integration)
 
-- `GOOGLE_OPAL_API_KEY` (obligatoria para llamadas remotas)
-- `GOOGLE_OPAL_MODEL` (default: `gemini-1.5-flash`)
+La capa de automatización permite enviar eventos de análisis hacia **n8n cloud** sin acoplar el pipeline de ML al orquestador.
+El envío es opcional y no bloqueante: si n8n falla o no está configurado, el escaneo y la explicación LLM continúan normalmente.
+
+### Activación
+
+```bash
+export N8N_ENABLED=true
+export N8N_WEBHOOK_URL="https://tu-instancia-n8n/webhook/shadownet-defender"
+```
+
+Si `N8N_ENABLED=false` (o no definido), no se envía nada.
+
+### Variables de entorno
+
+- `N8N_ENABLED` (`true`/`false`)
+- `N8N_WEBHOOK_URL` (URL del webhook de n8n)
+- `N8N_TIMEOUT_SECONDS` (opcional, default `8`)
+
+### Ejemplo de payload enviado a n8n
+
+```json
+{
+  "file_name": "sample.exe",
+  "file_hash": "sha256_hex",
+  "file_path": "/ruta/sample.exe",
+  "ml_score": 0.91,
+  "confidence": "High",
+  "risk_level": "critical",
+  "llm_explanation": "{...json_llm...}",
+  "recommended_action": "Aislar host afectado",
+  "model_version": "v1.0.0",
+  "timestamp": "2026-02-19 12:00:00"
+}
+```
+
+### Flujo básico
+
+1. ShadowNet genera `scan_result` (ML).
+2. ShadowNet genera explicación LLM (Ollama).
+3. API construye payload mínimo de automatización.
+4. Si n8n está habilitado, envía evento por webhook.
+5. Fallos de red en n8n se registran en logs y no interrumpen la respuesta API.
 
 ### 10.5 Dependencias de Desarrollo Actualizadas
 
@@ -1138,6 +1177,6 @@ ShadowNet Defender representa un hito significativo en nuestra formación acadé
 
 [INNOVASIC Research Lab](https://innovasicucc.wordpress.com/pagina/) — Universidad Cooperativa de Colombia — 2026
 
-_Ivan Velasco (IVAINX_21) · Santiago Cubillos (VANkLEis)_
+_Ivan Velasco (IVAINX_18) · Santiago Cubillos (VANkLEis)_
 
 ## </div>

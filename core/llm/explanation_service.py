@@ -41,7 +41,7 @@ class ExplanationService:
     ):
         self.config = config or ExplanationServiceConfig()
         self.clients = clients or {
-            "ollama": OllamaClient(OllamaClientConfig(model=self.config.default_model))
+            "ollama": OllamaClient(OllamaClientConfig(model=self.config.default_model)),
         }
 
     def register_client(self, provider: str, client: LLMClient) -> None:
@@ -77,4 +77,3 @@ class ExplanationService:
             "response_text": response_text,
             "prompt_version": "v1",
         }
-

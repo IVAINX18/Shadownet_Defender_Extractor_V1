@@ -151,7 +151,11 @@ def build_parser() -> argparse.ArgumentParser:
     scan_parser = subparsers.add_parser("scan", help="Scan a PE file")
     scan_parser.add_argument("file", help="Path to file to scan")
     scan_parser.add_argument("--explain", action="store_true", help="Generate LLM explanation with Ollama")
-    scan_parser.add_argument("--provider", default="ollama", help="Current supported provider: ollama")
+    scan_parser.add_argument(
+        "--provider",
+        default="ollama",
+        help="LLM provider (actual): ollama",
+    )
     scan_parser.add_argument("--model", default="mistral", help="LLM model name for Ollama")
     scan_parser.set_defaults(func=_cmd_scan)
 
@@ -178,7 +182,11 @@ def build_parser() -> argparse.ArgumentParser:
     llm_parser = subparsers.add_parser("llm-explain", help="Generate LLM incident explanation from scan result")
     llm_parser.add_argument("--file", help="File to scan before asking LLM")
     llm_parser.add_argument("--scan-json", help="Path to precomputed scan result JSON")
-    llm_parser.add_argument("--provider", default="ollama", help="Current supported provider: ollama")
+    llm_parser.add_argument(
+        "--provider",
+        default="ollama",
+        help="LLM provider (actual): ollama",
+    )
     llm_parser.add_argument("--model", default="mistral", help="Override model (default: mistral)")
     llm_parser.set_defaults(func=_cmd_llm_explain)
 
