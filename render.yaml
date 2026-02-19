@@ -11,9 +11,13 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.14
+      - key: ENVIRONMENT
+        value: prod
       - key: N8N_ENABLED
         value: "true"
-      - key: N8N_WEBHOOK_URL
+      - key: N8N_WEBHOOK_TEST
+        value: https://ivainx21.app.n8n.cloud/webhook-test/shadownet-alert
+      - key: N8N_WEBHOOK_PROD
         value: https://ivainx21.app.n8n.cloud/webhook/shadownet-alert
       - key: N8N_TIMEOUT_SECONDS
         value: "8"

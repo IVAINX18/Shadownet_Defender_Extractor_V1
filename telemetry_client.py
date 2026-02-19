@@ -88,3 +88,26 @@ class TelemetryClient:
                 "error": error,
             }
         )
+
+    def record_n8n_delivery(
+        self,
+        *,
+        delivered: bool,
+        skipped: bool,
+        environment: str,
+        risk_level: str,
+        webhook_host: str,
+        reason: Optional[str] = None,
+    ) -> None:
+        """Tracks automation delivery attempts to n8n."""
+        self._write_event(
+            {
+                "event": "n8n_delivery",
+                "delivered": delivered,
+                "skipped": skipped,
+                "environment": environment,
+                "risk_level": risk_level,
+                "webhook_host": webhook_host,
+                "reason": reason,
+            }
+        )

@@ -6,6 +6,7 @@ import time
 from pathlib import Path
 
 from core.engine import ShadowNetEngine
+from core.integrations.n8n_client import N8NClient
 from llm_agent_bridge import LLMAgentBridge
 from security.artifact_verifier import (
     create_manifest_from_artifacts,
@@ -64,8 +65,13 @@ def _run_llm_explanation(
 
 def _cmd_scan(args: argparse.Namespace) -> int:
     engine = ShadowNetEngine()
+    n8n_client = N8NClient()
     result = engine.scan_file(args.file)
+
     if not args.explain:
+        # Non-blocking automation dispatch for operational workflows.
+        detection_payload = n8n_client.build_detection_payload(result)
+        n8n_client.send_detection_to_n8n(detection_payload)
         print(json.dumps(result, indent=2, ensure_ascii=True))
         return 0 if result.get("error") is None else 1
 
@@ -76,6 +82,12 @@ def _cmd_scan(args: argparse.Namespace) -> int:
         model=args.model,
         telemetry=telemetry,
     )
+    llm_block = payload.get("llm", {})
+    n8n_llm_payload = n8n_client.build_detection_payload(
+        result,
+        llm_explanation=llm_block.get("response_text"),
+    )
+    n8n_client.send_detection_to_n8n(n8n_llm_payload)
     print(json.dumps(payload, indent=2, ensure_ascii=True))
     if result.get("error") is not None:
         return 1

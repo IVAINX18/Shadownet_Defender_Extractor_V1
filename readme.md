@@ -1078,6 +1078,51 @@ Checklist mínimo en Render:
 
 Nota: en Render no existe Ollama local (`127.0.0.1:11434`), por lo que `/llm/explain` requiere un host de Ollama accesible por red.
 
+### 14.11 Integración con n8n Cloud
+
+Arquitectura:
+
+- El motor ML (`scan_result`) se mantiene local.
+- La explicación LLM (Ollama) se mantiene local/remota según `OLLAMA_BASE_URL`.
+- La automatización externa se resuelve en `core/integrations/n8n_client.py`.
+- El envío a n8n es no bloqueante para no afectar SLA del escaneo.
+
+Variables de entorno:
+
+- `ENVIRONMENT=dev|prod`
+- `N8N_ENABLED=true|false`
+- `N8N_WEBHOOK_TEST=https://.../webhook-test/...`
+- `N8N_WEBHOOK_PROD=https://.../webhook/...`
+- `N8N_TIMEOUT_SECONDS=8`
+
+Selección automática de webhook:
+
+- `ENVIRONMENT=dev` -> usa `N8N_WEBHOOK_TEST`
+- `ENVIRONMENT=prod` -> usa `N8N_WEBHOOK_PROD`
+
+Regla operativa:
+
+- Si `risk_level == LOW` y `ENVIRONMENT=dev`, no se envía alerta (filtro anti-ruido).
+
+Flujo:
+
+1. `scan` (CLI/API) genera `scan_result`.
+2. Se construye payload estandarizado para automatización.
+3. Se envía a n8n cloud según entorno.
+4. El evento de entrega se registra en `logs/telemetry.jsonl`.
+
+Pruebas con curl:
+
+```bash
+curl "http://127.0.0.1:8000/automation/health"
+curl -X POST "http://127.0.0.1:8000/automation/test" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+Nota: el pipeline ML y LLM se ejecuta localmente; n8n se usa únicamente para orquestación
+(email, almacenamiento y auditoría externa).
+
 ## 11. Instalación y Guía de Uso
 
 ### Requisitos Previos

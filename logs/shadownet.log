@@ -99,3 +99,11 @@
 2026-02-18 20:14:20,448 - core.automation.n8n_client - INFO - n8n automation event delivered.
 2026-02-18 20:15:09,672 - core.automation.n8n_client - WARNING - n8n HTTP error 404: {"code":404,"message":"The requested webhook \"shadownet-alert\" is not registered.","hint":"Click the 'Execute workflow' button on the canvas, then try again. (In test mode, the webhook only works for one call after you click this button)"}
 2026-02-18 20:15:33,324 - core.automation.n8n_client - INFO - n8n automation event delivered.
+2026-02-18 20:43:49,562 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Skipped: integration disabled
+2026-02-18 20:43:49,603 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Skipped: integration disabled
+2026-02-18 20:43:49,615 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Skipped: LOW risk in dev environment
+2026-02-18 20:43:49,616 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Sending alert...
+2026-02-18 20:43:49,617 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Success
+2026-02-18 20:43:49,618 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Sending alert...
+2026-02-18 20:43:49,619 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Failed: connection_error
+2026-02-18 20:44:25,528 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Failed: connection_error
