@@ -3,6 +3,7 @@ services:
     name: shadownet-defender-api
     runtime: python
     plan: free
+    rootDir: .
     autoDeploy: true
     buildCommand: pip install -r requirements.txt
     startCommand: python -m uvicorn api_server:app --host 0.0.0.0 --port $PORT
@@ -16,3 +17,7 @@ services:
         value: https://ivainx21.app.n8n.cloud/webhook/shadownet-alert
       - key: N8N_TIMEOUT_SECONDS
         value: "8"
+      - key: OLLAMA_BASE_URL
+        value: https://your-ollama-host.example.com
+      - key: OLLAMA_MODEL
+        value: mistral

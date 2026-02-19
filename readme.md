@@ -1060,6 +1060,24 @@ Lectura esperada:
 - `delivered=true` cuando n8n acepta el evento.
 - `delivered=false` puede ocurrir en webhooks de prueba inactivos; no rompe el flujo principal.
 
+### 14.10 Deploy en Render (API + n8n + Ollama remoto)
+
+Se añadió `render.yaml` listo para Blueprint deploy.
+
+Checklist mínimo en Render:
+
+- Root Directory: `.` (si el repo está en raíz)
+- Runtime: Python `3.11.14`
+- Healthcheck: `GET /health`
+- Variables n8n:
+  - `N8N_ENABLED=true`
+  - `N8N_WEBHOOK_URL=https://ivainx21.app.n8n.cloud/webhook/shadownet-alert`
+- Variables Ollama remoto:
+  - `OLLAMA_BASE_URL=https://<tu-host-ollama>`
+  - `OLLAMA_MODEL=mistral`
+
+Nota: en Render no existe Ollama local (`127.0.0.1:11434`), por lo que `/llm/explain` requiere un host de Ollama accesible por red.
+
 ## 11. Instalación y Guía de Uso
 
 ### Requisitos Previos
