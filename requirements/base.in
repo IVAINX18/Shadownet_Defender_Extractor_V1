@@ -10,3 +10,4 @@ joblib
 rich
 colorama
 tqdm
+openai

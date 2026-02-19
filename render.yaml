@@ -1,3 +1,20 @@
+# =============================================================================
+# render.yaml — Configuración de despliegue en Render para ShadowNet Defender
+# =============================================================================
+#
+# Este archivo define el servicio web (FastAPI) y sus variables de entorno.
+#
+# IMPORTANTE:
+#   - OLLAMA_BASE_URL debe apuntar a tu Cloudflare Tunnel público.
+#     En Render NO hay Ollama local, así que localhost no funciona.
+#   - La URL del quick tunnel cambia cada vez que reinicias cloudflared.
+#     Actualiza OLLAMA_BASE_URL en el dashboard de Render cuando cambie.
+#   - Para URL estable, usa un named tunnel (ver docs/cloudflare-tunnel-setup.md).
+#
+# Variables sensibles (webhooks, URLs de tunnel) se pueden sobreescribir
+# desde el dashboard de Render → Environment sin modificar este archivo.
+# =============================================================================
+
 services:
   - type: web
     name: shadownet-defender-api
@@ -9,19 +26,38 @@ services:
     startCommand: python -m uvicorn api_server:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
+      # ─── Python ────────────────────────────────────────────────────────
       - key: PYTHON_VERSION
-        value: 3.11.14
+        value: "3.11.14"
+
+      # ─── Entorno ──────────────────────────────────────────────────────
       - key: ENVIRONMENT
         value: prod
+
+      # ─── Ollama (vía Cloudflare Tunnel) ───────────────────────────────
+      # URL pública de Ollama expuesto con cloudflared.
+      # Formato: https://xxxx.trycloudflare.com/v1
+      # ⚠️ Actualiza este valor cada vez que reinicies el quick tunnel.
+      - key: OLLAMA_BASE_URL
+        value: https://xxxx.trycloudflare.com/v1
+
+      # Modelo de Ollama a usar para explicaciones LLM.
+      # Opciones recomendadas: llama3.2:3b, phi3:mini, llama3.2:1b
+      - key: OLLAMA_MODEL
+        value: "llama3.2:3b"
+
+      # ─── n8n Automation ───────────────────────────────────────────────
       - key: N8N_ENABLED
         value: "true"
+
+      # Webhook de prueba (n8n test mode)
       - key: N8N_WEBHOOK_TEST
         value: https://ivainx21.app.n8n.cloud/webhook-test/shadownet-malware
+
+      # Webhook de producción (n8n production mode)
       - key: N8N_WEBHOOK_PROD
         value: https://ivainx21.app.n8n.cloud/webhook/shadownet-malware
+
+      # Timeout para llamadas a n8n (segundos)
       - key: N8N_TIMEOUT_SECONDS
         value: "8"
-      - key: OLLAMA_BASE_URL
-        value: https://your-ollama-host.example.com
-      - key: OLLAMA_MODEL
-        value: mistral

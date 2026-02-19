@@ -793,10 +793,13 @@ python cli.py llm-explain --file samples/procexp64.exe --provider ollama
 
 ### 10.4 Variables de Entorno para LLM
 
-**Ollama**
+**Ollama (vía Cloudflare Tunnel en producción)**
 
-- `OLLAMA_BASE_URL` (default: `http://127.0.0.1:11434`)
-- `OLLAMA_MODEL` (default: `llama3.1:8b`)
+- `OLLAMA_BASE_URL` — URL del endpoint OpenAI-compatible de Ollama
+  - Local: `http://127.0.0.1:11434/v1`
+  - Remoto (Render): `https://xxxx.trycloudflare.com/v1` (Cloudflare Tunnel)
+- `OLLAMA_MODEL` — Modelo a usar (default: `llama3.2:3b`)
+  - Opciones recomendadas: `llama3.2:3b`, `phi3:mini`, `llama3.2:1b`
 
 ## Automation Layer (n8n Integration)
 
@@ -864,28 +867,30 @@ Las mejoras respetan los principios del proyecto:
 - Se mantiene compatibilidad de inferencia con ONNX + scaler.
 - El flujo principal por consola continúa operativo.
 
-## 14. Integración con LMM usando Ollama y Mistral
+## 14. Integración con LLM usando Ollama (vía Cloudflare Tunnel)
 
-> Importante: el LMM **no detecta malware**. La detección permanece en el modelo ML (ONNX + scaler).
-> El LMM únicamente explica resultados del `scan_result` ya generado por ShadowNet Defender.
+> Importante: el LLM **no detecta malware**. La detección permanece en el modelo ML (ONNX + scaler).
+> El LLM únicamente explica resultados del `scan_result` ya generado por ShadowNet Defender.
 
 ### 14.1 Arquitectura implementada
 
-Se añadieron capas específicas para explicación LMM:
+Se añadieron capas específicas para explicación LLM:
 
 ```text
 core/
   llm/
     prompt_builder.py       # Prompt seguro y estructurado
-    ollama_client.py        # Cliente HTTP para Ollama
+    ollama_client.py        # Cliente OpenAI SDK para Ollama (local o remoto)
     explanation_service.py  # Servicio desacoplado para explicación
 ```
 
 Principios aplicados:
 
 - Separación de responsabilidades por capa.
-- Entrada controlada al LMM (solo resumen de escaneo).
+- Entrada controlada al LLM (solo resumen de escaneo).
 - Contrato desacoplado para reemplazar proveedor futuro.
+- **OpenAI SDK** como cliente HTTP (Ollama expone API compatible en `/v1`).
+- Soporte para Ollama local y remoto vía **Cloudflare Tunnel**.
 
 ### 14.2 Flujo de datos
 
@@ -895,9 +900,16 @@ flowchart TD
   B --> C[Modelo ONNX + Scaler]
   C --> D[scan_result JSON]
   D --> E[Prompt Builder Seguro]
-  E --> F[Ollama API /api/generate]
+  E --> F[Ollama /v1/chat/completions]
   F --> G[Explicación técnica estructurada]
   G --> H[CLI/API/Telemetría]
+```
+
+```text
+┌──────────────────┐     HTTPS      ┌─────────────────────┐     HTTP       ┌──────────────┐
+│  Render (FastAPI) │ ──────────────▶│  Cloudflare Tunnel  │──────────────▶│ Ollama :11434│
+│  (nube)           │                │  *.trycloudflare.com│               │ (tu PC local)│
+└──────────────────┘                └─────────────────────┘               └──────────────┘
 ```
 
 ### 14.3 Seguridad contra alucinaciones
@@ -924,16 +936,16 @@ Escaneo estándar:
 python cli.py scan samples/procexp64.exe
 ```
 
-Escaneo + explicación LMM (Mistral en Ollama):
+Escaneo + explicación LLM (Ollama):
 
 ```bash
-python cli.py scan samples/procexp64.exe --explain --provider ollama --model mistral
+python cli.py scan samples/procexp64.exe --explain --provider ollama --model llama3.2:3b
 ```
 
 Explicar un resultado ya calculado:
 
 ```bash
-python cli.py llm-explain --scan-json /tmp/scan_result_demo.json --provider ollama --model mistral
+python cli.py llm-explain --scan-json /tmp/scan_result_demo.json --provider ollama --model llama3.2:3b
 ```
 
 ### 14.5 Uso en API
@@ -957,7 +969,7 @@ curl -X POST "http://127.0.0.1:8000/llm/explain" \
   -H "Content-Type: application/json" \
   -d '{
     "provider": "ollama",
-    "model": "mistral",
+    "model": "llama3.2:3b",
     "scan_result": {
       "label": "MALWARE",
       "score": 0.91,
@@ -972,22 +984,84 @@ curl -X POST "http://127.0.0.1:8000/llm/explain" \
   }'
 ```
 
-### 14.6 Instalación de Ollama + Mistral
+### 14.6 Running Ollama localmente + exposing it publicly with Cloudflare Tunnel
+
+#### Paso 1: Instalar y ejecutar Ollama
 
 ```bash
-# Instalar Ollama (según tu sistema)
-# https://ollama.com/
+# Instalar Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+# O visita: https://ollama.com/download
 
-ollama pull mistral
+# Descargar modelo (ligero, ideal para testing)
+ollama pull llama3.2:3b
+
+# Iniciar servicio
 ollama serve
+# (o usar como servicio del sistema: systemctl start ollama)
+
+# Verificar que funciona
+curl http://localhost:11434/v1/models
 ```
 
-Variables opcionales:
+O usar el script automatizado:
 
 ```bash
-export OLLAMA_BASE_URL="http://127.0.0.1:11434"
-export OLLAMA_MODEL="mistral"
+chmod +x fix-ollama.sh
+./fix-ollama.sh
 ```
+
+#### Paso 2: Instalar cloudflared
+
+```bash
+# Linux (Debian/Ubuntu)
+curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+sudo dpkg -i cloudflared.deb
+
+# macOS
+brew install cloudflare/cloudflare/cloudflared
+
+# Windows
+winget install --id Cloudflare.cloudflared
+```
+
+#### Paso 3: Exponer Ollama con Cloudflare Tunnel
+
+```bash
+cloudflared tunnel --url http://localhost:11434 --http-host-header="localhost:11434"
+```
+
+> ⚠️ **IMPORTANTE:** El flag `--http-host-header="localhost:11434"` es **obligatorio**.
+> Sin él, Ollama rechaza las peticiones por header `Host` incorrecto.
+
+Copia la URL `https://*.trycloudflare.com` que aparece en la terminal.
+
+#### Paso 4: Configurar en Render
+
+En el dashboard de Render → Environment:
+
+```
+OLLAMA_BASE_URL = https://random-string.trycloudflare.com/v1
+OLLAMA_MODEL    = llama3.2:3b
+```
+
+> ⚠️ **Advertencia:** La URL del quick tunnel **cambia cada vez que reinicias cloudflared**.
+> Para demos estables, crea un **named tunnel** en el dashboard de Cloudflare con tu dominio (gratis).
+> Ver guía completa: `docs/cloudflare-tunnel-setup.md`
+
+#### Paso 5: Verificar end-to-end
+
+```bash
+# Desde otra máquina o navegador:
+curl https://random-string.trycloudflare.com/v1/models
+
+# Desde Render (API desplegada):
+curl https://shadownet-defender-api.onrender.com/llm/explain \
+  -X POST -H "Content-Type: application/json" \
+  -d '{"file_path": "samples/procexp64.exe"}'
+```
+
+Ver guía completa de verificación: `docs/test-flow.md`
 
 ### 14.7 Extensibilidad futura
 
@@ -1014,7 +1088,7 @@ Para facilitar pruebas controladas sin riesgo, se añadieron dos artefactos en `
 Ejemplo de validación con el sample simulado:
 
 ```bash
-python cli.py llm-explain --scan-json samples/malware_simulated_scan.json --provider ollama --model mistral
+python cli.py llm-explain --scan-json samples/malware_simulated_scan.json --provider ollama --model llama3.2:3b
 ```
 
 Resultado esperado:
@@ -1060,7 +1134,7 @@ Lectura esperada:
 - `delivered=true` cuando n8n acepta el evento.
 - `delivered=false` puede ocurrir en webhooks de prueba inactivos; no rompe el flujo principal.
 
-### 14.10 Deploy en Render (API + n8n + Ollama remoto)
+### 14.10 Deploy en Render (API + n8n + Ollama vía Cloudflare Tunnel)
 
 Se añadió `render.yaml` listo para Blueprint deploy.
 
@@ -1069,21 +1143,25 @@ Checklist mínimo en Render:
 - Root Directory: `.` (si el repo está en raíz)
 - Runtime: Python `3.11.14`
 - Healthcheck: `GET /health`
+- Start command: `python -m uvicorn api_server:app --host 0.0.0.0 --port $PORT`
 - Variables n8n:
   - `N8N_ENABLED=true`
-  - `N8N_WEBHOOK_URL=https://ivainx21.app.n8n.cloud/webhook/shadownet-alert`
-- Variables Ollama remoto:
-  - `OLLAMA_BASE_URL=https://<tu-host-ollama>`
-  - `OLLAMA_MODEL=mistral`
+  - `N8N_WEBHOOK_TEST=https://ivainx21.app.n8n.cloud/webhook-test/shadownet-malware`
+  - `N8N_WEBHOOK_PROD=https://ivainx21.app.n8n.cloud/webhook/shadownet-malware`
+- Variables Ollama (Cloudflare Tunnel):
+  - `OLLAMA_BASE_URL=https://xxxx.trycloudflare.com/v1` ← URL de tu Cloudflare Tunnel + `/v1`
+  - `OLLAMA_MODEL=llama3.2:3b`
 
-Nota: en Render no existe Ollama local (`127.0.0.1:11434`), por lo que `/llm/explain` requiere un host de Ollama accesible por red.
+> ⚠️ En Render **no existe Ollama local** (`127.0.0.1:11434`).
+> El endpoint `/llm/explain` requiere que Ollama esté expuesto públicamente vía Cloudflare Tunnel.
+> Ver: `docs/cloudflare-tunnel-setup.md`
 
 ### 14.11 Integración con n8n Cloud
 
 Arquitectura:
 
 - El motor ML (`scan_result`) se mantiene local.
-- La explicación LLM (Ollama) se mantiene local/remota según `OLLAMA_BASE_URL`.
+- La explicación LLM (Ollama) se mantiene local/remota según `OLLAMA_BASE_URL` (Cloudflare Tunnel en producción).
 - La automatización externa se resuelve en `core/integrations/n8n_client.py`.
 - El envío a n8n es no bloqueante para no afectar SLA del escaneo.
 

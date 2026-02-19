@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+import logging
+import os
+from dataclasses import dataclass, field
 from typing import Dict, Optional, Protocol
 
 from .ollama_client import OllamaClient, OllamaClientConfig
 from .prompt_builder import build_llm_prompt
+
+logger = logging.getLogger("shadownet.llm.service")
 
 
 class LLMClient(Protocol):
@@ -22,15 +26,22 @@ class LLMClient(Protocol):
 class ExplanationServiceConfig:
     """
     Configuración del servicio de explicación.
+
+    Lee OLLAMA_MODEL del entorno para determinar el modelo por defecto.
     """
 
     default_provider: str = "ollama"
-    default_model: str = "mistral"
+    default_model: str = field(
+        default_factory=lambda: os.getenv("OLLAMA_MODEL", "llama3.2:3b")
+    )
 
 
 class ExplanationService:
     """
     Servicio de alto nivel que genera explicación de resultados ML.
+
+    Usa OllamaClient (OpenAI SDK) para comunicarse con Ollama,
+    ya sea local o remoto vía Cloudflare Tunnel.
     """
 
     def __init__(
@@ -43,6 +54,11 @@ class ExplanationService:
         self.clients = clients or {
             "ollama": OllamaClient(OllamaClientConfig(model=self.config.default_model)),
         }
+        logger.info(
+            "ExplanationService inicializado → provider=%s, model=%s",
+            self.config.default_provider,
+            self.config.default_model,
+        )
 
     def register_client(self, provider: str, client: LLMClient) -> None:
         """

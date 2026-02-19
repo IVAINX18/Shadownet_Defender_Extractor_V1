@@ -95,7 +95,7 @@ def scan_batch(file_paths: List[str]) -> Dict[str, List[Dict]]:
 @app.post("/llm/explain")
 def llm_explain(payload: Dict) -> Dict:
     provider = payload.get("provider", "ollama")
-    model = payload.get("model", "mistral")
+    model = payload.get("model")
     file_path = payload.get("file_path")
     scan_result = payload.get("scan_result")
 
@@ -120,7 +120,7 @@ def llm_explain(payload: Dict) -> Dict:
     except Exception as exc:
         telemetry.record_llm_interaction(
             provider=str(provider),
-            model=str(model or "mistral"),
+            model=str(model or "unknown"),
             ok=False,
             latency_ms=(time.time() - start) * 1000,
             error=str(exc),
