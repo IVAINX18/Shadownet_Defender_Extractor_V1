@@ -1023,6 +1023,43 @@ Resultado esperado:
 - bloque `llm` con `provider`, `model`, `response_text`
 - si Ollama no está activo, salida de error controlado sin romper el pipeline
 
+### 14.9 Avances Recientes (n8n vía API)
+
+Se consolidó la capa de automatización externa con n8n cloud y se validó su operación por endpoints dedicados en la API.
+
+Cambios implementados:
+
+- Eliminación total de integración Opal en runtime y configuración.
+- Nueva capa desacoplada `core/automation/n8n_client.py`.
+- Envío automático a n8n después de `ML + LLM` en `POST /llm/explain`.
+- Comportamiento no bloqueante: si n8n falla, la API sigue respondiendo.
+
+Endpoints nuevos de validación:
+
+- `GET /automation/health`
+- `POST /automation/test`
+
+Variables de entorno operativas:
+
+- `N8N_ENABLED=true|false`
+- `N8N_WEBHOOK_URL=https://...`
+- `N8N_TIMEOUT_SECONDS=8` (opcional)
+
+Prueba rápida:
+
+```bash
+curl "http://127.0.0.1:8000/automation/health"
+curl -X POST "http://127.0.0.1:8000/automation/test" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+Lectura esperada:
+
+- `enabled=true` y `configured=true` cuando el webhook está cargado en el proceso de la API.
+- `delivered=true` cuando n8n acepta el evento.
+- `delivered=false` puede ocurrir en webhooks de prueba inactivos; no rompe el flujo principal.
+
 ## 11. Instalación y Guía de Uso
 
 ### Requisitos Previos

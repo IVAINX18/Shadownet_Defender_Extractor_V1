@@ -4,7 +4,8 @@ import hashlib
 import json
 import time
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
+from urllib.parse import urlparse
 
 from core.automation.n8n_client import N8NClient
 from core.engine import ShadowNetEngine
@@ -99,6 +100,15 @@ def _build_n8n_payload(scan_result: Dict, llm_out: Dict) -> Dict:
     }
 
 
+def _safe_webhook_host(url: str) -> str:
+    if not url:
+        return "not_configured"
+    try:
+        return urlparse(url).netloc or "invalid_url"
+    except Exception:
+        return "invalid_url"
+
+
 @app.get("/health")
 def health() -> Dict[str, str]:
     model_state = "loaded" if engine.model is not None else "not_loaded"
@@ -165,6 +175,34 @@ def llm_explain(payload: Dict) -> Dict:
             error=str(exc),
         )
         return {"ok": False, "error": str(exc), "scan_result": scan_result}
+
+
+@app.get("/automation/health")
+def automation_health() -> Dict[str, Any]:
+    return {
+        "enabled": n8n_client.config.enabled,
+        "configured": bool(n8n_client.config.webhook_url.strip()),
+        "webhook_host": _safe_webhook_host(n8n_client.config.webhook_url),
+        "timeout_seconds": n8n_client.config.timeout_seconds,
+    }
+
+
+@app.post("/automation/test")
+def automation_test(payload: Dict | None = None) -> Dict:
+    test_payload = payload or {
+        "file_name": "test-sample.exe",
+        "file_hash": "sha256_test",
+        "file_path": "/tmp/test-sample.exe",
+        "ml_score": 0.99,
+        "confidence": "High",
+        "risk_level": "critical",
+        "llm_explanation": "{\"resumen_ejecutivo\":\"test\"}",
+        "recommended_action": "Aislar host afectado",
+        "model_version": _read_model_version(),
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    delivered = n8n_client.send_analysis_event(test_payload)
+    return {"ok": True, "delivered": delivered, "sent_payload": test_payload}
 
 
 if __name__ == "__main__":
