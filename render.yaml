@@ -16,9 +16,9 @@ services:
       - key: N8N_ENABLED
         value: "true"
       - key: N8N_WEBHOOK_TEST
-        value: https://ivainx21.app.n8n.cloud/webhook-test/shadownet-alert
+        value: https://ivainx21.app.n8n.cloud/webhook-test/shadownet-malware
       - key: N8N_WEBHOOK_PROD
-        value: https://ivainx21.app.n8n.cloud/webhook/shadownet-alert
+        value: https://ivainx21.app.n8n.cloud/webhook/shadownet-malware
       - key: N8N_TIMEOUT_SECONDS
         value: "8"
       - key: OLLAMA_BASE_URL
