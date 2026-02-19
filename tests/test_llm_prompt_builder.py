@@ -26,7 +26,8 @@ def test_build_llm_prompt_contains_guardrails_and_summary():
     scan = {"label": "BENIGN", "score": 0.02, "confidence": "High", "details": {}}
     prompt = build_llm_prompt(scan)
     assert "Tu tarea NO es detectar malware" in prompt
-    assert "Responde SOLO en JSON válido" in prompt
+    assert "Responde SOLO con JSON puro" in prompt
+    assert "score >= 0.5 implica MALWARE" in prompt
     assert "SCAN_SUMMARY" in prompt
     # Debe incluir el bloque en JSON serializado
     assert '"label": "BENIGN"' in prompt

@@ -1091,11 +1091,27 @@ Ejemplo de validación con el sample simulado:
 python cli.py llm-explain --scan-json samples/malware_simulated_scan.json --provider ollama --model llama3.2:3b
 ```
 
+Visualización limpia del bloque LLM en CLI:
+
+```bash
+python cli.py scan samples/procexp64.exe --explain --provider ollama --model llama3.2:3b \
+  | jq '.llm.parsed_response // .llm.response_text'
+```
+
 Resultado esperado:
 
 - JSON con bloque `scan_result`
 - bloque `llm` con `provider`, `model`, `response_text`
+- cuando el LLM responde JSON válido, se incluye `llm.parsed_response` (objeto listo para consumo)
 - si Ollama no está activo, salida de error controlado sin romper el pipeline
+
+Tip de visualización en terminal:
+
+```bash
+curl -sS -X POST "http://127.0.0.1:8000/llm/explain" \
+  -H "Content-Type: application/json" \
+  -d @payload.json | jq .
+```
 
 ### 14.9 Avances Recientes (n8n vía API)
 
@@ -1200,6 +1216,101 @@ curl -X POST "http://127.0.0.1:8000/automation/test" \
 
 Nota: el pipeline ML y LLM se ejecuta localmente; n8n se usa únicamente para orquestación
 (email, almacenamiento y auditoría externa).
+
+## 10.12 Estructura del Repositorio y Archivos Raíz
+
+La siguiente estructura refleja el estado actual del proyecto.  
+Para mantener foco en código útil, se omiten carpetas de entorno/artefactos locales
+como `.git/`, `.venv/`, `__pycache__/` y `.pytest_cache/`.
+
+### Árbol del proyecto (alto nivel)
+
+```text
+Shadownet_Defender/
+├── core/
+│   ├── llm/
+│   ├── integrations/
+│   └── automation/
+├── extractors/
+├── models/
+├── security/
+├── utils/
+├── tests/
+├── requirements/
+├── docs/
+├── configs/
+├── evaluation/
+├── data/
+├── datasets/
+├── training/
+├── samples/
+├── logs/
+├── ui/
+├── ui_future/
+├── legacy/
+└── LogoDefender/
+```
+
+### Qué contiene cada carpeta
+
+| Carpeta | Contenido principal | Función en el sistema |
+| :------ | :------------------ | :-------------------- |
+| `core/` | `engine.py`, `llm/`, `integrations/n8n_client.py`, `automation/n8n_client.py` | Núcleo de orquestación: escaneo, capa LLM y automatización externa. |
+| `extractors/` | Extractores de features PE (`byte_entropy.py`, `imports.py`, etc.) | Ingeniería de características para alimentar el modelo ML. |
+| `models/` | `best_model.onnx`, `scaler.pkl`, `inference.py` | Artefactos de inferencia y lógica de predicción. |
+| `security/` | `artifact_verifier.py` | Verificación de integridad de artefactos/modelos. |
+| `utils/` | `logger.py`, `runtime_checks.py` | Utilidades compartidas y chequeos de entorno. |
+| `tests/` | Tests de CLI, extractores, LLM y n8n | Validación automática del comportamiento del proyecto. |
+| `requirements/` | `*.in` y `*.lock.txt` por perfil (`base`, `ml`, `viz`, `dev`) | Gestión reproducible de dependencias. |
+| `docs/` | Guías operativas (túnel Cloudflare, demo, flujo de test) | Documentación técnica complementaria. |
+| `configs/` | `settings.py` | Configuración centralizada del proyecto. |
+| `evaluation/` | `_mock_model.py` | Soporte para evaluación y pruebas sin modelo pesado. |
+| `data/` | `test_set/` con `X_test.npy`, `y_test.npy` | Datos de prueba para scripts de evaluación. |
+| `datasets/` | `__init__.py` | Paquete reservado para gestión de datasets. |
+| `training/` | `__init__.py` | Espacio para pipeline de entrenamiento (expansión futura). |
+| `samples/` | Archivos de muestra benignos/sintéticos | Pruebas manuales del escáner. |
+| `logs/` | `shadownet.log`, `telemetry.jsonl` | Registro de eventos operativos y telemetría local. |
+| `ui/` | `app.py` | Prototipo de interfaz local. |
+| `ui_future/` | (placeholder) | Reserva para GUI futura. |
+| `legacy/` | Versiones y verificadores históricos | Referencia y compatibilidad de código previo. |
+| `LogoDefender/` | Recursos gráficos (`.png`) | Identidad visual del producto. |
+
+### Archivos en raíz: qué hacen y si deben integrarse a carpetas
+
+Estos archivos se mantienen en raíz porque son entrypoints o archivos de plataforma:
+
+| Archivo raíz | Qué hace | Decisión |
+| :----------- | :------- | :------- |
+| `api_server.py` | API FastAPI principal (`/scan`, `/scan-batch`, `/llm/explain`, `/automation/*`). | Mantener en raíz (entrypoint de despliegue). |
+| `cli.py` | CLI principal para escaneo y explicación (`--explain`). | Mantener en raíz (entrypoint de consola). |
+| `llm_agent_bridge.py` | Bridge de compatibilidad hacia la capa `core/llm/`. | Mantener en raíz (backward compatibility). |
+| `telemetry_client.py` | Escritor JSONL de telemetría operativa. | Mantener en raíz por compatibilidad actual. |
+| `render.yaml` | Definición de despliegue en Render. | Mantener en raíz (requisito de plataforma). |
+| `requirements.txt` | Archivo agregador de instalación por lockfiles. | Mantener en raíz (convención de instalación). |
+| `runtime.txt` | Versión de Python para servicios PaaS. | Mantener en raíz (Render/entornos similares). |
+| `model_manifest.json` | Manifiesto de integridad/versionado de artefactos. | Mantener en raíz (consumo directo de verificación/updates). |
+| `readme.md` | Documentación principal del proyecto. | Mantener en raíz. |
+| `.gitignore` | Exclusiones de control de versiones. | Mantener en raíz (requisito de Git). |
+| `.python-version` | Versión local por `pyenv`/tooling. | Mantener en raíz. |
+
+Estos scripts están en raíz por historial del proyecto y pueden agruparse a futuro
+en una carpeta `scripts/` sin cambiar la lógica de negocio:
+
+| Archivo raíz | Función actual | Estado recomendado |
+| :----------- | :------------- | :----------------- |
+| `evaluate_model_metrics.py` | Evaluación científica de métricas (accuracy, recall, F1, AUC). | Candidato a `scripts/evaluation/`. |
+| `explain_global_model.py` | Explicabilidad global por bloques de features. | Candidato a `scripts/evaluation/`. |
+| `explain_prediction.py` | Explicación heurística por muestra individual. | Candidato a `scripts/evaluation/`. |
+| `generate_mock_dataset.py` | Generación de dataset sintético para pruebas. | Candidato a `scripts/data/`. |
+| `test_robustness.py` | Pruebas de robustez adversarial. | Candidato a `scripts/evaluation/`. |
+| `verify_readiness.py` | Smoke test de readiness ML + LLM. | Candidato a `scripts/ops/`. |
+| `updater.py` | Actualizador de artefactos con verificación de hash. | Candidato a `scripts/ops/` o `core/ops/`. |
+| `fix_scaler.py` | Re-guardado del scaler para compatibilidad de versiones. | Candidato a `scripts/maintenance/`. |
+| `fix-ollama.sh` | Setup/diagnóstico de integración Ollama. | Candidato a `scripts/ops/`. |
+
+**Nota operativa:** por ahora no se mueven automáticamente para evitar romper rutas
+o comandos ya usados en el equipo. La integración física en `scripts/` se puede hacer
+en un refactor controlado con actualización de tests y README.
 
 ## 11. Instalación y Guía de Uso
 

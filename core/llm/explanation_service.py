@@ -1,14 +1,66 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
+import re
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Protocol
+from typing import Any, Dict, Optional, Protocol
 
 from .ollama_client import OllamaClient, OllamaClientConfig
 from .prompt_builder import build_llm_prompt
 
 logger = logging.getLogger("shadownet.llm.service")
+
+
+def _parse_json_response(response_text: str) -> Any | None:
+    """
+    Tries to parse model output as JSON.
+
+    Accepts:
+    - raw JSON text
+    - markdown fenced JSON blocks (```json ... ```)
+
+    Returns the parsed object when valid JSON is produced; otherwise returns None.
+    """
+    if not isinstance(response_text, str):
+        return None
+
+    text = response_text.strip()
+    if not text:
+        return None
+
+    # 1) Fast path: raw JSON
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+
+    # 2) Common LLM format: fenced JSON block
+    fence_pattern = re.compile(
+        r"```(?:json)?\s*(?P<body>[\s\S]*?)\s*```",
+        re.IGNORECASE,
+    )
+    for match in fence_pattern.finditer(text):
+        body = match.group("body").strip()
+        if not body:
+            continue
+        try:
+            return json.loads(body)
+        except Exception:
+            continue
+
+    # 3) Last resort: parse largest object-like slice
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        candidate = text[start : end + 1]
+        try:
+            return json.loads(candidate)
+        except Exception:
+            return None
+
+    return None
 
 
 class LLMClient(Protocol):
@@ -87,9 +139,14 @@ class ExplanationService:
         prompt = build_llm_prompt(scan_result)
         resolved_model = model or self.config.default_model
         response_text = client.generate(prompt, model=resolved_model)
-        return {
+        parsed_response = _parse_json_response(response_text)
+        result = {
             "provider": resolved_provider,
             "model": resolved_model,
             "response_text": response_text,
             "prompt_version": "v1",
         }
+        if parsed_response is not None:
+            # Keep backward compatibility with response_text while offering structured output.
+            result["parsed_response"] = parsed_response
+        return result

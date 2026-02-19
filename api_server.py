@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import time
 from pathlib import Path
 from typing import Any, Dict, List
@@ -60,6 +61,26 @@ def _safe_webhook_host(url: str) -> str:
         return "invalid_url"
 
 
+def _ensure_parsed_llm_response(llm_out: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Adds `parsed_response` when `response_text` is valid JSON.
+
+    Keeps backward compatibility by preserving the original `response_text`.
+    """
+    if "parsed_response" in llm_out:
+        return llm_out
+
+    raw_response = llm_out.get("response_text")
+    if not isinstance(raw_response, str):
+        return llm_out
+
+    try:
+        llm_out["parsed_response"] = json.loads(raw_response)
+    except Exception:
+        pass
+    return llm_out
+
+
 @app.get("/health")
 def health() -> Dict[str, str]:
     model_state = "loaded" if engine.model is not None else "not_loaded"
@@ -110,6 +131,7 @@ def llm_explain(payload: Dict) -> Dict:
     start = time.time()
     try:
         llm_out = llm_bridge.explain_scan(scan_result, provider=provider, model=model)
+        llm_out = _ensure_parsed_llm_response(llm_out)
         telemetry.record_llm_interaction(
             provider=llm_out["provider"],
             model=llm_out["model"],

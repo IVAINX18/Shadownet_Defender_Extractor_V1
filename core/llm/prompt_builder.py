@@ -77,8 +77,10 @@ def build_llm_prompt(scan_result: Dict[str, Any]) -> str:
         "1) Usa exclusivamente los campos del bloque SCAN_SUMMARY.\n"
         "2) No inventes APIs, secciones, imports ni métricas no presentes.\n"
         "3) Si falta información, escribe literalmente: 'dato no disponible'.\n"
-        "4) Incluye razonamiento matemático simple con score y umbral 0.5.\n"
-        "5) Responde SOLO en JSON válido con esta estructura exacta:\n"
+        "4) Usa regla de umbral exacta: score >= 0.5 implica MALWARE; score < 0.5 implica BENIGN.\n"
+        "5) La justificación matemática DEBE ser consistente con label y score.\n"
+        "6) Responde SOLO con JSON puro (sin markdown, sin ```json, sin texto extra).\n"
+        "7) Usa esta estructura exacta:\n"
         "{\n"
         '  "resumen_ejecutivo": "string",\n'
         '  "explicacion_tecnica": "string",\n'
@@ -88,4 +90,3 @@ def build_llm_prompt(scan_result: Dict[str, Any]) -> str:
         "}\n\n"
         f"SCAN_SUMMARY:\n{data_block}\n"
     )
-

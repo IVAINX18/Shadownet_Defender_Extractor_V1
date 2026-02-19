@@ -5,6 +5,11 @@ import json
 import time
 from pathlib import Path
 
+from rich.console import Console
+from rich.json import JSON
+from rich.panel import Panel
+from rich.table import Table
+
 from core.engine import ShadowNetEngine
 from core.integrations.n8n_client import N8NClient
 from llm_agent_bridge import LLMAgentBridge
@@ -15,6 +20,8 @@ from security.artifact_verifier import (
 )
 from telemetry_client import TelemetryClient
 from updater import apply_update
+
+console = Console()
 
 
 def _run_llm_explanation(
@@ -63,6 +70,104 @@ def _run_llm_explanation(
         }
 
 
+def _format_llm_response(payload: dict) -> None:
+    """
+    Formatea y muestra la respuesta del LLM de manera legible y colorida.
+    """
+    llm_block = payload.get("llm", {})
+    response_text = llm_block.get("response_text", "")
+    
+    # Intentar parsear el response_text como JSON
+    try:
+        parsed = json.loads(response_text)
+        llm_block["parsed_response"] = parsed
+    except (json.JSONDecodeError, TypeError):
+        pass  # Si no es JSON válido, leave as-is
+    
+    # Mostrar panel con información del LLM
+    provider = llm_block.get("provider", "unknown")
+    model = llm_block.get("model", "unknown")
+    
+    # Crear tabla con metadatos
+    meta_table = Table(title="📡 Información del LLM", show_header=False, box=None)
+    meta_table.add_column("key", style="cyan bold")
+    meta_table.add_column("value", style="green")
+    meta_table.add_row("Provider", provider)
+    meta_table.add_row("Model", model)
+    meta_table.add_row("Prompt Version", llm_block.get("prompt_version", "N/A"))
+    
+    console.print(meta_table)
+    console.print()
+    
+    # Si tenemos respuesta parseada, mostrarla en panel bonito
+    if "parsed_response" in llm_block:
+        parsed = llm_block["parsed_response"]
+        
+        # Resumen Ejecutivo
+        if "resumen_ejecutivo" in parsed:
+            console.print(Panel(
+                parsed["resumen_ejecutivo"],
+                title="📋 Resumen Ejecutivo",
+                border_style="green",
+                expand=False,
+            ))
+            console.print()
+        
+        # Explicación Técnica
+        if "explicacion_tecnica" in parsed:
+            console.print(Panel(
+                parsed["explicacion_tecnica"],
+                title="🔍 Explicación Técnica",
+                border_style="blue",
+                expand=False,
+            ))
+            console.print()
+        
+        # Justificación Matemática
+        if "justificacion_matematica" in parsed:
+            console.print(Panel(
+                parsed["justificacion_matematica"],
+                title="📐 Justificación Matemática",
+                border_style="yellow",
+                expand=False,
+            ))
+            console.print()
+        
+        # Indicadores Clave
+        if "indicadores_clave" in parsed:
+            indicadores = parsed["indicadores_clave"]
+            if indicadores:
+                indicadores_text = "\n".join(f"• {ind}" for ind in indicadores)
+                console.print(Panel(
+                    indicadores_text,
+                    title="🔑 Indicadores Clave",
+                    border_style="red",
+                    expand=False,
+                ))
+                console.print()
+        
+        # Recomendaciones
+        if "recomendaciones" in parsed:
+            recomendaciones = parsed["recomendaciones"]
+            if recomendaciones:
+                recs_text = "\n".join(f"• {rec}" for rec in recomendaciones)
+                console.print(Panel(
+                    recs_text,
+                    title="💡 Recomendaciones",
+                    border_style="magenta",
+                    expand=False,
+                ))
+                console.print()
+    else:
+        # Si no se pudo parsear, mostrar raw
+        console.print(Panel(
+            response_text,
+            title="📝 Respuesta LLM (Raw)",
+            border_style="white",
+            expand=False,
+        ))
+
+
 def _cmd_scan(args: argparse.Namespace) -> int:
     engine = ShadowNetEngine()
     n8n_client = N8NClient()
@@ -72,7 +177,19 @@ def _cmd_scan(args: argparse.Namespace) -> int:
         # Non-blocking automation dispatch for operational workflows.
         detection_payload = n8n_client.build_detection_payload(result)
         n8n_client.send_detection_to_n8n(detection_payload)
-        print(json.dumps(result, indent=2, ensure_ascii=True))
+        # Mostrar resultado con rich
+        scan_table = Table(title="🔬 Resultado del Escaneo", show_header=False)
+        scan_table.add_column("key", style="cyan bold")
+        scan_table.add_column("value", style="green")
+        scan_table.add_row("File", result.get("file", "N/A"))
+        scan_table.add_row("Label", result.get("label", "N/A"))
+        scan_table.add_row("Score", str(result.get("score", "N/A")))
+        scan_table.add_row("Confidence", result.get("confidence", "N/A"))
+        scan_table.add_row("Status", result.get("status", "N/A"))
+        if result.get("scan_time_ms"):
+            scan_table.add_row("Scan Time (ms)", f"{result.get('scan_time_ms'):.2f}")
+        
+        console.print(scan_table)
         return 0 if result.get("error") is None else 1
 
     telemetry = TelemetryClient()
@@ -88,8 +205,34 @@ def _cmd_scan(args: argparse.Namespace) -> int:
         llm_explanation=llm_block.get("response_text"),
     )
     n8n_client.send_detection_to_n8n(n8n_llm_payload)
-    print(json.dumps(payload, indent=2, ensure_ascii=True))
-    if result.get("error") is not None:
+    # Mostrar resultado formateado
+    scan_result = payload.get("scan_result", {})
+    
+    # Mostrar información del escaneo
+    scan_table = Table(title="🔬 Resultado del Escaneo", show_header=False)
+    scan_table.add_column("key", style="cyan bold")
+    scan_table.add_column("value", style="green")
+    scan_table.add_row("File", scan_result.get("file", "N/A"))
+    scan_table.add_row("Label", scan_result.get("label", "N/A"))
+    scan_table.add_row("Score", str(scan_result.get("score", "N/A")))
+    scan_table.add_row("Confidence", scan_result.get("confidence", "N/A"))
+    scan_table.add_row("Status", scan_result.get("status", "N/A"))
+    
+    console.print(scan_table)
+    console.print()
+    
+    # Si hay explicación LLM, mostrarla formateada
+    if "llm" in payload and payload["llm"].get("response_text"):
+        _format_llm_response(payload)
+    else:
+        # Mostrar JSON completo
+        console.print(Panel(
+            JSON.from_data(payload),
+            title="📄 Respuesta Completa (JSON)",
+            border_style="white",
+        ))
+    
+    if scan_result.get("error") is not None:
         return 1
     return code
 
@@ -152,7 +295,36 @@ def _cmd_llm_explain(args: argparse.Namespace) -> int:
         model=args.model,
         telemetry=telemetry,
     )
-    print(json.dumps(payload, indent=2, ensure_ascii=True))
+    # Mostrar resultado formateado
+    scan_result = payload.get("scan_result", {})
+    
+    # Mostrar información del escaneo
+    scan_table = Table(title="🔬 Resultado del Escaneo", show_header=False)
+    scan_table.add_column("key", style="cyan bold")
+    scan_table.add_column("value", style="green")
+    
+    if args.scan_json:
+        scan_table.add_row("Source", args.scan_json)
+    else:
+        scan_table.add_row("File", scan_result.get("file", "N/A"))
+    scan_table.add_row("Label", scan_result.get("label", "N/A"))
+    scan_table.add_row("Score", str(scan_result.get("score", "N/A")))
+    scan_table.add_row("Confidence", scan_result.get("confidence", "N/A"))
+    scan_table.add_row("Status", scan_result.get("status", "N/A"))
+    
+    console.print(scan_table)
+    console.print()
+    
+    # Mostrar explicación LLM formateada
+    if "llm" in payload and payload["llm"].get("response_text"):
+        _format_llm_response(payload)
+    else:
+        console.print(Panel(
+            JSON.from_data(payload),
+            title="📄 Respuesta Completa (JSON)",
+            border_style="white",
+        ))
+    
     return code
 
 
@@ -168,7 +340,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="ollama",
         help="LLM provider (actual): ollama",
     )
-    scan_parser.add_argument("--model", default="mistral", help="LLM model name for Ollama")
+    scan_parser.add_argument("--model", default=None, help="LLM model name for Ollama (default: from OLLAMA_MODEL env)")
     scan_parser.set_defaults(func=_cmd_scan)
 
     verify_parser = subparsers.add_parser("verify-model", help="Verify artifact hashes and sizes")
@@ -199,7 +371,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="ollama",
         help="LLM provider (actual): ollama",
     )
-    llm_parser.add_argument("--model", default="mistral", help="Override model (default: mistral)")
+    llm_parser.add_argument("--model", default=None, help="Override model (default: from OLLAMA_MODEL env)")
     llm_parser.set_defaults(func=_cmd_llm_explain)
 
     return parser
