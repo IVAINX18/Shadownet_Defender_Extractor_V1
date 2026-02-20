@@ -223,7 +223,14 @@ cp .env.render-values.example .env.render-values
 Edita `.env.render-sync`:
 
 - `RENDER_API_KEY`
-- `RENDER_SERVICE_ID`
+- `RENDER_SERVICE_ID` (si no lo tienes, usa `RENDER_SERVICE_URL`)
+
+Ejemplo útil:
+
+```env
+RENDER_API_KEY=rnd_xxxxxxxxx
+RENDER_SERVICE_URL=https://shadownet-defender-extractor-v2.onrender.com
+```
 
 Edita `.env.render-values` con las variables estáticas que también quieres
 sincronizar a Render (`N8N_*`, `OLLAMA_MODEL`, etc.).

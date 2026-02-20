@@ -30,6 +30,8 @@ RENDER_TRIGGER_DEPLOY="${RENDER_TRIGGER_DEPLOY:-true}"
 RESTART_DELAY_SECONDS="${RESTART_DELAY_SECONDS:-3}"
 TUNNEL_TARGET="${TUNNEL_TARGET:-http://localhost:11434}"
 TUNNEL_HOST_HEADER="${TUNNEL_HOST_HEADER:-localhost:11434}"
+RENDER_SERVICE_URL="${RENDER_SERVICE_URL:-}"
+RENDER_SERVICE_NAME="${RENDER_SERVICE_NAME:-}"
 
 LAST_OLLAMA_BASE_URL=""
 
@@ -114,6 +116,18 @@ upsert_render_env_var() {
   escaped="$(json_escape "$value")"
   render_api_call "PUT" "/services/${RENDER_SERVICE_ID}/env-vars/${key}" "{\"value\":\"${escaped}\"}" >/dev/null
   log "Render env updated: ${key}"
+}
+
+is_placeholder() {
+  local value="${1:-}"
+  case "$value" in
+    ""|"your_render_api_key"|"<render_api_key>"|"your_render_service_id"|"<render_service_id>")
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
 }
 
 trigger_render_deploy() {
@@ -224,23 +238,157 @@ cleanup() {
   exit 0
 }
 
-if [[ -z "${RENDER_API_KEY:-}" || -z "${RENDER_SERVICE_ID:-}" ]]; then
-  echo "ERROR: RENDER_API_KEY and RENDER_SERVICE_ID are required in $CONFIG_FILE" >&2
+if [[ -z "${RENDER_API_KEY:-}" ]]; then
+  echo "ERROR: RENDER_API_KEY is required in $CONFIG_FILE" >&2
   exit 1
 fi
 
-if [[ "${RENDER_API_KEY}" == "your_render_api_key" || "${RENDER_API_KEY}" == "<render_api_key>" ]]; then
+if is_placeholder "${RENDER_API_KEY}"; then
   echo "ERROR: RENDER_API_KEY is still a placeholder in $CONFIG_FILE" >&2
   exit 1
 fi
 
-if [[ "${RENDER_SERVICE_ID}" == "your_render_service_id" || "${RENDER_SERVICE_ID}" == "<render_service_id>" ]]; then
+discover_service_id() {
+  local payload
+  local discovered
+
+  if [[ -n "${RENDER_SERVICE_ID:-}" ]] && ! is_placeholder "${RENDER_SERVICE_ID}"; then
+    return 0
+  fi
+
+  if [[ -z "$RENDER_SERVICE_URL" && -z "$RENDER_SERVICE_NAME" ]]; then
+    echo "ERROR: set RENDER_SERVICE_ID, or RENDER_SERVICE_URL, or RENDER_SERVICE_NAME in $CONFIG_FILE" >&2
+    exit 1
+  fi
+
+  log "Resolving Render service id from API..."
+  payload="$(render_api_call "GET" "/services")"
+  discovered="$(
+    TARGET_URL="$RENDER_SERVICE_URL" TARGET_NAME="$RENDER_SERVICE_NAME" \
+      python - <<'PY' <<<"$payload"
+import json
+import os
+import sys
+from urllib.parse import urlparse
+
+target_url = (os.environ.get("TARGET_URL") or "").strip()
+target_name = (os.environ.get("TARGET_NAME") or "").strip().lower()
+target_host = ""
+if target_url:
+    try:
+        target_host = (urlparse(target_url).netloc or "").lower()
+    except Exception:
+        target_host = ""
+
+def extract_services(blob):
+    if isinstance(blob, list):
+        return blob
+    if not isinstance(blob, dict):
+        return []
+    for key in ("services", "data"):
+        value = blob.get(key)
+        if isinstance(value, list):
+            return value
+    return [blob]
+
+def as_service(item):
+    if isinstance(item, dict) and isinstance(item.get("service"), dict):
+        return item["service"]
+    return item if isinstance(item, dict) else {}
+
+def service_url(svc):
+    details = svc.get("serviceDetails")
+    if isinstance(details, dict) and isinstance(details.get("url"), str):
+        return details["url"]
+    if isinstance(svc.get("url"), str):
+        return svc["url"]
+    return ""
+
+def service_name(svc):
+    for key in ("name", "slug"):
+        value = svc.get(key)
+        if isinstance(value, str):
+            return value
+    return ""
+
+raw = sys.stdin.read().strip()
+if not raw:
+    print("")
+    sys.exit(0)
+
+try:
+    parsed = json.loads(raw)
+except Exception:
+    print("")
+    sys.exit(0)
+
+matches = []
+for item in extract_services(parsed):
+    svc = as_service(item)
+    sid = svc.get("id")
+    if not isinstance(sid, str) or not sid:
+        continue
+    name = service_name(svc)
+    url = service_url(svc)
+    host = ""
+    if url:
+        try:
+            host = (urlparse(url).netloc or "").lower()
+        except Exception:
+            host = ""
+    score = 0
+    if target_host and host == target_host:
+        score = 3
+    elif target_name and name.lower() == target_name:
+        score = 2
+    elif target_name and target_name in name.lower():
+        score = 1
+    if score > 0:
+        matches.append((score, sid))
+
+if len(matches) == 1:
+    print(matches[0][1])
+    sys.exit(0)
+
+if len(matches) > 1:
+    matches.sort(key=lambda x: x[0], reverse=True)
+    top_score = matches[0][0]
+    top = [sid for score, sid in matches if score == top_score]
+    if len(top) == 1:
+        print(top[0])
+        sys.exit(0)
+
+# Last fallback: if there is only one service in account, use it.
+services = [as_service(item) for item in extract_services(parsed) if isinstance(as_service(item).get("id"), str)]
+if len(services) == 1:
+    print(services[0]["id"])
+    sys.exit(0)
+
+print("")
+PY
+  )"
+
+  if [[ -z "$discovered" ]]; then
+    echo "ERROR: could not resolve RENDER_SERVICE_ID automatically." >&2
+    echo "Set RENDER_SERVICE_ID manually in $CONFIG_FILE." >&2
+    exit 1
+  fi
+
+  RENDER_SERVICE_ID="$discovered"
+  export RENDER_SERVICE_ID
+  log "Resolved Render service id: $RENDER_SERVICE_ID"
+}
+
+discover_service_id
+
+if is_placeholder "${RENDER_SERVICE_ID:-}"; then
   echo "ERROR: RENDER_SERVICE_ID is still a placeholder in $CONFIG_FILE" >&2
   exit 1
 fi
 
 require_bin "cloudflared"
 require_bin "curl"
+require_bin "python"
 
 trap cleanup INT TERM
 
