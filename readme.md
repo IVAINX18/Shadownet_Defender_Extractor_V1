@@ -1458,6 +1458,124 @@ ShadowNet Defender representa un hito significativo en nuestra formación acadé
 
 ---
 
+## 15. Auto-Sync Quick Tunnel -> Render (Paso a Paso)
+
+Cuando usas `trycloudflare.com`, la URL cambia al reiniciar `cloudflared`.
+Para no actualizar `OLLAMA_BASE_URL` manualmente en Render, el repositorio incluye:
+
+- `scripts/render_quick_tunnel_sync.sh`
+- `.env.render-sync.example`
+- `.env.render-values.example`
+
+El script:
+
+1. Levanta quick tunnel de Cloudflare.
+2. Detecta la URL pública `https://*.trycloudflare.com`.
+3. Actualiza `OLLAMA_BASE_URL=<url>/v1` en Render vía API.
+4. Sincroniza variables estáticas (`N8N_*`, `OLLAMA_MODEL`, etc.).
+5. Dispara deploy automático en Render (configurable).
+6. Guarda localmente la URL activa en `.env.tunnel-runtime`.
+
+### 15.1 Prerrequisitos
+
+```bash
+cloudflared --version
+curl --version
+python --version
+```
+
+Necesitas también:
+
+- API Key de Render (`RENDER_API_KEY`)
+- URL pública del servicio Render (`RENDER_SERVICE_URL`) o `RENDER_SERVICE_ID`
+
+### 15.2 Preparar archivos de configuración
+
+```bash
+cp .env.render-sync.example .env.render-sync
+cp .env.render-values.example .env.render-values
+```
+
+Editar `.env.render-sync`:
+
+```env
+RENDER_API_KEY=rnd_xxxxxxxxxxxxxxxxx
+RENDER_SERVICE_URL=https://shadownet-defender-extractor-v2.onrender.com
+RENDER_SERVICE_ID=
+RENDER_API_BASE=https://api.render.com/v1
+SYNC_STATIC_ENV_FILE=.env.render-values
+RUNTIME_ENV_FILE=.env.tunnel-runtime
+RENDER_TRIGGER_DEPLOY=true
+TUNNEL_TARGET=http://localhost:11434
+TUNNEL_HOST_HEADER=localhost:11434
+RESTART_DELAY_SECONDS=3
+```
+
+Editar `.env.render-values`:
+
+```env
+ENVIRONMENT=prod
+N8N_ENABLED=true
+N8N_WEBHOOK_TEST=https://ivainx21.app.n8n.cloud/webhook-test/shadownet-malware
+N8N_WEBHOOK_PROD=https://ivainx21.app.n8n.cloud/webhook/shadownet-malware
+N8N_TIMEOUT_SECONDS=8
+OLLAMA_MODEL=llama3.2:3b
+```
+
+### 15.3 Ejecutar auto-sync
+
+```bash
+chmod +x scripts/render_quick_tunnel_sync.sh
+./scripts/render_quick_tunnel_sync.sh
+```
+
+Logs esperados:
+
+- `Resolved Render service id: srv-...` (si usaste `RENDER_SERVICE_URL`)
+- `Render env updated: OLLAMA_BASE_URL`
+- `Render deploy triggered`
+- `Your quick Tunnel has been created!`
+
+### 15.4 Verificar que Render ya usa la URL nueva
+
+```bash
+curl -sS -X POST "https://shadownet-defender-extractor-v2.onrender.com/llm/explain" \
+  -H "Content-Type: application/json" \
+  -d '{"file_path":"samples/procexp64.exe","provider":"ollama","model":"llama3.2:3b"}'
+```
+
+Respuesta esperada:
+
+- `"ok": true`
+- `"llm"` con contenido real del modelo
+- `"automation": {"delivered": true}`
+
+### 15.5 Prueba del endpoint de subida (base para GUI)
+
+```bash
+curl -sS -X POST "https://shadownet-defender-extractor-v2.onrender.com/scan/upload-explain?filename=procexp64.exe&provider=ollama&model=llama3.2:3b" \
+  -H "Content-Type: application/octet-stream" \
+  --data-binary "@samples/procexp64.exe"
+```
+
+### 15.6 Troubleshooting rápido
+
+1. `Unauthorized`:
+   revisa `RENDER_API_KEY`, workspace correcto y permisos del token.
+2. `Could not resolve host: api.render.com`:
+   problema de DNS/conectividad del entorno local.
+3. `unknown url type: ollama_base_url=https`:
+   en Render hubo un valor malformado; el script ahora corrige `OLLAMA_BASE_URL`.
+4. El script falla al iniciar por formato `.env`:
+   evita espacios después de `=` (ejemplo correcto: `RENDER_API_KEY=rnd_...`).
+
+### 15.7 Seguridad recomendada
+
+1. No subas `.env.render-sync`, `.env.render-values`, `.env.tunnel-runtime` al repo.
+2. Si una API key se expone en chat/logs, revócala y crea una nueva.
+
+---
+
 <div align="center">
 
 **Desarrollado con ❤️ y ☕ por el equipo de investigación de INNOVASIC**

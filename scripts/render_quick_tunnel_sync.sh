@@ -264,8 +264,8 @@ discover_service_id() {
   log "Resolving Render service id from API..."
   payload="$(render_api_call "GET" "/services")"
   discovered="$(
-    TARGET_URL="$RENDER_SERVICE_URL" TARGET_NAME="$RENDER_SERVICE_NAME" \
-      python - <<'PY' <<<"$payload"
+    printf '%s' "$payload" | TARGET_URL="$RENDER_SERVICE_URL" TARGET_NAME="$RENDER_SERVICE_NAME" \
+      python -c '
 import json
 import os
 import sys
@@ -365,7 +365,7 @@ if len(services) == 1:
     sys.exit(0)
 
 print("")
-PY
+'
   )"
 
   if [[ -z "$discovered" ]]; then
