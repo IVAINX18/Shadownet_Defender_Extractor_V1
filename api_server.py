@@ -5,8 +5,12 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List
 from urllib.parse import urlparse
+from uuid import uuid4
 
-from core.integrations.n8n_client import N8NClient
+from core.integrations.n8n_client import (
+    N8NClient,
+    extract_recommended_action_from_llm_output,
+)
 from core.engine import ShadowNetEngine
 from llm_agent_bridge import LLMAgentBridge
 from security.artifact_verifier import verify_artifacts
@@ -14,6 +18,7 @@ from telemetry_client import TelemetryClient
 from utils.runtime_checks import import_optional_dependency
 
 fastapi = import_optional_dependency("fastapi", install_profile="requirements/dev.lock.txt")
+Request = fastapi.Request
 
 app = fastapi.FastAPI(title="ShadowNet Defender API", version="1.0.0")
 engine = ShadowNetEngine()
@@ -52,6 +57,37 @@ def _dispatch_detection_to_n8n(
     return n8n_client.send_detection_to_n8n(payload)
 
 
+def _dispatch_detection_to_n8n_safe(
+    scan_result: Dict[str, Any],
+    *,
+    llm_explanation: str | None = None,
+    recommended_action: str | None = None,
+    source: str,
+) -> bool:
+    """
+    Ensures n8n delivery path never breaks API responses.
+    """
+    try:
+        return _dispatch_detection_to_n8n(
+            scan_result,
+            llm_explanation=llm_explanation,
+            recommended_action=recommended_action,
+        )
+    except Exception as exc:  # pragma: no cover
+        telemetry.record_runtime_error(source=f"n8n_dispatch_{source}", error=str(exc))
+        return False
+
+
+def _sanitize_filename(filename: str | None) -> str:
+    if not filename:
+        return "uploaded.bin"
+    safe_name = Path(filename).name.strip()
+    if not safe_name:
+        return "uploaded.bin"
+    normalized = "".join(ch if (ch.isalnum() or ch in {"-", "_", "."}) else "_" for ch in safe_name)
+    return normalized[:120] or "uploaded.bin"
+
+
 def _safe_webhook_host(url: str) -> str:
     if not url:
         return "not_configured"
@@ -81,6 +117,52 @@ def _ensure_parsed_llm_response(llm_out: Dict[str, Any]) -> Dict[str, Any]:
     return llm_out
 
 
+def _run_llm_pipeline(
+    scan_result: Dict[str, Any],
+    *,
+    provider: str,
+    model: str | None,
+    source: str,
+) -> Dict[str, Any]:
+    start = time.time()
+    try:
+        llm_out = llm_bridge.explain_scan(scan_result, provider=provider, model=model)
+        llm_out = _ensure_parsed_llm_response(llm_out)
+        telemetry.record_llm_interaction(
+            provider=llm_out["provider"],
+            model=llm_out["model"],
+            ok=True,
+            latency_ms=(time.time() - start) * 1000,
+        )
+        llm_explanation = llm_out.get("response_text")
+        delivered = _dispatch_detection_to_n8n_safe(
+            scan_result,
+            llm_explanation=llm_explanation if isinstance(llm_explanation, str) else None,
+            recommended_action=extract_recommended_action_from_llm_output(llm_out),
+            source=source,
+        )
+        return {
+            "ok": True,
+            "scan_result": scan_result,
+            "llm": llm_out,
+            "automation": {"delivered": delivered},
+        }
+    except Exception as exc:
+        telemetry.record_llm_interaction(
+            provider=str(provider),
+            model=str(model or "unknown"),
+            ok=False,
+            latency_ms=(time.time() - start) * 1000,
+            error=str(exc),
+        )
+        return {
+            "ok": False,
+            "error": str(exc),
+            "scan_result": scan_result,
+            "automation": {"delivered": False},
+        }
+
+
 @app.get("/health")
 def health() -> Dict[str, str]:
     model_state = "loaded" if engine.model is not None else "not_loaded"
@@ -98,7 +180,7 @@ def verify_model(manifest: str = "model_manifest.json") -> Dict:
 def scan(file_path: str) -> Dict:
     result = engine.scan_file(file_path)
     _record_scan_telemetry(file_path, result)
-    _dispatch_detection_to_n8n(result)
+    _dispatch_detection_to_n8n_safe(result, source="scan")
     return result
 
 
@@ -108,7 +190,7 @@ def scan_batch(file_paths: List[str]) -> Dict[str, List[Dict]]:
     for file_path in file_paths:
         result = engine.scan_file(file_path)
         _record_scan_telemetry(file_path, result)
-        _dispatch_detection_to_n8n(result)
+        _dispatch_detection_to_n8n_safe(result, source="scan_batch")
         results.append(result)
     return {"results": results}
 
@@ -125,29 +207,50 @@ def llm_explain(payload: Dict) -> Dict:
             return {
                 "ok": False,
                 "error": "Provide 'scan_result' (preferred) or 'file_path' in payload.",
+                "automation": {"delivered": False},
             }
         scan_result = engine.scan_file(file_path)
+        _record_scan_telemetry(file_path, scan_result)
 
-    start = time.time()
+    return _run_llm_pipeline(scan_result, provider=str(provider), model=model, source="llm_explain")
+
+
+@app.post("/scan/upload-explain")
+async def scan_upload_explain(
+    request: Request,
+    filename: str | None = None,
+    provider: str = "ollama",
+    model: str | None = None,
+) -> Dict[str, Any]:
+    raw_bytes = await request.body()
+    if not raw_bytes:
+        return {
+            "ok": False,
+            "error": "Request body is empty. Send raw bytes with Content-Type: application/octet-stream.",
+            "automation": {"delivered": False},
+        }
+
+    uploads_dir = Path("/tmp/shadownet_uploads")
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    safe_name = _sanitize_filename(filename)
+    temp_path = uploads_dir / f"{int(time.time() * 1000)}-{uuid4().hex}-{safe_name}"
+    temp_path.write_bytes(raw_bytes)
+
     try:
-        llm_out = llm_bridge.explain_scan(scan_result, provider=provider, model=model)
-        llm_out = _ensure_parsed_llm_response(llm_out)
-        telemetry.record_llm_interaction(
-            provider=llm_out["provider"],
-            model=llm_out["model"],
-            ok=True,
-            latency_ms=(time.time() - start) * 1000,
+        scan_result = engine.scan_file(temp_path)
+        scan_result["uploaded_filename"] = safe_name
+        _record_scan_telemetry(str(temp_path), scan_result)
+        return _run_llm_pipeline(
+            scan_result,
+            provider=provider,
+            model=model,
+            source="scan_upload_explain",
         )
-        return {"ok": True, "scan_result": scan_result, "llm": llm_out}
-    except Exception as exc:
-        telemetry.record_llm_interaction(
-            provider=str(provider),
-            model=str(model or "unknown"),
-            ok=False,
-            latency_ms=(time.time() - start) * 1000,
-            error=str(exc),
-        )
-        return {"ok": False, "error": str(exc), "scan_result": scan_result}
+    finally:
+        try:
+            temp_path.unlink(missing_ok=True)
+        except Exception:
+            pass
 
 
 @app.get("/automation/health")

@@ -18,6 +18,7 @@ from telemetry_client import TelemetryClient
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
+_DEFAULT_RECOMMENDED_ACTION = "Revisar resultado ML y aplicar playbook SOC."
 
 
 def _to_bool(value: str | None, *, default: bool = False) -> bool:
@@ -85,19 +86,49 @@ def _confidence_to_numeric(value: Any) -> float:
 def _safe_first_recommendation(llm_explanation: str | None) -> str:
     """Extracts first recommendation from LLM JSON response when possible."""
     if not llm_explanation:
-        return "Revisar resultado ML y aplicar playbook SOC."
+        return _DEFAULT_RECOMMENDED_ACTION
     try:
         data = json.loads(llm_explanation)
     except json.JSONDecodeError:
-        return "Revisar resultado ML y aplicar playbook SOC."
+        return _DEFAULT_RECOMMENDED_ACTION
     if not isinstance(data, dict):
-        return "Revisar resultado ML y aplicar playbook SOC."
+        return _DEFAULT_RECOMMENDED_ACTION
     recommendations = data.get("recomendaciones")
     if isinstance(recommendations, list) and recommendations:
         first = recommendations[0]
         if isinstance(first, str) and first.strip():
             return first.strip()
-    return "Revisar resultado ML y aplicar playbook SOC."
+    return _DEFAULT_RECOMMENDED_ACTION
+
+
+def extract_recommended_action_from_llm_output(
+    llm_output: Dict[str, Any] | None,
+) -> Optional[str]:
+    """
+    Extracts a recommendation from rich LLM outputs when available.
+
+    Supports both:
+    - `parsed_response.recomendaciones` (preferred)
+    - JSON text in `response_text`
+    """
+    if not isinstance(llm_output, dict):
+        return None
+
+    parsed_response = llm_output.get("parsed_response")
+    if isinstance(parsed_response, dict):
+        recommendations = parsed_response.get("recomendaciones")
+        if isinstance(recommendations, list):
+            for candidate in recommendations:
+                if isinstance(candidate, str) and candidate.strip():
+                    return candidate.strip()
+
+    response_text = llm_output.get("response_text")
+    if isinstance(response_text, str):
+        candidate = _safe_first_recommendation(response_text)
+        if candidate != _DEFAULT_RECOMMENDED_ACTION:
+            return candidate
+
+    return None
 
 
 @dataclass

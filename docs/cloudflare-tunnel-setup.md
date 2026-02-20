@@ -196,6 +196,52 @@ cloudflared tunnel --url http://localhost:11434 --http-host-header="localhost:11
 
 ---
 
+## 8. Auto-sync Quick Tunnel -> Render (sin cambiar variables a mano)
+
+Quick tunnel no da URL estable, pero puedes automatizar la actualización de
+`OLLAMA_BASE_URL` en Render cada vez que cambie.
+
+Se agregó el script:
+
+`scripts/render_quick_tunnel_sync.sh`
+
+Qué hace:
+
+1. Inicia `cloudflared` quick tunnel.
+2. Detecta la URL `https://*.trycloudflare.com`.
+3. Actualiza `OLLAMA_BASE_URL=<url>/v1` en Render por API.
+4. (Opcional) dispara deploy en Render.
+5. Escribe localmente `.env.tunnel-runtime` con la URL vigente.
+
+### Configuración inicial
+
+```bash
+cp .env.render-sync.example .env.render-sync
+cp .env.render-values.example .env.render-values
+```
+
+Edita `.env.render-sync`:
+
+- `RENDER_API_KEY`
+- `RENDER_SERVICE_ID`
+
+Edita `.env.render-values` con las variables estáticas que también quieres
+sincronizar a Render (`N8N_*`, `OLLAMA_MODEL`, etc.).
+
+### Ejecutar
+
+```bash
+chmod +x scripts/render_quick_tunnel_sync.sh
+./scripts/render_quick_tunnel_sync.sh
+```
+
+Notas:
+
+- Render no puede "leer automáticamente" un `.env` local de tu PC.
+- Este script es el puente: lee archivos `.env` locales y hace sync a Render por API.
+
+---
+
 ## Troubleshooting
 
 ### Error: "Ollama returns empty response" o "connection refused"

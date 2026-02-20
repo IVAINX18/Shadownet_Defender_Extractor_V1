@@ -11,7 +11,10 @@ from rich.panel import Panel
 from rich.table import Table
 
 from core.engine import ShadowNetEngine
-from core.integrations.n8n_client import N8NClient
+from core.integrations.n8n_client import (
+    N8NClient,
+    extract_recommended_action_from_llm_output,
+)
 from llm_agent_bridge import LLMAgentBridge
 from security.artifact_verifier import (
     create_manifest_from_artifacts,
@@ -203,6 +206,7 @@ def _cmd_scan(args: argparse.Namespace) -> int:
     n8n_llm_payload = n8n_client.build_detection_payload(
         result,
         llm_explanation=llm_block.get("response_text"),
+        recommended_action=extract_recommended_action_from_llm_output(llm_block),
     )
     n8n_client.send_detection_to_n8n(n8n_llm_payload)
     # Mostrar resultado formateado
@@ -279,6 +283,7 @@ def _cmd_update_model(args: argparse.Namespace) -> int:
 
 def _cmd_llm_explain(args: argparse.Namespace) -> int:
     telemetry = TelemetryClient()
+    n8n_client = N8NClient()
 
     if not args.scan_json and not args.file:
         raise ValueError("Provide --file or --scan-json.")
@@ -295,6 +300,13 @@ def _cmd_llm_explain(args: argparse.Namespace) -> int:
         model=args.model,
         telemetry=telemetry,
     )
+    llm_block = payload.get("llm", {})
+    n8n_payload = n8n_client.build_detection_payload(
+        scan_result,
+        llm_explanation=llm_block.get("response_text"),
+        recommended_action=extract_recommended_action_from_llm_output(llm_block),
+    )
+    n8n_client.send_detection_to_n8n(n8n_payload)
     # Mostrar resultado formateado
     scan_result = payload.get("scan_result", {})
     

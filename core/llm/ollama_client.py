@@ -50,6 +50,34 @@ except ImportError as exc:
 logger = logging.getLogger("shadownet.llm.ollama")
 
 
+def _normalize_ollama_base_url(value: str | None) -> str:
+    """
+    Normalizes OLLAMA_BASE_URL values coming from env or dashboard copy/paste.
+
+    Accepts malformed inputs such as:
+    - "OLLAMA_BASE_URL=https://xxxx.trycloudflare.com/v1"
+    - "export OLLAMA_BASE_URL=https://xxxx.trycloudflare.com/v1"
+    - quoted values
+    """
+    default_url = "http://127.0.0.1:11434/v1"
+    text = str(value or "").strip().strip("'").strip('"')
+    if not text:
+        return default_url
+
+    lower_text = text.lower()
+    key_tokens = ("ollama_base_url=", "export ollama_base_url=")
+    for token in key_tokens:
+        idx = lower_text.find(token)
+        if idx != -1:
+            text = text[idx + len(token) :].strip()
+            break
+
+    if text.startswith("="):
+        text = text[1:].strip()
+
+    return text or default_url
+
+
 @dataclass
 class OllamaClientConfig:
     """
@@ -66,7 +94,7 @@ class OllamaClientConfig:
     """
 
     base_url: str = field(
-        default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434/v1")
+        default_factory=lambda: _normalize_ollama_base_url(os.getenv("OLLAMA_BASE_URL"))
     )
     model: str = field(
         default_factory=lambda: os.getenv("OLLAMA_MODEL", "llama3.2:3b")
@@ -74,6 +102,9 @@ class OllamaClientConfig:
     timeout_seconds: int = 120
     temperature: float = 0.7
     max_tokens: Optional[int] = None
+
+    def __post_init__(self) -> None:
+        self.base_url = _normalize_ollama_base_url(self.base_url)
 
 
 class OllamaClient:

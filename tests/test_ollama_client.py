@@ -146,3 +146,13 @@ def test_ollama_client_prod_localhost_raises():
         with patch("core.llm.ollama_client.OpenAI"):
             with pytest.raises(RuntimeError, match="OLLAMA_BASE_URL apunta a localhost"):
                 OllamaClient(config)
+
+
+def test_ollama_client_normalizes_copy_pasted_env_value():
+    config = OllamaClientConfig(base_url="OLLAMA_BASE_URL=https://demo.trycloudflare.com/v1")
+    assert config.base_url == "https://demo.trycloudflare.com/v1"
+
+
+def test_ollama_client_normalizes_export_style_env_value():
+    config = OllamaClientConfig(base_url="export OLLAMA_BASE_URL=https://demo.trycloudflare.com/v1")
+    assert config.base_url == "https://demo.trycloudflare.com/v1"

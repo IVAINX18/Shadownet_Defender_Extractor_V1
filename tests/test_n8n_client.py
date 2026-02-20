@@ -4,6 +4,7 @@ from core.integrations.n8n_client import (
     N8NClient,
     N8NIntegrationConfig,
     build_detection_payload,
+    extract_recommended_action_from_llm_output,
     send_detection_to_n8n,
 )
 from telemetry_client import TelemetryClient
@@ -98,3 +99,21 @@ def test_n8n_client_handles_connection_error(monkeypatch, tmp_path):
     )
     sent = client.send_detection_to_n8n({"risk_level": "HIGH"})
     assert sent is False
+
+
+def test_extract_recommended_action_from_llm_output_prefers_parsed_response():
+    llm_output = {
+        "response_text": '{"recomendaciones": ["Texto en bruto"]}',
+        "parsed_response": {"recomendaciones": ["Aislar host comprometido"]},
+    }
+    assert (
+        extract_recommended_action_from_llm_output(llm_output)
+        == "Aislar host comprometido"
+    )
+
+
+def test_extract_recommended_action_from_llm_output_uses_json_text_fallback():
+    llm_output = {
+        "response_text": '{"recomendaciones": ["Rotar credenciales"]}',
+    }
+    assert extract_recommended_action_from_llm_output(llm_output) == "Rotar credenciales"
