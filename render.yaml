@@ -22,7 +22,7 @@ services:
     plan: free
     rootDir: .
     autoDeploy: true
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements/dev.lock.txt
     startCommand: python -m uvicorn api_server:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:

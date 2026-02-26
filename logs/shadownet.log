@@ -213,3 +213,9 @@
 2026-02-26 10:50:33,008 - models.inference - INFO - Loading scaler from /home/ivainx/Documentos/Shadownet_Defender/models/scaler.pkl...
 2026-02-26 10:50:33,460 - models.inference - INFO - Model and scaler loaded successfully.
 2026-02-26 11:18:36,633 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Failed: connection_error
+2026-02-26 11:30:24,082 - models.inference - INFO - Loading model from /home/ivainx/Documentos/Shadownet_Defender/models/best_model.onnx...
+2026-02-26 11:30:24,099 - models.inference - INFO - Loading scaler from /home/ivainx/Documentos/Shadownet_Defender/models/scaler.pkl...
+2026-02-26 11:30:24,525 - models.inference - INFO - Model and scaler loaded successfully.
+2026-02-26 11:30:24,526 - core.engine - INFO - Scanning file: samples/procexp64.exe
+2026-02-26 11:30:25,539 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-02-26 11:31:39,552 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Failed: connection_error

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import time
 import threading
 from pathlib import Path
@@ -18,15 +19,43 @@ from utils.runtime_checks import import_optional_dependency
 
 fastapi = import_optional_dependency("fastapi", install_profile="requirements/dev.lock.txt")
 Request = fastapi.Request
+JSONResponse = fastapi.responses.JSONResponse
+HTTPException = fastapi.HTTPException
 
 app = fastapi.FastAPI(title="ShadowNet Defender API", version="1.0.0")
 engine = ShadowNetEngine()
 telemetry = TelemetryClient()
-llm_bridge = LLMAgentBridge()
 n8n_client = N8NClient()
 
-# Maximum upload body size (100 MB).
-MAX_UPLOAD_BYTES = 100 * 1024 * 1024
+# LLM bridge is initialized lazily to avoid startup failures when the
+# Ollama tunnel is not yet available.
+_llm_bridge: LLMAgentBridge | None = None
+
+
+def _get_llm_bridge() -> LLMAgentBridge:
+    """Returns the shared LLM bridge, creating it on first use."""
+    global _llm_bridge
+    if _llm_bridge is None:
+        _llm_bridge = LLMAgentBridge()
+    return _llm_bridge
+
+
+# Maximum upload body size (20 MB).
+MAX_UPLOAD_BYTES = 20 * 1024 * 1024
+
+# Allowed base directories for the /scan endpoint.
+_ALLOWED_SCAN_DIRS = [
+    Path("samples").resolve(),
+    Path("/tmp/shadownet_uploads").resolve(),
+]
+
+_ENVIRONMENT = os.getenv("ENVIRONMENT", "dev").strip().lower()
+
+
+def _is_path_allowed(file_path: str) -> bool:
+    """Returns True if file_path is under an allowed scan directory."""
+    resolved = Path(file_path).resolve()
+    return any(resolved.is_relative_to(d) for d in _ALLOWED_SCAN_DIRS)
 
 
 # ---------------------------------------------------------------------------
@@ -118,26 +147,43 @@ def verify_model(manifest: str = "model_manifest.json") -> Dict:
 
 
 @app.get("/scan")
-def scan(file_path: str) -> Dict:
+def scan(file_path: str) -> JSONResponse:
+    if not _is_path_allowed(file_path):
+        return JSONResponse(
+            status_code=422,
+            content={
+                "ok": False,
+                "error": "File path not allowed. Only files under 'samples/' or '/tmp/shadownet_uploads/' are accepted.",
+            },
+        )
     result = engine.scan_file(file_path)
     _record_scan_telemetry(file_path, result)
     _dispatch_detection_to_n8n_safe(result, source="scan")
-    return result
+    return JSONResponse(content=result)
 
 
 @app.post("/scan-batch")
-def scan_batch(file_paths: List[str]) -> Dict[str, List[Dict]]:
+def scan_batch(file_paths: List[str]) -> JSONResponse:
+    denied = [fp for fp in file_paths if not _is_path_allowed(fp)]
+    if denied:
+        return JSONResponse(
+            status_code=422,
+            content={
+                "ok": False,
+                "error": f"Disallowed paths: {denied}. Only 'samples/' or '/tmp/shadownet_uploads/' accepted.",
+            },
+        )
     results: List[Dict] = []
     for file_path in file_paths:
         result = engine.scan_file(file_path)
         _record_scan_telemetry(file_path, result)
         _dispatch_detection_to_n8n_safe(result, source="scan_batch")
         results.append(result)
-    return {"results": results}
+    return JSONResponse(content={"results": results})
 
 
 @app.post("/llm/explain")
-def llm_explain(payload: Dict) -> Dict:
+def llm_explain(payload: Dict) -> JSONResponse:
     provider = payload.get("provider", "ollama")
     model = payload.get("model")
     file_path = payload.get("file_path")
@@ -145,23 +191,40 @@ def llm_explain(payload: Dict) -> Dict:
 
     if scan_result is None:
         if not file_path:
-            return {
-                "ok": False,
-                "error": "Provide 'scan_result' (preferred) or 'file_path' in payload.",
-                "automation": {"delivered": False},
-            }
+            return JSONResponse(
+                status_code=422,
+                content={
+                    "ok": False,
+                    "error": "Provide 'scan_result' (preferred) or 'file_path' in payload.",
+                    "automation": {"delivered": False},
+                },
+            )
         scan_result = engine.scan_file(file_path)
         _record_scan_telemetry(file_path, scan_result)
 
-    return run_scan_explain_pipeline(
+    try:
+        bridge = _get_llm_bridge()
+    except Exception as exc:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "ok": False,
+                "error": f"LLM service unavailable: {exc}",
+                "automation": {"delivered": False},
+            },
+        )
+
+    result = run_scan_explain_pipeline(
         scan_result,
         provider=str(provider),
         model=model,
-        llm_bridge=llm_bridge,
+        llm_bridge=bridge,
         n8n_client=n8n_client,
         telemetry=telemetry,
         source="llm_explain",
     )
+    status = 200 if result.get("ok") else 503
+    return JSONResponse(status_code=status, content=result)
 
 
 @app.post("/scan/upload-explain")
@@ -170,17 +233,20 @@ async def scan_upload_explain(
     filename: str | None = None,
     provider: str = "ollama",
     model: str | None = None,
-) -> Dict[str, Any]:
+) -> JSONResponse:
     # --- Guard: reject oversized uploads before reading the body ---
     content_length = request.headers.get("content-length")
     if content_length is not None:
         try:
             if int(content_length) > MAX_UPLOAD_BYTES:
-                return {
-                    "ok": False,
-                    "error": f"File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
-                    "automation": {"delivered": False},
-                }
+                return JSONResponse(
+                    status_code=413,
+                    content={
+                        "ok": False,
+                        "error": f"File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
+                        "automation": {"delivered": False},
+                    },
+                )
         except ValueError:
             pass
 
@@ -190,20 +256,26 @@ async def scan_upload_explain(
     async for chunk in request.stream():
         total += len(chunk)
         if total > MAX_UPLOAD_BYTES:
-            return {
-                "ok": False,
-                "error": f"File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
-                "automation": {"delivered": False},
-            }
+            return JSONResponse(
+                status_code=413,
+                content={
+                    "ok": False,
+                    "error": f"File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
+                    "automation": {"delivered": False},
+                },
+            )
         chunks.append(chunk)
     raw_bytes = b"".join(chunks)
 
     if not raw_bytes:
-        return {
-            "ok": False,
-            "error": "Request body is empty. Send raw bytes with Content-Type: application/octet-stream.",
-            "automation": {"delivered": False},
-        }
+        return JSONResponse(
+            status_code=422,
+            content={
+                "ok": False,
+                "error": "Request body is empty. Send raw bytes with Content-Type: application/octet-stream.",
+                "automation": {"delivered": False},
+            },
+        )
 
     uploads_dir = Path("/tmp/shadownet_uploads")
     uploads_dir.mkdir(parents=True, exist_ok=True)
@@ -216,17 +288,30 @@ async def scan_upload_explain(
         scan_result["uploaded_filename"] = safe_name
         _record_scan_telemetry(str(temp_path), scan_result)
 
+        try:
+            bridge = _get_llm_bridge()
+        except Exception as exc:
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "ok": False,
+                    "error": f"LLM service unavailable: {exc}",
+                    "automation": {"delivered": False},
+                },
+            )
+
         pipeline_result = await asyncio.to_thread(
             run_scan_explain_pipeline,
             scan_result,
             provider=provider,
             model=model,
-            llm_bridge=llm_bridge,
+            llm_bridge=bridge,
             n8n_client=n8n_client,
             telemetry=telemetry,
             source="scan_upload_explain",
         )
-        return pipeline_result
+        status = 200 if pipeline_result.get("ok") else 503
+        return JSONResponse(status_code=status, content=pipeline_result)
     finally:
         try:
             temp_path.unlink(missing_ok=True)
@@ -247,7 +332,12 @@ def automation_health() -> Dict[str, Any]:
 
 
 @app.post("/automation/test")
-def automation_test(payload: Dict | None = None) -> Dict:
+def automation_test(payload: Dict | None = None) -> JSONResponse:
+    if _ENVIRONMENT == "prod":
+        return JSONResponse(
+            status_code=403,
+            content={"ok": False, "error": "Endpoint disabled in production."},
+        )
     test_payload = payload or {
         "file": "/tmp/test-sample.exe",
         "score": 0.99,
@@ -265,7 +355,7 @@ def automation_test(payload: Dict | None = None) -> Dict:
         )
         delivered = n8n_client.send_detection_to_n8n(built)
         test_payload = built
-    return {"ok": True, "delivered": delivered, "sent_payload": test_payload}
+    return JSONResponse(content={"ok": True, "delivered": delivered, "sent_payload": test_payload})
 
 
 if __name__ == "__main__":
