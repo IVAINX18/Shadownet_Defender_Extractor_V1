@@ -38,16 +38,11 @@ def explain_global_importance():
     baseline_acc = accuracy_score(y_test, baseline_pred)
     print(f"Baseline Accuracy: {baseline_acc:.4f}\n")
     
-    # Definir Bloques
+    # Definir Bloques — imported from the canonical source to avoid offset drift.
+    from extractors.extractor import PEFeatureExtractor
     blocks = {
-        "1. ByteHistogram": (0, 256),
-        "2. ByteEntropy": (256, 512),
-        "3. Strings": (512, 615),
-        "4. General": (616, 625),
-        "5. Header": (626, 687),
-        "6. Section": (688, 942),
-        "7. Imports": (943, 2223),
-        "8. Exports": (2223, 2350)
+        f"{i+1}. {name}": rng
+        for i, (name, rng) in enumerate(PEFeatureExtractor.BLOCK_RANGES.items())
     }
     
     print("Calculando Permutation Importance por Bloque...")

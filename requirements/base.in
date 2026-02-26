@@ -2,12 +2,9 @@
 # Política Python: 3.11.x
 pefile
 numpy
-scipy
 scikit-learn
 onnx
 onnxruntime
 joblib
 rich
-colorama
-tqdm
 openai

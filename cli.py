@@ -11,10 +11,8 @@ from rich.panel import Panel
 from rich.table import Table
 
 from core.engine import ShadowNetEngine
-from core.integrations.n8n_client import (
-    N8NClient,
-    extract_recommended_action_from_llm_output,
-)
+from core.integrations.n8n_client import N8NClient
+from core.scan_pipeline import run_scan_explain_pipeline
 from llm_agent_bridge import LLMAgentBridge
 from security.artifact_verifier import (
     create_manifest_from_artifacts,
@@ -26,51 +24,6 @@ from updater import apply_update
 
 console = Console()
 
-
-def _run_llm_explanation(
-    scan_result: dict,
-    *,
-    provider: str | None,
-    model: str | None,
-    telemetry: TelemetryClient,
-) -> tuple[int, dict]:
-    """
-    Ejecuta explicación LLM y registra telemetría.
-    Retorna (exit_code, payload_json).
-    """
-    bridge = LLMAgentBridge()
-    start = time.time()
-    try:
-        out = bridge.explain_scan(
-            scan_result,
-            provider=provider,
-            model=model,
-        )
-        latency_ms = (time.time() - start) * 1000
-        telemetry.record_llm_interaction(
-            provider=out["provider"],
-            model=out["model"],
-            ok=True,
-            latency_ms=latency_ms,
-        )
-        return 0, {"scan_result": scan_result, "llm": out}
-    except Exception as exc:
-        latency_ms = (time.time() - start) * 1000
-        telemetry.record_llm_interaction(
-            provider=provider or "ollama",
-            model=model or "mistral",
-            ok=False,
-            latency_ms=latency_ms,
-            error=str(exc),
-        )
-        return 1, {
-            "scan_result": scan_result,
-            "llm": {
-                "provider": provider or "ollama",
-                "model": model or "mistral",
-                "error": str(exc),
-            },
-        }
 
 
 def _format_llm_response(payload: dict) -> None:
@@ -196,19 +149,17 @@ def _cmd_scan(args: argparse.Namespace) -> int:
         return 0 if result.get("error") is None else 1
 
     telemetry = TelemetryClient()
-    code, payload = _run_llm_explanation(
+    llm_bridge = LLMAgentBridge()
+    payload = run_scan_explain_pipeline(
         result,
-        provider=args.provider,
+        provider=args.provider or "ollama",
         model=args.model,
+        llm_bridge=llm_bridge,
+        n8n_client=n8n_client,
         telemetry=telemetry,
+        source="cli_scan",
     )
-    llm_block = payload.get("llm", {})
-    n8n_llm_payload = n8n_client.build_detection_payload(
-        result,
-        llm_explanation=llm_block.get("response_text"),
-        recommended_action=extract_recommended_action_from_llm_output(llm_block),
-    )
-    n8n_client.send_detection_to_n8n(n8n_llm_payload)
+    code = 0 if payload.get("ok") else 1
     # Mostrar resultado formateado
     scan_result = payload.get("scan_result", {})
     
@@ -284,6 +235,7 @@ def _cmd_update_model(args: argparse.Namespace) -> int:
 def _cmd_llm_explain(args: argparse.Namespace) -> int:
     telemetry = TelemetryClient()
     n8n_client = N8NClient()
+    llm_bridge = LLMAgentBridge()
 
     if not args.scan_json and not args.file:
         raise ValueError("Provide --file or --scan-json.")
@@ -294,19 +246,16 @@ def _cmd_llm_explain(args: argparse.Namespace) -> int:
         engine = ShadowNetEngine()
         scan_result = engine.scan_file(args.file)
 
-    code, payload = _run_llm_explanation(
+    payload = run_scan_explain_pipeline(
         scan_result,
-        provider=args.provider,
+        provider=args.provider or "ollama",
         model=args.model,
+        llm_bridge=llm_bridge,
+        n8n_client=n8n_client,
         telemetry=telemetry,
+        source="cli_llm_explain",
     )
-    llm_block = payload.get("llm", {})
-    n8n_payload = n8n_client.build_detection_payload(
-        scan_result,
-        llm_explanation=llm_block.get("response_text"),
-        recommended_action=extract_recommended_action_from_llm_output(llm_block),
-    )
-    n8n_client.send_detection_to_n8n(n8n_payload)
+    code = 0 if payload.get("ok") else 1
     # Mostrar resultado formateado
     scan_result = payload.get("scan_result", {})
     

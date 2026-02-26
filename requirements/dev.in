@@ -4,3 +4,4 @@ pytest
 psutil
 fastapi
 uvicorn
+python-dotenv

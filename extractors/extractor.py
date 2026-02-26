@@ -2,6 +2,8 @@ import pefile
 import numpy as np
 from typing import List, Dict
 
+from core.errors import NonPEFileError
+
 from extractors.base import FeatureBlock
 from extractors.byte_histogram import ByteHistogram
 from extractors.byte_entropy import ByteEntropy
@@ -25,6 +27,19 @@ class PEFeatureExtractor:
     
     # Total dimension expected by the model/scaler (EMBER 2.0 standard)
     TOTAL_DIM = 2381
+
+    # Canonical ranges for each feature block inside the concatenated vector.
+    # Used by explanation scripts to avoid hard-coded offsets.
+    BLOCK_RANGES = {
+        "ByteHistogram": (0, 256),
+        "ByteEntropy": (256, 512),
+        "Strings": (512, 616),
+        "General": (616, 626),
+        "Header": (626, 688),
+        "Section": (688, 943),
+        "Imports": (943, 2223),
+        "Exports": (2223, 2351),
+    }
     
     def __init__(self):
         # Order matters! Must match training order.
@@ -74,8 +89,8 @@ class PEFeatureExtractor:
             with open(file_path, "rb") as f:
                 raw_data = f.read()
             pe = pefile.PE(data=raw_data)
-        except Exception:
-            return final_vector
+        except Exception as exc:
+            raise NonPEFileError(file_path) from exc
 
         current_offset = 0
         for block in self.blocks:

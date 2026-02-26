@@ -7,7 +7,7 @@ import os
 import platform
 import socket
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -135,11 +135,11 @@ def extract_recommended_action_from_llm_output(
 class N8NIntegrationConfig:
     """Runtime config for n8n cloud integration."""
 
-    enabled: bool = _to_bool(os.getenv("N8N_ENABLED"), default=False)
-    environment: str = os.getenv("ENVIRONMENT", "dev").strip().lower()
-    webhook_test: str = os.getenv("N8N_WEBHOOK_TEST", "").strip()
-    webhook_prod: str = os.getenv("N8N_WEBHOOK_PROD", "").strip()
-    timeout_seconds: int = int(os.getenv("N8N_TIMEOUT_SECONDS", "8"))
+    enabled: bool = field(default_factory=lambda: _to_bool(os.getenv("N8N_ENABLED"), default=False))
+    environment: str = field(default_factory=lambda: os.getenv("ENVIRONMENT", "dev").strip().lower())
+    webhook_test: str = field(default_factory=lambda: os.getenv("N8N_WEBHOOK_TEST", "").strip())
+    webhook_prod: str = field(default_factory=lambda: os.getenv("N8N_WEBHOOK_PROD", "").strip())
+    timeout_seconds: int = field(default_factory=lambda: int(os.getenv("N8N_TIMEOUT_SECONDS", "8")))
 
     def selected_webhook(self) -> str:
         """Selects webhook by environment (`dev` -> test, `prod` -> production)."""

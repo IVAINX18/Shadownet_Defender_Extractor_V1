@@ -18,17 +18,9 @@ from extractors.extractor import PEFeatureExtractor
 def explain_features(features):
     print("\n--- EXPLICACIÓN DE CARACTERÍSTICAS ---")
     
-    # Bloques
-    blocks = {
-        "ByteHistogram": (0, 256),
-        "ByteEntropy": (256, 512),
-        "Strings": (512, 615),
-        "General": (616, 625),
-        "Header": (626, 687),
-        "Section": (688, 942),
-        "Imports": (943, 2223),
-        "Exports": (2223, 2350)
-    }
+    # Bloques — imported from the canonical source to avoid offset drift.
+    from extractors.extractor import PEFeatureExtractor
+    blocks = PEFeatureExtractor.BLOCK_RANGES
     
     # 1. Actividad por Bloque (Suma de magnitudes / dimensiones)
     print("Actividad Promedio por Bloque:")

@@ -8,6 +8,7 @@ from models.inference import ShadowNetModel
 from configs.settings import MODEL_PATH, SCALER_PATH, MALWARE_THRESHOLD, HIGH_CONFIDENCE_THRESHOLD
 from utils.logger import setup_logger
 from utils.runtime_checks import validate_python_version
+from core.errors import NonPEFileError
 
 logger = setup_logger(__name__)
 
@@ -75,7 +76,7 @@ class ShadowNetEngine:
             # 1. Feature Extraction
             logger.debug("Extracting features...")
             features = self.extractor.extract(str(file_path))
-            
+
             # 2. Inference
             if self.model:
                 logger.debug("Running inference...")
@@ -101,6 +102,11 @@ class ShadowNetEngine:
                 result["error"] = "Model not loaded"
                 logger.error("Attempted scan without model loaded")
 
+        except NonPEFileError:
+            result["status"] = "not_supported"
+            result["label"] = "NOT_PE"
+            result["error"] = "File is not a valid PE executable"
+            logger.warning(f"Non-PE file skipped: {file_path}")
         except Exception as e:
             logger.error(f"Scan failed for {file_path}: {e}")
             result["error"] = str(e)

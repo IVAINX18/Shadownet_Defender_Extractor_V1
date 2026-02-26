@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-import json
+import asyncio
 import time
+import threading
 from pathlib import Path
 from typing import Any, Dict, List
 from urllib.parse import urlparse
 from uuid import uuid4
 
-from core.integrations.n8n_client import (
-    N8NClient,
-    extract_recommended_action_from_llm_output,
-)
+from core.integrations.n8n_client import N8NClient
+from core.scan_pipeline import run_scan_explain_pipeline
 from core.engine import ShadowNetEngine
 from llm_agent_bridge import LLMAgentBridge
 from security.artifact_verifier import verify_artifacts
@@ -26,6 +25,13 @@ telemetry = TelemetryClient()
 llm_bridge = LLMAgentBridge()
 n8n_client = N8NClient()
 
+# Maximum upload body size (100 MB).
+MAX_UPLOAD_BYTES = 100 * 1024 * 1024
+
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
 
 def _record_scan_telemetry(file_path: str, result: Dict) -> None:
     telemetry.record_scan(
@@ -44,11 +50,7 @@ def _dispatch_detection_to_n8n(
     llm_explanation: str | None = None,
     recommended_action: str | None = None,
 ) -> bool:
-    """
-    Builds and sends n8n payload.
-
-    This path is intentionally non-blocking to keep API latency stable.
-    """
+    """Builds and sends n8n payload."""
     payload = n8n_client.build_detection_payload(
         scan_result,
         llm_explanation=llm_explanation,
@@ -63,19 +65,19 @@ def _dispatch_detection_to_n8n_safe(
     llm_explanation: str | None = None,
     recommended_action: str | None = None,
     source: str,
-) -> bool:
-    """
-    Ensures n8n delivery path never breaks API responses.
-    """
-    try:
-        return _dispatch_detection_to_n8n(
-            scan_result,
-            llm_explanation=llm_explanation,
-            recommended_action=recommended_action,
-        )
-    except Exception as exc:  # pragma: no cover
-        telemetry.record_runtime_error(source=f"n8n_dispatch_{source}", error=str(exc))
-        return False
+) -> None:
+    """Fire-and-forget n8n dispatch in a background thread."""
+    def _send() -> None:
+        try:
+            _dispatch_detection_to_n8n(
+                scan_result,
+                llm_explanation=llm_explanation,
+                recommended_action=recommended_action,
+            )
+        except Exception as exc:  # pragma: no cover
+            telemetry.record_runtime_error(source=f"n8n_dispatch_{source}", error=str(exc))
+
+    threading.Thread(target=_send, daemon=True).start()
 
 
 def _sanitize_filename(filename: str | None) -> str:
@@ -97,70 +99,9 @@ def _safe_webhook_host(url: str) -> str:
         return "invalid_url"
 
 
-def _ensure_parsed_llm_response(llm_out: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Adds `parsed_response` when `response_text` is valid JSON.
-
-    Keeps backward compatibility by preserving the original `response_text`.
-    """
-    if "parsed_response" in llm_out:
-        return llm_out
-
-    raw_response = llm_out.get("response_text")
-    if not isinstance(raw_response, str):
-        return llm_out
-
-    try:
-        llm_out["parsed_response"] = json.loads(raw_response)
-    except Exception:
-        pass
-    return llm_out
-
-
-def _run_llm_pipeline(
-    scan_result: Dict[str, Any],
-    *,
-    provider: str,
-    model: str | None,
-    source: str,
-) -> Dict[str, Any]:
-    start = time.time()
-    try:
-        llm_out = llm_bridge.explain_scan(scan_result, provider=provider, model=model)
-        llm_out = _ensure_parsed_llm_response(llm_out)
-        telemetry.record_llm_interaction(
-            provider=llm_out["provider"],
-            model=llm_out["model"],
-            ok=True,
-            latency_ms=(time.time() - start) * 1000,
-        )
-        llm_explanation = llm_out.get("response_text")
-        delivered = _dispatch_detection_to_n8n_safe(
-            scan_result,
-            llm_explanation=llm_explanation if isinstance(llm_explanation, str) else None,
-            recommended_action=extract_recommended_action_from_llm_output(llm_out),
-            source=source,
-        )
-        return {
-            "ok": True,
-            "scan_result": scan_result,
-            "llm": llm_out,
-            "automation": {"delivered": delivered},
-        }
-    except Exception as exc:
-        telemetry.record_llm_interaction(
-            provider=str(provider),
-            model=str(model or "unknown"),
-            ok=False,
-            latency_ms=(time.time() - start) * 1000,
-            error=str(exc),
-        )
-        return {
-            "ok": False,
-            "error": str(exc),
-            "scan_result": scan_result,
-            "automation": {"delivered": False},
-        }
+# ---------------------------------------------------------------------------
+# Endpoints
+# ---------------------------------------------------------------------------
 
 
 @app.get("/health")
@@ -212,7 +153,15 @@ def llm_explain(payload: Dict) -> Dict:
         scan_result = engine.scan_file(file_path)
         _record_scan_telemetry(file_path, scan_result)
 
-    return _run_llm_pipeline(scan_result, provider=str(provider), model=model, source="llm_explain")
+    return run_scan_explain_pipeline(
+        scan_result,
+        provider=str(provider),
+        model=model,
+        llm_bridge=llm_bridge,
+        n8n_client=n8n_client,
+        telemetry=telemetry,
+        source="llm_explain",
+    )
 
 
 @app.post("/scan/upload-explain")
@@ -222,7 +171,33 @@ async def scan_upload_explain(
     provider: str = "ollama",
     model: str | None = None,
 ) -> Dict[str, Any]:
-    raw_bytes = await request.body()
+    # --- Guard: reject oversized uploads before reading the body ---
+    content_length = request.headers.get("content-length")
+    if content_length is not None:
+        try:
+            if int(content_length) > MAX_UPLOAD_BYTES:
+                return {
+                    "ok": False,
+                    "error": f"File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
+                    "automation": {"delivered": False},
+                }
+        except ValueError:
+            pass
+
+    # Stream body with size limit
+    chunks: list[bytes] = []
+    total = 0
+    async for chunk in request.stream():
+        total += len(chunk)
+        if total > MAX_UPLOAD_BYTES:
+            return {
+                "ok": False,
+                "error": f"File too large. Maximum allowed size is {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
+                "automation": {"delivered": False},
+            }
+        chunks.append(chunk)
+    raw_bytes = b"".join(chunks)
+
     if not raw_bytes:
         return {
             "ok": False,
@@ -240,12 +215,18 @@ async def scan_upload_explain(
         scan_result = engine.scan_file(temp_path)
         scan_result["uploaded_filename"] = safe_name
         _record_scan_telemetry(str(temp_path), scan_result)
-        return _run_llm_pipeline(
+
+        pipeline_result = await asyncio.to_thread(
+            run_scan_explain_pipeline,
             scan_result,
             provider=provider,
             model=model,
+            llm_bridge=llm_bridge,
+            n8n_client=n8n_client,
+            telemetry=telemetry,
             source="scan_upload_explain",
         )
+        return pipeline_result
     finally:
         try:
             temp_path.unlink(missing_ok=True)
@@ -279,7 +260,7 @@ def automation_test(payload: Dict | None = None) -> Dict:
     else:
         built = n8n_client.build_detection_payload(
             test_payload,
-            llm_explanation="{\"resumen_ejecutivo\":\"test\"}",
+            llm_explanation='{"resumen_ejecutivo":"test"}',
             recommended_action="Aislar host afectado",
         )
         delivered = n8n_client.send_detection_to_n8n(built)
