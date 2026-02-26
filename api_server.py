@@ -345,7 +345,7 @@ def automation_test(payload: Dict | None = None) -> JSONResponse:
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
         "details": {},
     }
-    if "event_id" in test_payload and "detection" in test_payload:
+    if "event_id" in test_payload and "file_name" in test_payload:
         delivered = n8n_client.send_detection_to_n8n(test_payload)
     else:
         built = n8n_client.build_detection_payload(

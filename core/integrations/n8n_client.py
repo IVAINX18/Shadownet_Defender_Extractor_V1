@@ -3,6 +3,7 @@ from __future__ import annotations
 import getpass
 import hashlib
 import json
+import math
 import os
 import platform
 import socket
@@ -71,9 +72,25 @@ def _risk_level_from_score(score: float) -> str:
 
 def _confidence_to_numeric(value: Any) -> float:
     """Normalizes confidence to numeric value expected by downstream automation."""
-    if isinstance(value, (int, float)):
-        return float(value)
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        numeric = float(value)
+        if not math.isfinite(numeric):
+            return 0.50
+        return min(max(numeric, 0.0), 1.0)
+
     text = str(value or "").strip().lower()
+    if not text:
+        return 0.50
+
+    try:
+        numeric = float(text.replace(",", "."))
+    except ValueError:
+        numeric = None
+    if numeric is not None:
+        if not math.isfinite(numeric):
+            return 0.50
+        return min(max(numeric, 0.0), 1.0)
+
     if text == "high":
         return 0.97
     if text == "medium":
@@ -99,6 +116,43 @@ def _safe_first_recommendation(llm_explanation: str | None) -> str:
         if isinstance(first, str) and first.strip():
             return first.strip()
     return _DEFAULT_RECOMMENDED_ACTION
+
+
+def _safe_float(value: Any, *, default: float = 0.0) -> float:
+    """Parses a number from heterogeneous values using a safe fallback."""
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        numeric = float(value)
+    else:
+        text = str(value or "").strip()
+        if not text:
+            return default
+        try:
+            numeric = float(text.replace(",", "."))
+        except ValueError:
+            return default
+
+    if not math.isfinite(numeric):
+        return default
+    return numeric
+
+
+def _safe_text(value: Any, *, default: str) -> str:
+    """Returns a stripped string with fallback for missing/empty values."""
+    text = str(value).strip() if value is not None else ""
+    return text or default
+
+
+def _normalize_llm_explanation(value: Any) -> str:
+    """Normalizes llm_explanation into a JSON-safe string payload field."""
+    if isinstance(value, str):
+        text = value.strip()
+        return text or "dato_no_disponible"
+    if value is None:
+        return "dato_no_disponible"
+    try:
+        return json.dumps(value, ensure_ascii=True)
+    except Exception:
+        return str(value)
 
 
 def extract_recommended_action_from_llm_output(
@@ -131,6 +185,48 @@ def extract_recommended_action_from_llm_output(
     return None
 
 
+def normalize_detection_payload(report_json: Dict[str, Any] | None) -> Dict[str, Any]:
+    """
+    Ensures the payload expected by n8n/MySQL has stable types and defaults.
+    """
+    payload = dict(report_json) if isinstance(report_json, dict) else {}
+
+    score = _safe_float(payload.get("ml_score", payload.get("score")), default=0.0)
+    payload["ml_score"] = score
+    payload["confidence"] = _confidence_to_numeric(payload.get("confidence"))
+
+    risk_level = str(payload.get("risk_level", "")).strip().upper()
+    payload["risk_level"] = risk_level or _risk_level_from_score(score)
+
+    payload["event_id"] = _safe_text(payload.get("event_id"), default=str(uuid.uuid4()))
+    payload["timestamp"] = _safe_text(payload.get("timestamp"), default=_utc_timestamp())
+    payload["model_version"] = _safe_text(payload.get("model_version"), default=_safe_model_version())
+
+    file_path_raw = str(payload.get("file_path", "")).strip()
+    file_path = file_path_raw if file_path_raw else "dato_no_disponible"
+    payload["file_path"] = file_path
+
+    file_name = str(payload.get("file_name", "")).strip()
+    if not file_name and file_path_raw:
+        file_name = Path(file_path_raw).name
+    payload["file_name"] = file_name or "unknown"
+
+    payload["file_hash"] = _safe_text(payload.get("file_hash"), default="dato_no_disponible")
+
+    llm_text = _normalize_llm_explanation(payload.get("llm_explanation"))
+    payload["llm_explanation"] = llm_text
+    payload["recommended_action"] = _safe_text(
+        payload.get("recommended_action"),
+        default=_safe_first_recommendation(llm_text),
+    )
+
+    payload["hostname"] = _safe_text(payload.get("hostname"), default=socket.gethostname())
+    payload["os"] = _safe_text(payload.get("os"), default=platform.platform())
+    payload["user"] = _safe_text(payload.get("user"), default=getpass.getuser())
+
+    return payload
+
+
 @dataclass
 class N8NIntegrationConfig:
     """Runtime config for n8n cloud integration."""
@@ -157,36 +253,35 @@ def build_detection_payload(
     """
     Builds the standardized detection payload consumed by n8n workflows.
     """
-    file_path = str(scan_result.get("file", ""))
-    file_name = Path(file_path).name if file_path else "unknown"
-    score = float(scan_result.get("score", -1.0))
+    file_path = str(scan_result.get("file", "")).strip() or str(scan_result.get("file_path", "")).strip()
+    file_name = str(scan_result.get("uploaded_filename", "")).strip()
+    if not file_name:
+        file_name = Path(file_path).name if file_path else "unknown"
+
+    score = _safe_float(scan_result.get("score"), default=0.0)
     confidence_raw = scan_result.get("confidence", "Low")
     confidence_value = _confidence_to_numeric(confidence_raw)
     risk_level = _risk_level_from_score(score)
-    llm_text = llm_explanation or "dato_no_disponible"
+    llm_text = _normalize_llm_explanation(llm_explanation)
 
-    return {
+    payload = {
         "event_id": str(uuid.uuid4()),
         "timestamp": _utc_timestamp(),
-        "detection": {
-            "file_name": file_name,
-            "file_hash": _safe_sha256(file_path),
-            "file_path": file_path or "dato_no_disponible",
-        },
-        "ml_analysis": {
-            "score": score,
-            "confidence": confidence_value,
-            "model_version": _safe_model_version(),
-        },
+        # Flat fields for n8n SQL compatibility.
+        "file_name": file_name,
+        "file_hash": _safe_sha256(file_path),
+        "file_path": file_path or "dato_no_disponible",
+        "ml_score": score,
+        "confidence": confidence_value,
+        "model_version": _safe_model_version(),
         "risk_level": risk_level,
         "llm_explanation": llm_text,
         "recommended_action": recommended_action or _safe_first_recommendation(llm_text),
-        "system_info": {
-            "hostname": socket.gethostname(),
-            "os": platform.platform(),
-            "user": getpass.getuser(),
-        },
+        "hostname": socket.gethostname(),
+        "os": platform.platform(),
+        "user": getpass.getuser(),
     }
+    return normalize_detection_payload(payload)
 
 
 def send_detection_to_n8n(
@@ -204,7 +299,8 @@ def send_detection_to_n8n(
     """
     cfg = config or N8NIntegrationConfig()
     telemetry_client = telemetry or TelemetryClient()
-    risk_level = str(report_json.get("risk_level", "LOW")).upper()
+    normalized_report = normalize_detection_payload(report_json)
+    risk_level = str(normalized_report.get("risk_level", "LOW")).upper()
 
     if not cfg.enabled:
         logger.debug("[ShadowNet-N8N] Skipped: integration disabled")
@@ -247,7 +343,7 @@ def send_detection_to_n8n(
     logger.debug("[ShadowNet-N8N] Sending alert...")
     req = request.Request(
         webhook_url,
-        data=json.dumps(report_json, ensure_ascii=True).encode("utf-8"),
+        data=json.dumps(normalized_report, ensure_ascii=True).encode("utf-8"),
         headers={"Content-Type": "application/json"},
         method="POST",
     )
