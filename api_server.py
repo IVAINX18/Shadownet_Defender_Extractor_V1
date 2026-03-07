@@ -76,14 +76,12 @@ def _record_scan_telemetry(file_path: str, result: Dict) -> None:
 def _dispatch_detection_to_n8n(
     scan_result: Dict[str, Any],
     *,
-    llm_explanation: str | None = None,
-    recommended_action: str | None = None,
+    llm_report: Dict[str, Any] | str | None = None,
 ) -> bool:
     """Builds and sends n8n payload."""
     payload = n8n_client.build_detection_payload(
         scan_result,
-        llm_explanation=llm_explanation,
-        recommended_action=recommended_action,
+        llm_report=llm_report,
     )
     return n8n_client.send_detection_to_n8n(payload)
 
@@ -91,8 +89,7 @@ def _dispatch_detection_to_n8n(
 def _dispatch_detection_to_n8n_safe(
     scan_result: Dict[str, Any],
     *,
-    llm_explanation: str | None = None,
-    recommended_action: str | None = None,
+    llm_report: Dict[str, Any] | str | None = None,
     source: str,
 ) -> None:
     """Fire-and-forget n8n dispatch in a background thread."""
@@ -100,8 +97,7 @@ def _dispatch_detection_to_n8n_safe(
         try:
             _dispatch_detection_to_n8n(
                 scan_result,
-                llm_explanation=llm_explanation,
-                recommended_action=recommended_action,
+                llm_report=llm_report,
             )
         except Exception as exc:  # pragma: no cover
             telemetry.record_runtime_error(source=f"n8n_dispatch_{source}", error=str(exc))
@@ -350,8 +346,13 @@ def automation_test(payload: Dict | None = None) -> JSONResponse:
     else:
         built = n8n_client.build_detection_payload(
             test_payload,
-            llm_explanation='{"resumen_ejecutivo":"test"}',
-            recommended_action="Aislar host afectado",
+            llm_report={
+                "resumen_ejecutivo": "test",
+                "explicacion_tecnica": "dato_no_disponible",
+                "justificacion_matematica": "dato_no_disponible",
+                "recommended_action": "Aislar host afectado",
+                "indicadores_clave": [],
+            },
         )
         delivered = n8n_client.send_detection_to_n8n(built)
         test_payload = built

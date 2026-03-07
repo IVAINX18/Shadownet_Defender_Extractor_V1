@@ -20,6 +20,7 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 _DEFAULT_RECOMMENDED_ACTION = "Revisar resultado ML y aplicar playbook SOC."
+_DEFAULT_LLM_TEXT = "dato_no_disponible"
 
 
 def _to_bool(value: str | None, *, default: bool = False) -> bool:
@@ -100,22 +101,16 @@ def _confidence_to_numeric(value: Any) -> float:
     return 0.50
 
 
-def _safe_first_recommendation(llm_explanation: str | None) -> str:
-    """Extracts first recommendation from LLM JSON response when possible."""
-    if not llm_explanation:
-        return _DEFAULT_RECOMMENDED_ACTION
-    try:
-        data = json.loads(llm_explanation)
-    except json.JSONDecodeError:
-        return _DEFAULT_RECOMMENDED_ACTION
-    if not isinstance(data, dict):
-        return _DEFAULT_RECOMMENDED_ACTION
-    recommendations = data.get("recomendaciones")
-    if isinstance(recommendations, list) and recommendations:
-        first = recommendations[0]
-        if isinstance(first, str) and first.strip():
-            return first.strip()
-    return _DEFAULT_RECOMMENDED_ACTION
+def _safe_string_list(value: Any) -> list[str]:
+    """Normalizes heterogeneous values into a clean list[str]."""
+    if not isinstance(value, list):
+        return []
+    cleaned: list[str] = []
+    for item in value:
+        text = str(item).strip() if item is not None else ""
+        if text:
+            cleaned.append(text)
+    return cleaned
 
 
 def _safe_float(value: Any, *, default: float = 0.0) -> float:
@@ -142,17 +137,64 @@ def _safe_text(value: Any, *, default: str) -> str:
     return text or default
 
 
-def _normalize_llm_explanation(value: Any) -> str:
-    """Normalizes llm_explanation into a JSON-safe string payload field."""
-    if isinstance(value, str):
+def _normalize_llm_report_object(value: Any) -> Dict[str, Any]:
+    """Normalizes rich LLM outputs into one dict for JSONB storage."""
+    data: Dict[str, Any]
+    if isinstance(value, dict):
+        data = dict(value)
+    elif isinstance(value, str):
         text = value.strip()
-        return text or "dato_no_disponible"
-    if value is None:
-        return "dato_no_disponible"
+        if not text:
+            data = {}
+        else:
+            try:
+                parsed = json.loads(text)
+                data = dict(parsed) if isinstance(parsed, dict) else {"raw_response": text}
+            except json.JSONDecodeError:
+                data = {"raw_response": text}
+    elif value is None:
+        data = {}
+    else:
+        data = {"raw_response": str(value)}
+
+    recommendations = _safe_string_list(data.get("recomendaciones"))
+    recommended_action = _safe_text(
+        data.get("recommended_action"),
+        default=(recommendations[0] if recommendations else _DEFAULT_RECOMMENDED_ACTION),
+    )
+    data["recommended_action"] = recommended_action
+    data["resumen_ejecutivo"] = _safe_text(data.get("resumen_ejecutivo"), default=_DEFAULT_LLM_TEXT)
+    data["explicacion_tecnica"] = _safe_text(data.get("explicacion_tecnica"), default=_DEFAULT_LLM_TEXT)
+    data["justificacion_matematica"] = _safe_text(
+        data.get("justificacion_matematica"),
+        default=_DEFAULT_LLM_TEXT,
+    )
+    data["indicadores_clave"] = _safe_string_list(data.get("indicadores_clave"))
+    return data
+
+
+def _serialize_llm_report(value: Any) -> str:
+    """Serializes llm_report payload using json.dumps before delivery."""
+    normalized = _normalize_llm_report_object(value)
+    return json.dumps(normalized, ensure_ascii=True)
+
+
+def _safe_first_recommendation(llm_explanation: str | None) -> str:
+    """Extracts first recommendation from legacy LLM JSON response when possible."""
+    if not llm_explanation:
+        return _DEFAULT_RECOMMENDED_ACTION
     try:
-        return json.dumps(value, ensure_ascii=True)
-    except Exception:
-        return str(value)
+        data = json.loads(llm_explanation)
+    except json.JSONDecodeError:
+        return _DEFAULT_RECOMMENDED_ACTION
+    if not isinstance(data, dict):
+        return _DEFAULT_RECOMMENDED_ACTION
+    recommendations = data.get("recomendaciones")
+    if isinstance(recommendations, list) and recommendations:
+        first = recommendations[0]
+        if isinstance(first, str) and first.strip():
+            return first.strip()
+    return _DEFAULT_RECOMMENDED_ACTION
 
 
 def extract_recommended_action_from_llm_output(
@@ -187,7 +229,7 @@ def extract_recommended_action_from_llm_output(
 
 def normalize_detection_payload(report_json: Dict[str, Any] | None) -> Dict[str, Any]:
     """
-    Ensures the payload expected by n8n/MySQL has stable types and defaults.
+    Ensures the payload expected by n8n/Postgres has stable types and defaults.
     """
     payload = dict(report_json) if isinstance(report_json, dict) else {}
 
@@ -213,12 +255,22 @@ def normalize_detection_payload(report_json: Dict[str, Any] | None) -> Dict[str,
 
     payload["file_hash"] = _safe_text(payload.get("file_hash"), default="dato_no_disponible")
 
-    llm_text = _normalize_llm_explanation(payload.get("llm_explanation"))
-    payload["llm_explanation"] = llm_text
-    payload["recommended_action"] = _safe_text(
-        payload.get("recommended_action"),
-        default=_safe_first_recommendation(llm_text),
-    )
+    llm_report_raw = payload.get("llm_report")
+    if llm_report_raw is None:
+        llm_report_raw = payload.get("llm_explanation")
+    if llm_report_raw is None:
+        llm_report_raw = {}
+    if payload.get("recommended_action"):
+        llm_report_obj = _normalize_llm_report_object(llm_report_raw)
+        llm_report_obj["recommended_action"] = _safe_text(
+            payload.get("recommended_action"),
+            default=llm_report_obj.get("recommended_action", _DEFAULT_RECOMMENDED_ACTION),
+        )
+        payload["llm_report"] = _serialize_llm_report(llm_report_obj)
+    else:
+        payload["llm_report"] = _serialize_llm_report(llm_report_raw)
+    payload.pop("llm_explanation", None)
+    payload.pop("recommended_action", None)
 
     payload["hostname"] = _safe_text(payload.get("hostname"), default=socket.gethostname())
     payload["os"] = _safe_text(payload.get("os"), default=platform.platform())
@@ -247,8 +299,8 @@ class N8NIntegrationConfig:
 def build_detection_payload(
     scan_result: Dict[str, Any],
     *,
+    llm_report: Optional[Dict[str, Any] | str] = None,
     llm_explanation: Optional[str] = None,
-    recommended_action: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Builds the standardized detection payload consumed by n8n workflows.
@@ -262,7 +314,7 @@ def build_detection_payload(
     confidence_raw = scan_result.get("confidence", "Low")
     confidence_value = _confidence_to_numeric(confidence_raw)
     risk_level = _risk_level_from_score(score)
-    llm_text = _normalize_llm_explanation(llm_explanation)
+    llm_report_raw: Any = llm_report if llm_report is not None else llm_explanation
 
     payload = {
         "event_id": str(uuid.uuid4()),
@@ -275,8 +327,7 @@ def build_detection_payload(
         "confidence": confidence_value,
         "model_version": _safe_model_version(),
         "risk_level": risk_level,
-        "llm_explanation": llm_text,
-        "recommended_action": recommended_action or _safe_first_recommendation(llm_text),
+        "llm_report": _serialize_llm_report(llm_report_raw),
         "hostname": socket.gethostname(),
         "os": platform.platform(),
         "user": getpass.getuser(),
@@ -406,13 +457,13 @@ class N8NClient:
         self,
         scan_result: Dict[str, Any],
         *,
+        llm_report: Optional[Dict[str, Any] | str] = None,
         llm_explanation: Optional[str] = None,
-        recommended_action: Optional[str] = None,
     ) -> Dict[str, Any]:
         return build_detection_payload(
             scan_result,
+            llm_report=llm_report,
             llm_explanation=llm_explanation,
-            recommended_action=recommended_action,
         )
 
     def send_detection_to_n8n(self, report_json: Dict[str, Any]) -> bool:

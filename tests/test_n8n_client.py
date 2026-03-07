@@ -5,7 +5,6 @@ from core.integrations.n8n_client import (
     N8NClient,
     N8NIntegrationConfig,
     build_detection_payload,
-    extract_recommended_action_from_llm_output,
     send_detection_to_n8n,
 )
 from telemetry_client import TelemetryClient
@@ -30,13 +29,21 @@ def test_build_detection_payload_structure():
             "timestamp": "2026-02-18 20:00:00",
             "details": {},
         },
-        llm_explanation='{"recomendaciones":["Aislar host"]}',
+        llm_report={
+            "resumen_ejecutivo": "Riesgo alto",
+            "explicacion_tecnica": "Imports sospechosos",
+            "justificacion_matematica": "score >= 0.5",
+            "recommended_action": "Aislar host",
+            "indicadores_clave": ["score alto"],
+        },
     )
     assert payload["risk_level"] == "CRITICAL"
     assert "event_id" in payload
     assert "file_name" in payload
     assert "ml_score" in payload
     assert "hostname" in payload
+    llm_report = json.loads(payload["llm_report"])
+    assert llm_report["recommended_action"] == "Aislar host"
 
 
 def test_build_detection_payload_normalizes_blank_numeric_inputs():
@@ -47,12 +54,14 @@ def test_build_detection_payload_normalizes_blank_numeric_inputs():
             "confidence": "",
             "details": {},
         },
-        llm_explanation="",
+        llm_report="",
     )
     assert payload["ml_score"] == 0.0
     assert payload["confidence"] == 0.50
     assert payload["file_name"] == "unknown"
     assert payload["file_path"] == "dato_no_disponible"
+    llm_report = json.loads(payload["llm_report"])
+    assert llm_report["recommended_action"] == "Revisar resultado ML y aplicar playbook SOC."
 
 
 def test_send_detection_to_n8n_skips_low_risk_in_dev(tmp_path):
@@ -116,7 +125,7 @@ def test_send_detection_to_n8n_normalizes_prebuilt_payload(monkeypatch, tmp_path
             "ml_score": "",
             "confidence": "",
             "risk_level": "LOW",
-            "llm_explanation": "",
+            "llm_report": "",
         },
         config=N8NIntegrationConfig(
             enabled=True,
@@ -130,6 +139,8 @@ def test_send_detection_to_n8n_normalizes_prebuilt_payload(monkeypatch, tmp_path
     assert sent is True
     assert target["payload"]["ml_score"] == 0.0
     assert target["payload"]["confidence"] == 0.50
+    assert "recommended_action" not in target["payload"]
+    assert "llm_explanation" not in target["payload"]
 
 
 def test_n8n_client_handles_connection_error(monkeypatch, tmp_path):
@@ -149,21 +160,3 @@ def test_n8n_client_handles_connection_error(monkeypatch, tmp_path):
     )
     sent = client.send_detection_to_n8n({"risk_level": "HIGH"})
     assert sent is False
-
-
-def test_extract_recommended_action_from_llm_output_prefers_parsed_response():
-    llm_output = {
-        "response_text": '{"recomendaciones": ["Texto en bruto"]}',
-        "parsed_response": {"recomendaciones": ["Aislar host comprometido"]},
-    }
-    assert (
-        extract_recommended_action_from_llm_output(llm_output)
-        == "Aislar host comprometido"
-    )
-
-
-def test_extract_recommended_action_from_llm_output_uses_json_text_fallback():
-    llm_output = {
-        "response_text": '{"recomendaciones": ["Rotar credenciales"]}',
-    }
-    assert extract_recommended_action_from_llm_output(llm_output) == "Rotar credenciales"

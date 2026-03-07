@@ -9,10 +9,7 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, Optional
 
-from core.integrations.n8n_client import (
-    N8NClient,
-    extract_recommended_action_from_llm_output,
-)
+from core.integrations.n8n_client import N8NClient
 from llm_agent_bridge import LLMAgentBridge
 from telemetry_client import TelemetryClient
 
@@ -65,16 +62,13 @@ def run_scan_explain_pipeline(
 
         delivered = False
         if dispatch_n8n:
-            llm_explanation = llm_out.get("response_text")
+            llm_report = llm_out.get("parsed_response")
+            if llm_report is None:
+                llm_report = llm_out.get("response_text")
             try:
                 payload = n8n_client.build_detection_payload(
                     scan_result,
-                    llm_explanation=(
-                        llm_explanation if isinstance(llm_explanation, str) else None
-                    ),
-                    recommended_action=extract_recommended_action_from_llm_output(
-                        llm_out
-                    ),
+                    llm_report=llm_report,
                 )
                 delivered = n8n_client.send_detection_to_n8n(payload)
             except Exception:

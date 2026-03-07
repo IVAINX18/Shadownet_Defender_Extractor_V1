@@ -831,8 +831,7 @@ Si `N8N_ENABLED=false` (o no definido), no se envía nada.
   "ml_score": 0.91,
   "confidence": "High",
   "risk_level": "critical",
-  "llm_explanation": "{...json_llm...}",
-  "recommended_action": "Aislar host afectado",
+  "llm_report": "{\"resumen_ejecutivo\":\"...\",\"explicacion_tecnica\":\"...\",\"justificacion_matematica\":\"...\",\"recommended_action\":\"Aislar host afectado\",\"indicadores_clave\":[\"...\"]}",
   "model_version": "v1.0.0",
   "timestamp": "2026-02-19 12:00:00"
 }
