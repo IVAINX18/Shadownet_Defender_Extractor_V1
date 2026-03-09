@@ -22,6 +22,16 @@ logger = setup_logger(__name__)
 _DEFAULT_RECOMMENDED_ACTION = "Revisar resultado ML y aplicar playbook SOC."
 _DEFAULT_LLM_TEXT = "dato_no_disponible"
 
+# ---------------------------------------------------------------------------
+# n8n webhook URLs exposed via ngrok tunnel
+# ---------------------------------------------------------------------------
+# n8n workflows are exposed locally using an ngrok tunnel.
+# The TEST webhook is used when running workflows manually in n8n test mode.
+# The PRODUCTION webhook works only when the n8n workflow is active/published.
+
+TEST_WEBHOOK_URL = "https://postmeiotic-consolatory-haydee.ngrok-free.dev/webhook-test/shadownet-malware"
+PRODUCTION_WEBHOOK_URL = "https://postmeiotic-consolatory-haydee.ngrok-free.dev/webhook/shadownet-malware"
+
 
 def _to_bool(value: str | None, *, default: bool = False) -> bool:
     """Converts environment-like string values to bool."""
@@ -285,8 +295,9 @@ class N8NIntegrationConfig:
 
     enabled: bool = field(default_factory=lambda: _to_bool(os.getenv("N8N_ENABLED"), default=False))
     environment: str = field(default_factory=lambda: os.getenv("ENVIRONMENT", "dev").strip().lower())
-    webhook_test: str = field(default_factory=lambda: os.getenv("N8N_WEBHOOK_TEST", "").strip())
-    webhook_prod: str = field(default_factory=lambda: os.getenv("N8N_WEBHOOK_PROD", "").strip())
+    # Fall back to ngrok constants when env vars are not set.
+    webhook_test: str = field(default_factory=lambda: os.getenv("N8N_WEBHOOK_TEST", TEST_WEBHOOK_URL).strip())
+    webhook_prod: str = field(default_factory=lambda: os.getenv("N8N_WEBHOOK_PROD", PRODUCTION_WEBHOOK_URL).strip())
     timeout_seconds: int = field(default_factory=lambda: int(os.getenv("N8N_TIMEOUT_SECONDS", "8")))
 
     def selected_webhook(self) -> str:

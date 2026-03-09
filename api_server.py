@@ -9,7 +9,13 @@ from typing import Any, Dict, List
 from urllib.parse import urlparse
 from uuid import uuid4
 
-from core.integrations.n8n_client import N8NClient
+import requests  # Used to forward payloads to the n8n webhook via ngrok
+
+from core.integrations.n8n_client import (
+    N8NClient,
+    PRODUCTION_WEBHOOK_URL,
+    TEST_WEBHOOK_URL,
+)
 from core.scan_pipeline import run_scan_explain_pipeline
 from core.engine import ShadowNetEngine
 from llm_agent_bridge import LLMAgentBridge
@@ -142,8 +148,8 @@ def verify_model(manifest: str = "model_manifest.json") -> Dict:
     return {"ok": ok, "errors": errors}
 
 
-@app.get("/scan")
-def scan(file_path: str) -> JSONResponse:
+@app.get("/scan-file")
+def scan_file(file_path: str) -> JSONResponse:
     if not _is_path_allowed(file_path):
         return JSONResponse(
             status_code=422,
@@ -156,6 +162,75 @@ def scan(file_path: str) -> JSONResponse:
     _record_scan_telemetry(file_path, result)
     _dispatch_detection_to_n8n_safe(result, source="scan")
     return JSONResponse(content=result)
+
+
+# ---------------------------------------------------------------------------
+# POST /scan  — Forward hash + filename to n8n via ngrok webhook
+# ---------------------------------------------------------------------------
+#
+# n8n workflows are exposed locally using an ngrok tunnel.
+# mode=test  → sends to TEST_WEBHOOK_URL  (use when n8n workflow is in manual test mode)
+# mode=prod  → sends to PRODUCTION_WEBHOOK_URL (use when n8n workflow is active/published)
+
+@app.post("/scan")
+def scan_ngrok(
+    payload: Dict,
+    mode: str = "test",
+) -> JSONResponse:
+    hash_value = payload.get("hash", "")
+    filename = payload.get("filename", "")
+
+    # Select webhook URL based on mode query parameter
+    if mode == "prod":
+        webhook_url = PRODUCTION_WEBHOOK_URL
+    else:
+        webhook_url = TEST_WEBHOOK_URL
+
+    outgoing = {
+        "hash": hash_value,
+        "filename": filename,
+        "source": "shadownet-api",
+    }
+
+    try:
+        resp = requests.post(webhook_url, json=outgoing, timeout=10)
+        return JSONResponse(content={
+            "ok": True,
+            "mode": mode,
+            "webhook_url": webhook_url,
+            "n8n_status": resp.status_code,
+            "n8n_body": resp.text,
+        })
+    except requests.exceptions.ConnectionError as exc:
+        return JSONResponse(
+            status_code=502,
+            content={
+                "ok": False,
+                "mode": mode,
+                "webhook_url": webhook_url,
+                "error": f"Connection error reaching n8n webhook: {exc}",
+            },
+        )
+    except requests.exceptions.Timeout:
+        return JSONResponse(
+            status_code=504,
+            content={
+                "ok": False,
+                "mode": mode,
+                "webhook_url": webhook_url,
+                "error": "Request to n8n webhook timed out.",
+            },
+        )
+    except requests.exceptions.RequestException as exc:
+        return JSONResponse(
+            status_code=502,
+            content={
+                "ok": False,
+                "mode": mode,
+                "webhook_url": webhook_url,
+                "error": f"Unexpected error forwarding to n8n: {exc}",
+            },
+        )
 
 
 @app.post("/scan-batch")
@@ -360,5 +435,7 @@ def automation_test(payload: Dict | None = None) -> JSONResponse:
 
 
 if __name__ == "__main__":
+    # Run locally — no Render or Cloudflare dependencies.
+    # Communicates with n8n via ngrok tunnel webhooks.
     uvicorn = import_optional_dependency("uvicorn", install_profile="requirements/dev.lock.txt")
-    uvicorn.run("api_server:app", host="127.0.0.1", port=8000, reload=False)
+    uvicorn.run("api_server:app", host="0.0.0.0", port=8000, reload=False)
