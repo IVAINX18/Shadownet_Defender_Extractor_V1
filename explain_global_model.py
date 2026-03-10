@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score
 
 from evaluation._mock_model import MockModel
 
-# 📚 MockModel se importa de evaluation/_mock_model.py
+# MockModel se importa de evaluation/_mock_model.py
 # para evitar duplicación con evaluate_model_metrics.py y test_robustness.py
 
 def explain_global_importance():
