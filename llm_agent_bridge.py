@@ -1,5 +1,5 @@
 """
-llm_agent_bridge.py — Puente LLM para ShadowNet Defender (Ollama vía Cloudflare Tunnel)
+llm_agent_bridge.py — Puente LLM para ShadowNet Defender (Ollama local o remoto)
 
 =============================================================================
 PROPÓSITO:
@@ -55,7 +55,6 @@ class LLMBridgeConfig:
     Configuración del bridge LLM.
 
     Lee las variables de entorno para determinar el modelo a usar.
-    En producción (Render), OLLAMA_BASE_URL debe apuntar al Cloudflare Tunnel.
 
     Atributos:
         ollama_model — Nombre del modelo en Ollama.
@@ -96,9 +95,9 @@ class LLMAgentBridge:
         )
 
         # ─────────────────────────────────────────────────────────────────────
-        # Crear el servicio de explicación con el proveedor Ollama
+        # Crear el servicio de explicación con el proveedor Ollama.
         # ExplanationService internamente crea un OllamaClient que usa
-        # OpenAI SDK apuntando a OLLAMA_BASE_URL
+        # OpenAI SDK apuntando a OLLAMA_BASE_URL (local o remoto).
         # ─────────────────────────────────────────────────────────────────────
         self.service = ExplanationService(
             config=ExplanationServiceConfig(

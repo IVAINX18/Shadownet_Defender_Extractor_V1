@@ -61,32 +61,40 @@ def build_llm_prompt(scan_result: Dict[str, Any]) -> str:
     """
     Construye un prompt robusto para explicaciones técnicas sin alucinaciones.
 
+    Objetivo:
+    - Producir un informe estructurado en JSON para analistas SOC.
+
     Reglas duras:
-    - El modelo NO detecta malware, solo explica el resultado ML.
-    - Debe ceñirse a los datos entregados.
-    - Si un campo no existe, debe indicarlo explícitamente.
+    - El modelo NO detecta malware; solo explica el resultado ya calculado.
+    - Debe ceñirse exclusivamente a los datos entregados.
+    - Si un campo no existe, debe indicarlo explícitamente como \"dato no disponible\".
     """
     summary = extract_scan_summary(scan_result)
     data_block = json.dumps(summary, ensure_ascii=True, indent=2)
 
     return (
-        "Rol: Eres un analista de ciberseguridad especializado en malware.\n"
-        "Contexto obligatorio: ShadowNet Defender ya clasificó el archivo.\n"
-        "Tu tarea NO es detectar malware; tu tarea es explicar el resultado con base en los datos.\n\n"
-        "Reglas:\n"
-        "1) Usa exclusivamente los campos del bloque SCAN_SUMMARY.\n"
-        "2) No inventes APIs, secciones, imports ni métricas no presentes.\n"
-        "3) Si falta información, escribe literalmente: 'dato no disponible'.\n"
-        "4) Usa regla de umbral exacta: score >= 0.5 implica MALWARE; score < 0.5 implica BENIGN.\n"
-        "5) La justificación matemática DEBE ser consistente con label y score.\n"
-        "6) Responde SOLO con JSON puro (sin markdown, sin ```json, sin texto extra).\n"
-        "7) Usa esta estructura exacta:\n"
+        "Rol: eres un analista de ciberseguridad especializado en malware.\n"
+        "Contexto obligatorio: ShadowNet Defender ya clasificó el archivo y calculó un score de riesgo.\n"
+        "Tu tarea NO es detectar malware; tu tarea es explicar el resultado con base en los datos de SCAN_SUMMARY.\n\n"
+        "Instrucciones de salida:\n"
+        "- Responde SIEMPRE en formato JSON válido.\n"
+        "- No incluyas markdown, comentarios ni texto fuera del JSON.\n"
+        "- Usa esta estructura exacta:\n"
         "{\n"
-        '  "resumen_ejecutivo": "string",\n'
-        '  "explicacion_tecnica": "string",\n'
-        '  "justificacion_matematica": "string",\n'
-        '  "indicadores_clave": ["string"],\n'
-        '  "recomendaciones": ["string"]\n'
+        '  "analysis": "explicación técnica breve y precisa del resultado, justificando por qué el archivo es malware o benigno",\n'
+        '  "threat_level": "low | medium | high | critical",\n'
+        '  "behavior_summary": "resumen técnico y conciso del comportamiento probable del archivo basado en los indicadores",\n'
+        '  "recommended_actions": [\n'
+        '    "acción operativa prioritaria para el equipo SOC",\n'
+        '    "otras acciones concretas y ejecutables si son relevantes"\n'
+        "  ]\n"
         "}\n\n"
+        "Reglas adicionales:\n"
+        "1) Usa únicamente los campos del bloque SCAN_SUMMARY.\n"
+        "2) No inventes APIs, secciones, imports ni métricas no presentes.\n"
+        "3) Si un dato clave falta, indica explícitamente \"dato no disponible\".\n"
+        "4) Usa el umbral score >= 0.5 como indicativo de comportamiento malicioso y score < 0.5 como benigno.\n"
+        "5) Asegúrate de que threat_level sea coherente con el score y la label.\n"
+        "6) Las recommended_actions deben ser concretas, técnicas y accionables para un equipo SOC.\n\n"
         f"SCAN_SUMMARY:\n{data_block}\n"
     )

@@ -93,7 +93,7 @@ class ExplanationService:
     Servicio de alto nivel que genera explicación de resultados ML.
 
     Usa OllamaClient (OpenAI SDK) para comunicarse con Ollama,
-    ya sea local o remoto vía Cloudflare Tunnel.
+    ya sea local o remoto mediante un endpoint HTTP compatible.
     """
 
     def __init__(

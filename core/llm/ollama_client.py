@@ -1,23 +1,19 @@
 """
-core/llm/ollama_client.py — Cliente Ollama usando OpenAI SDK (compatible con Cloudflare Tunnel)
+core/llm/ollama_client.py — Cliente Ollama usando OpenAI SDK
 
 =============================================================================
 ARQUITECTURA:
   Ollama expone una API compatible con OpenAI en /v1.
   Usamos el SDK oficial de OpenAI para comunicarnos con Ollama, ya sea:
     - Localmente: http://localhost:11434/v1
-    - Remotamente vía Cloudflare Tunnel: https://xxxx.trycloudflare.com/v1
-
-  Esto permite que el backend en Render (nube) consuma Ollama corriendo
-  en la máquina del desarrollador a través de un túnel seguro HTTPS.
+    - Remotamente: cualquier endpoint HTTPS compatible con la API de Ollama.
 
 VARIABLES DE ENTORNO:
-  OLLAMA_BASE_URL  — URL base de Ollama (REQUERIDA en producción)
-                     Ejemplo local:  http://localhost:11434/v1
-                     Ejemplo remoto: https://xxxx.trycloudflare.com/v1
+  OLLAMA_BASE_URL  — URL base de Ollama.
+                     Ejemplo local:  http://127.0.0.1:11434/v1
   OLLAMA_MODEL     — Modelo a usar (default: llama3.2:3b)
 
-NOTA PARA ESTUDIANTES:
+NOTA:
   - Ollama ignora el api_key, pero el SDK de OpenAI lo requiere.
     Usamos "ollama" como valor dummy.
   - El timeout es alto (120s) porque modelos grandes pueden tardar
@@ -52,12 +48,12 @@ logger = logging.getLogger("shadownet.llm.ollama")
 
 def _normalize_ollama_base_url(value: str | None) -> str:
     """
-    Normalizes OLLAMA_BASE_URL values coming from env or dashboard copy/paste.
+    Normaliza OLLAMA_BASE_URL proveniente del entorno o de copy/paste de shells.
 
-    Accepts malformed inputs such as:
-    - "OLLAMA_BASE_URL=https://xxxx.trycloudflare.com/v1"
-    - "export OLLAMA_BASE_URL=https://xxxx.trycloudflare.com/v1"
-    - quoted values
+    Acepta variantes mal formadas como:
+    - "OLLAMA_BASE_URL=http://127.0.0.1:11434/v1"
+    - "export OLLAMA_BASE_URL=http://127.0.0.1:11434/v1"
+    - valores entrecomillados.
     """
     default_url = "http://127.0.0.1:11434/v1"
     text = str(value or "").strip().strip("'").strip('"')
@@ -85,8 +81,7 @@ class OllamaClientConfig:
 
     Atributos:
         base_url         — URL base del endpoint OpenAI-compatible de Ollama.
-                           En local: http://localhost:11434/v1
-                           En remoto (Cloudflare Tunnel): https://xxxx.trycloudflare.com/v1
+                           En local: http://127.0.0.1:11434/v1
         model            — Nombre del modelo en Ollama (ej: llama3.2:3b, phi3:mini, mistral).
         timeout_seconds  — Timeout máximo para la petición HTTP (en segundos).
         temperature      — Temperatura de generación (0.0 = determinista, 1.0 = creativo).
@@ -122,19 +117,6 @@ class OllamaClient:
 
     def __init__(self, config: OllamaClientConfig | None = None):
         self.config = config or OllamaClientConfig()
-
-        # ─────────────────────────────────────────────────────────────────────
-        # Validar que OLLAMA_BASE_URL esté configurada en producción
-        # ─────────────────────────────────────────────────────────────────────
-        env = os.getenv("ENVIRONMENT", "dev")
-        if env == "prod" and "127.0.0.1" in self.config.base_url:
-            raise RuntimeError(
-                "⚠️  OLLAMA_BASE_URL apunta a localhost pero ENVIRONMENT=prod.\n"
-                "En producción (Render), Ollama no está disponible localmente.\n"
-                "Configura OLLAMA_BASE_URL con la URL de tu Cloudflare Tunnel:\n"
-                "  Ejemplo: https://xxxx.trycloudflare.com/v1\n"
-                "  Ver: docs/cloudflare-tunnel-setup.md"
-            )
 
         # ─────────────────────────────────────────────────────────────────────
         # Crear cliente OpenAI apuntando a Ollama
