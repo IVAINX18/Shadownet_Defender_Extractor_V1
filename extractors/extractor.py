@@ -15,7 +15,7 @@ from extractors.string_extractor import StringExtractorBlock
 from extractors.general import GeneralFileInfo
 from utils.logger import setup_logger
 
-# 📚 Usamos logger en vez de print() para que los errores
+# Usamos logger en vez de print() para que los errores
 # queden registrados en el archivo de log y con formato consistente.
 logger = setup_logger(__name__)
 

@@ -22,7 +22,7 @@ class ExportsFeatureBlock(FeatureBlock):
     def dim(self) -> int:
         return self.DIM
 
-    # 📚 NOTA: _hash_feature se movió a _math_utils.hash_feature_sha256()
+    # NOTA: _hash_feature se movió a _math_utils.hash_feature_sha256()
     # para evitar duplicación con imports.py y section_info.py.
 
     def extract(self, pe: pefile.PE, raw_data: bytes) -> np.ndarray:

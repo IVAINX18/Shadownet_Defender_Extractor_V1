@@ -23,7 +23,7 @@ def explain_global_importance():
         X_test = np.load("data/test_set/X_test.npy")
         y_test = np.load("data/test_set/y_test.npy")
     except FileNotFoundError:
-        print("❌ Dataset no encontrado. Ejecuta generate_mock_dataset.py primero.")
+        print("Dataset no encontrado. Ejecuta generate_mock_dataset.py primero.")
         return
         
     # Cargar modelo

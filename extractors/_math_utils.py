@@ -58,7 +58,7 @@ def hash_feature_sha256(feature: str, dim: int) -> int:
     """
     Calcula un índice determinista en [0, dim-1] usando SHA256.
 
-    📚 PARA JUNIORS:
+    PARA JUNIORS:
         Esto implementa el "Feature Hashing" o "Hashing Trick".
         En vez de mantener un diccionario de miles de nombres de funciones
         (ej: "kernel32.dll:WriteFile"), usamos un hash criptográfico para
