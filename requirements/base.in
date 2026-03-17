@@ -1,7 +1,7 @@
 # ============================================================
 # base.in — Dependencias core de producción / inferencia
-# Requeridas para: cli.py, api_server.py, extractors/, models/,
-#                  core/, security/, telemetry_client.py, updater.py
+# Requeridas para: backend/app/, core/, extractors/, models/,
+#                  security/, scripts/, tools/
 # ============================================================
 
 # --- Análisis de PE (Portable Executable) ---
@@ -14,8 +14,11 @@ onnx>=1.15.0
 onnxruntime>=1.16.0
 joblib>=1.3.0
 
-# --- Serialización / persistencia ---
-# (joblib cubre .pkl; no se necesita pickle extra)
+# --- Validación de datos y schemas ---
+pydantic>=2.0.0
+
+# --- Persistencia (Supabase) ---
+supabase>=2.0.0
 
 # --- CLI y visualización en terminal ---
 rich>=13.7.0

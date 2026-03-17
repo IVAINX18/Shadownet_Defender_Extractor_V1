@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from core.llm.prompt_builder import build_llm_prompt, extract_scan_summary
 from core.llm.explanation_service import ExplanationService, ExplanationServiceConfig
-from evaluation._mock_model import MockModel
+from tests._mock_model import MockModel
 import numpy as np
 
 # Configurar logging basico

@@ -3,7 +3,7 @@ backend/app/services/llm_service.py — Servicio de explicación LLM.
 
 Centralizo toda la lógica de comunicación con Ollama (local o remoto)
 en un solo servicio desacoplado. Reemplazo el uso directo de
-llm_agent_bridge.py por una interfaz limpia dentro de backend/app/.
+scripts heredados por una interfaz limpia dentro de backend/app/.
 
 La lógica real sigue delegando a core/llm/ que ya tiene el cliente
 Ollama implementado correctamente con OpenAI SDK.

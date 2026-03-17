@@ -73,7 +73,7 @@ async def explain_scan(request: ExplainRequest):
             logger.error("Error escaneando archivo para explain: %s", exc)
             return error_response(f"Error escaneando archivo: {exc}", 500)
 
-    # Genero la explicación usando llm_service (no llm_agent_bridge directo)
+    # Genero la explicación usando llm_service directamente
     try:
         llm_result = explain_scan_result(
             scan_result_dict,

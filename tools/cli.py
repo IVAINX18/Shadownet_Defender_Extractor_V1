@@ -13,14 +13,14 @@ from rich.table import Table
 from core.engine import ShadowNetEngine
 from core.integrations.n8n_client import N8NClient
 from core.scan_pipeline import run_scan_explain_pipeline
-from llm_agent_bridge import LLMAgentBridge
+from core.llm.explanation_service import ExplanationService, ExplanationServiceConfig
 from security.artifact_verifier import (
     create_manifest_from_artifacts,
     verify_artifacts,
     write_manifest,
 )
 from telemetry_client import TelemetryClient
-from updater import apply_update
+from scripts.updater import apply_update
 
 console = Console()
 
@@ -149,12 +149,14 @@ def _cmd_scan(args: argparse.Namespace) -> int:
         return 0 if result.get("error") is None else 1
 
     telemetry = TelemetryClient()
-    llm_bridge = LLMAgentBridge()
+    llm_service = ExplanationService(
+        config=ExplanationServiceConfig(default_provider="ollama")
+    )
     payload = run_scan_explain_pipeline(
         result,
         provider=args.provider or "ollama",
         model=args.model,
-        llm_bridge=llm_bridge,
+        llm_service=llm_service,
         n8n_client=n8n_client,
         telemetry=telemetry,
         source="cli_scan",
@@ -235,7 +237,9 @@ def _cmd_update_model(args: argparse.Namespace) -> int:
 def _cmd_llm_explain(args: argparse.Namespace) -> int:
     telemetry = TelemetryClient()
     n8n_client = N8NClient()
-    llm_bridge = LLMAgentBridge()
+    llm_service = ExplanationService(
+        config=ExplanationServiceConfig(default_provider="ollama")
+    )
 
     if not args.scan_json and not args.file:
         raise ValueError("Provide --file or --scan-json.")
@@ -250,7 +254,7 @@ def _cmd_llm_explain(args: argparse.Namespace) -> int:
         scan_result,
         provider=args.provider or "ollama",
         model=args.model,
-        llm_bridge=llm_bridge,
+        llm_service=llm_service,
         n8n_client=n8n_client,
         telemetry=telemetry,
         source="cli_llm_explain",

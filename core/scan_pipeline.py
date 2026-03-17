@@ -10,7 +10,7 @@ import time
 from typing import Any, Dict, Optional
 
 from core.integrations.n8n_client import N8NClient
-from llm_agent_bridge import LLMAgentBridge
+from core.llm.explanation_service import ExplanationService
 from telemetry_client import TelemetryClient
 
 
@@ -35,7 +35,7 @@ def run_scan_explain_pipeline(
     *,
     provider: str,
     model: Optional[str],
-    llm_bridge: LLMAgentBridge,
+    llm_service: ExplanationService,
     n8n_client: N8NClient,
     telemetry: TelemetryClient,
     source: str = "pipeline",
@@ -49,7 +49,7 @@ def run_scan_explain_pipeline(
     """
     start = time.time()
     try:
-        llm_out = llm_bridge.explain_scan(
+        llm_out = llm_service.explain(
             scan_result, provider=provider, model=model
         )
         llm_out = _ensure_parsed_llm_response(llm_out)

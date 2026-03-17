@@ -11,4 +11,5 @@ node_modules/
 __pycache__/
 *.pyc
 *.log
-logs/telemetry.jsonl
+.tmp/
+logs/

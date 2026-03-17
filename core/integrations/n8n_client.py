@@ -23,14 +23,16 @@ _DEFAULT_RECOMMENDED_ACTION = "Revisar resultado ML y aplicar playbook SOC."
 _DEFAULT_LLM_TEXT = "dato_no_disponible"
 
 # ---------------------------------------------------------------------------
-# n8n webhook URLs exposed via ngrok tunnel
+# n8n webhook URLs — configurables via variables de entorno
 # ---------------------------------------------------------------------------
-# n8n workflows are exposed locally using an ngrok tunnel.
-# The TEST webhook is used when running workflows manually in n8n test mode.
-# The PRODUCTION webhook works only when the n8n workflow is active/published.
+# Leo las URLs desde env vars (definidas en .env.test o .env).
+# El fallback hardcodeado se mantiene solo como referencia de desarrollo.
 
-TEST_WEBHOOK_URL = "https://postmeiotic-consolatory-haydee.ngrok-free.dev/webhook-test/shadownet-malware"
-PRODUCTION_WEBHOOK_URL = "https://postmeiotic-consolatory-haydee.ngrok-free.dev/webhook/shadownet-malware"
+_DEFAULT_TEST_URL = "https://postmeiotic-consolatory-haydee.ngrok-free.dev/webhook-test/shadownet-malware"
+_DEFAULT_PROD_URL = "https://postmeiotic-consolatory-haydee.ngrok-free.dev/webhook/shadownet-malware"
+
+TEST_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_TEST", _DEFAULT_TEST_URL)
+PRODUCTION_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_PROD", _DEFAULT_PROD_URL)
 
 
 def _to_bool(value: str | None, *, default: bool = False) -> bool:
@@ -45,7 +47,12 @@ def _utc_timestamp() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _safe_model_version(manifest_path: Path = Path("model_manifest.json")) -> str:
+# Ruta al manifest resuelta respecto a la raíz del proyecto, no CWD.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_DEFAULT_MANIFEST = _PROJECT_ROOT / "models" / "model_manifest.json"
+
+
+def _safe_model_version(manifest_path: Path = _DEFAULT_MANIFEST) -> str:
     """Reads model version from manifest with safe fallback."""
     try:
         data = json.loads(manifest_path.read_text(encoding="utf-8"))

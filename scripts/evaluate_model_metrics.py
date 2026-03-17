@@ -11,9 +11,9 @@ import sys
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, classification_report
 import joblib
 
-from evaluation._mock_model import MockModel
+from tests._mock_model import MockModel
 
-# 📚 MockModel se importa de evaluation/_mock_model.py
+# 📚 MockModel se importa de tests/_mock_model.py
 # para evitar duplicación con test_robustness.py y explain_global_model.py
 
 def evaluate_model():

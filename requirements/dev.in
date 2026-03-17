@@ -5,3 +5,4 @@ psutil
 fastapi
 uvicorn
 python-dotenv
+python-multipart>=0.0.6

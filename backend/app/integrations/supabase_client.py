@@ -22,7 +22,10 @@ logger = logging.getLogger("backend.supabase")
 # ---------------------------------------------------------------------------
 # URL de Supabase — La KEY se lee desde variable de entorno
 # ---------------------------------------------------------------------------
-SUPABASE_URL = "https://cvygqntdjntvweisvssc.supabase.co"
+SUPABASE_URL = os.getenv(
+    "SUPABASE_URL",
+    "https://cvygqntdjntvweisvssc.supabase.co",
+)
 SUPABASE_TABLE = "scan_results"
 
 

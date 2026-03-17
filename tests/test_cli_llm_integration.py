@@ -3,7 +3,8 @@ from io import StringIO
 
 from rich.console import Console
 
-import cli
+from tools import cli
+from core.llm.explanation_service import ExplanationService
 
 
 class _DummyEngine:
@@ -19,8 +20,10 @@ class _DummyEngine:
         }
 
 
-class _DummyBridgeOk:
-    def explain_scan(self, scan_result, provider=None, model=None):
+class _DummyExplanationService:
+    """Stub que simula ExplanationService.explain() con éxito."""
+
+    def explain(self, scan_result, provider=None, model=None):
         return {
             "provider": provider or "ollama",
             "model": model or "mistral",
@@ -28,8 +31,10 @@ class _DummyBridgeOk:
         }
 
 
-class _DummyBridgeFail:
-    def explain_scan(self, scan_result, provider=None, model=None):
+class _DummyExplanationServiceFail:
+    """Stub que simula ExplanationService.explain() con fallo."""
+
+    def explain(self, scan_result, provider=None, model=None):
         raise RuntimeError("ollama no disponible")
 
 
@@ -63,7 +68,7 @@ def test_cli_scan_with_explain_success(monkeypatch):
     test_console = Console(file=captured, force_terminal=False, width=200)
 
     monkeypatch.setattr(cli, "ShadowNetEngine", lambda: _DummyEngine())
-    monkeypatch.setattr(cli, "LLMAgentBridge", lambda: _DummyBridgeOk())
+    monkeypatch.setattr(cli, "ExplanationService", lambda **kw: _DummyExplanationService())
     monkeypatch.setattr(cli, "TelemetryClient", lambda: _DummyTelemetry())
     monkeypatch.setattr(cli, "N8NClient", lambda: _DummyN8NClient())
     monkeypatch.setattr(cli, "console", test_console)
@@ -87,7 +92,7 @@ def test_cli_scan_with_explain_error(monkeypatch):
     test_console = Console(file=captured, force_terminal=False, width=200)
 
     monkeypatch.setattr(cli, "ShadowNetEngine", lambda: _DummyEngine())
-    monkeypatch.setattr(cli, "LLMAgentBridge", lambda: _DummyBridgeFail())
+    monkeypatch.setattr(cli, "ExplanationService", lambda **kw: _DummyExplanationServiceFail())
     monkeypatch.setattr(cli, "TelemetryClient", lambda: _DummyTelemetry())
     monkeypatch.setattr(cli, "N8NClient", lambda: _DummyN8NClient())
     monkeypatch.setattr(cli, "console", test_console)
