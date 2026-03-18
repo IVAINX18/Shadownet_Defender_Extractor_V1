@@ -52,14 +52,7 @@ class _DummyTelemetry:
         return None
 
 
-class _DummyN8NClient:
-    """Stub that avoids any real n8n interaction."""
 
-    def build_detection_payload(self, *a, **kw):
-        return {}
-
-    def send_detection_to_n8n(self, *a, **kw):
-        return False
 
 
 def test_cli_scan_with_explain_success(monkeypatch):
@@ -70,7 +63,7 @@ def test_cli_scan_with_explain_success(monkeypatch):
     monkeypatch.setattr(cli, "ShadowNetEngine", lambda: _DummyEngine())
     monkeypatch.setattr(cli, "ExplanationService", lambda **kw: _DummyExplanationService())
     monkeypatch.setattr(cli, "TelemetryClient", lambda: _DummyTelemetry())
-    monkeypatch.setattr(cli, "N8NClient", lambda: _DummyN8NClient())
+    monkeypatch.setattr(cli, "send_scan_result", lambda *a, **kw: False)
     monkeypatch.setattr(cli, "console", test_console)
 
     args = argparse.Namespace(
@@ -94,7 +87,7 @@ def test_cli_scan_with_explain_error(monkeypatch):
     monkeypatch.setattr(cli, "ShadowNetEngine", lambda: _DummyEngine())
     monkeypatch.setattr(cli, "ExplanationService", lambda **kw: _DummyExplanationServiceFail())
     monkeypatch.setattr(cli, "TelemetryClient", lambda: _DummyTelemetry())
-    monkeypatch.setattr(cli, "N8NClient", lambda: _DummyN8NClient())
+    monkeypatch.setattr(cli, "send_scan_result", lambda *a, **kw: False)
     monkeypatch.setattr(cli, "console", test_console)
 
     args = argparse.Namespace(

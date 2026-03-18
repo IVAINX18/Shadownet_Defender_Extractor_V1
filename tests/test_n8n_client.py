@@ -1,162 +1,118 @@
+"""
+tests/test_n8n_client.py — Tests para la integración N8N.
+
+Verifico que send_scan_result() solo envía alertas para resultados
+malicious y que maneja errores sin propagarlos.
+"""
+
 import json
+from unittest.mock import patch, MagicMock
 from urllib import error
 
 from core.integrations.n8n_client import (
-    N8NClient,
     N8NIntegrationConfig,
-    build_detection_payload,
-    send_detection_to_n8n,
+    send_scan_result,
 )
-from telemetry_client import TelemetryClient
 
 
 class _FakeResponse:
     status = 200
-
     def __enter__(self):
         return self
-
-    def __exit__(self, exc_type, exc, tb):
-        return False
-
-
-def test_build_detection_payload_structure():
-    payload = build_detection_payload(
-        {
-            "file": "/tmp/sample.exe",
-            "score": 0.91,
-            "confidence": "High",
-            "timestamp": "2026-02-18 20:00:00",
-            "details": {},
-        },
-        llm_report={
-            "resumen_ejecutivo": "Riesgo alto",
-            "explicacion_tecnica": "Imports sospechosos",
-            "justificacion_matematica": "score >= 0.5",
-            "recommended_action": "Aislar host",
-            "indicadores_clave": ["score alto"],
-        },
-    )
-    assert payload["risk_level"] == "CRITICAL"
-    assert "event_id" in payload
-    assert "file_name" in payload
-    assert "ml_score" in payload
-    assert "hostname" in payload
-    llm_report = json.loads(payload["llm_report"])
-    assert llm_report["recommended_action"] == "Aislar host"
+    def __exit__(self, *a):
+        pass
 
 
-def test_build_detection_payload_normalizes_blank_numeric_inputs():
-    payload = build_detection_payload(
-        {
-            "file": "",
-            "score": "",
-            "confidence": "",
-            "details": {},
-        },
-        llm_report="",
-    )
-    assert payload["ml_score"] == 0.0
-    assert payload["confidence"] == 0.50
-    assert payload["file_name"] == "unknown"
-    assert payload["file_path"] == "dato_no_disponible"
-    llm_report = json.loads(payload["llm_report"])
-    assert llm_report["recommended_action"] == "Revisar resultado ML y aplicar playbook SOC."
+# ---------------------------------------------------------------------------
+# Filtro malicious-only
+# ---------------------------------------------------------------------------
+
+def test_send_scan_result_skips_benign():
+    """No envía nada si result != malicious."""
+    assert send_scan_result({"result": "benign", "file_name": "test.exe"}) is False
 
 
-def test_send_detection_to_n8n_skips_low_risk_in_dev(tmp_path):
-    telemetry = TelemetryClient(log_path=tmp_path / "telemetry.jsonl")
-    report = {
-        "risk_level": "LOW",
-        "detection": {"file_name": "sample.exe", "file_hash": "x", "file_path": "/tmp/sample.exe"},
-    }
-    sent = send_detection_to_n8n(
-        report,
-        config=N8NIntegrationConfig(
-            enabled=True,
-            environment="dev",
-            webhook_test="https://example.test",
-            webhook_prod="https://example.prod",
-            timeout_seconds=3,
-        ),
-        telemetry=telemetry,
-    )
-    assert sent is False
+def test_send_scan_result_skips_suspicious():
+    """No envía nada si result == suspicious."""
+    assert send_scan_result({"result": "suspicious", "file_name": "test.exe"}) is False
 
 
-def test_send_detection_to_n8n_uses_prod_webhook(monkeypatch, tmp_path):
-    target = {"url": "", "payload": None}
-
-    def _fake_urlopen(req, timeout=0):
-        target["url"] = req.full_url
-        target["payload"] = json.loads(req.data.decode("utf-8"))
-        return _FakeResponse()
-
-    monkeypatch.setattr("core.integrations.n8n_client.request.urlopen", _fake_urlopen)
-    telemetry = TelemetryClient(log_path=tmp_path / "telemetry.jsonl")
-    sent = send_detection_to_n8n(
-        {"risk_level": "HIGH"},
-        config=N8NIntegrationConfig(
-            enabled=True,
-            environment="prod",
-            webhook_test="https://example.test",
-            webhook_prod="https://example.prod",
-            timeout_seconds=3,
-        ),
-        telemetry=telemetry,
-    )
-    assert sent is True
-    assert target["url"] == "https://example.prod"
+def test_send_scan_result_skips_empty():
+    """No envía nada si result está vacío."""
+    assert send_scan_result({}) is False
 
 
-def test_send_detection_to_n8n_normalizes_prebuilt_payload(monkeypatch, tmp_path):
-    target = {"payload": None}
+# ---------------------------------------------------------------------------
+# Envío exitoso para malicious
+# ---------------------------------------------------------------------------
 
-    def _fake_urlopen(req, timeout=0):
-        target["payload"] = json.loads(req.data.decode("utf-8"))
-        return _FakeResponse()
+@patch("core.integrations.n8n_client.request.urlopen")
+@patch("core.integrations.n8n_client.N8NIntegrationConfig")
+def test_send_scan_result_sends_malicious(mock_config_cls, mock_urlopen):
+    """Envía alerta cuando result == malicious y N8N está habilitado."""
+    cfg = MagicMock()
+    cfg.enabled = True
+    cfg.selected_webhook.return_value = "https://example.com/webhook"
+    cfg.timeout_seconds = 5
+    mock_config_cls.return_value = cfg
+    mock_urlopen.return_value = _FakeResponse()
 
-    monkeypatch.setattr("core.integrations.n8n_client.request.urlopen", _fake_urlopen)
-    telemetry = TelemetryClient(log_path=tmp_path / "telemetry.jsonl")
-    sent = send_detection_to_n8n(
-        {
-            "event_id": "abc-123",
-            "timestamp": "2026-02-20 19:47:37",
-            "ml_score": "",
-            "confidence": "",
-            "risk_level": "LOW",
-            "llm_report": "",
-        },
-        config=N8NIntegrationConfig(
-            enabled=True,
-            environment="prod",
-            webhook_test="https://example.test",
-            webhook_prod="https://example.prod",
-            timeout_seconds=3,
-        ),
-        telemetry=telemetry,
-    )
-    assert sent is True
-    assert target["payload"]["ml_score"] == 0.0
-    assert target["payload"]["confidence"] == 0.50
-    assert "recommended_action" not in target["payload"]
-    assert "llm_explanation" not in target["payload"]
+    result = send_scan_result({
+        "result": "malicious",
+        "file_name": "malware.exe",
+        "risk_level": "high",
+        "confidence": 0.95,
+        "scan_type": "single",
+    })
+
+    assert result is True
+    mock_urlopen.assert_called_once()
+    # Verifico payload
+    call_args = mock_urlopen.call_args
+    req = call_args[0][0]
+    payload = json.loads(req.data.decode("utf-8"))
+    assert payload["event"] == "malware_detected"
+    assert payload["result"] == "malicious"
+    assert payload["file_name"] == "malware.exe"
+    assert payload["score"] == 0.95
+    assert "system_info" in payload
 
 
-def test_n8n_client_handles_connection_error(monkeypatch, tmp_path):
-    def _fake_urlopen(req, timeout=0):
-        raise error.URLError("connection refused")
+# ---------------------------------------------------------------------------
+# N8N deshabilitado
+# ---------------------------------------------------------------------------
 
-    monkeypatch.setattr("core.integrations.n8n_client.request.urlopen", _fake_urlopen)
-    client = N8NClient(
-        N8NIntegrationConfig(
-            enabled=True,
-            environment="prod",
-            webhook_test="https://example.test",
-            webhook_prod="https://example.prod",
-            timeout_seconds=3,
-        ),
-        telemetry=TelemetryClient(log_path=tmp_path / "telemetry.jsonl"),
-    )
-    sent = client.send_detection_to_n8n({"risk_level": "HIGH"})
-    assert sent is False
+@patch("core.integrations.n8n_client.N8NIntegrationConfig")
+def test_send_scan_result_disabled(mock_config_cls):
+    """No envía si N8N está deshabilitado, incluso para malicious."""
+    cfg = MagicMock()
+    cfg.enabled = False
+    mock_config_cls.return_value = cfg
+
+    result = send_scan_result({
+        "result": "malicious",
+        "file_name": "malware.exe",
+    })
+    assert result is False
+
+
+# ---------------------------------------------------------------------------
+# Error de red
+# ---------------------------------------------------------------------------
+
+@patch("core.integrations.n8n_client.request.urlopen")
+@patch("core.integrations.n8n_client.N8NIntegrationConfig")
+def test_send_scan_result_network_error(mock_config_cls, mock_urlopen):
+    """Maneja errores de red sin propagar excepciones."""
+    cfg = MagicMock()
+    cfg.enabled = True
+    cfg.selected_webhook.return_value = "https://example.com/webhook"
+    cfg.timeout_seconds = 5
+    mock_config_cls.return_value = cfg
+    mock_urlopen.side_effect = error.URLError("Connection refused")
+
+    result = send_scan_result({
+        "result": "malicious",
+        "file_name": "malware.exe",
+    })
+    assert result is False

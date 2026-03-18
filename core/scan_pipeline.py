@@ -9,7 +9,7 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, Optional
 
-from core.integrations.n8n_client import N8NClient
+from core.integrations.n8n_client import send_scan_result
 from core.llm.explanation_service import ExplanationService
 from telemetry_client import TelemetryClient
 
@@ -36,16 +36,20 @@ def run_scan_explain_pipeline(
     provider: str,
     model: Optional[str],
     llm_service: ExplanationService,
-    n8n_client: N8NClient,
     telemetry: TelemetryClient,
     source: str = "pipeline",
     dispatch_n8n: bool = True,
+    # Legacy compat: acepto n8n_client pero lo ignoro
+    n8n_client: Any = None,
 ) -> Dict[str, Any]:
     """Run LLM explanation and optional n8n dispatch on a scan result.
 
     Returns a dict with keys ``ok``, ``scan_result``, ``llm``, and
     ``automation``.  Presentation (Rich tables, JSON responses) is left
     to the caller.
+
+    N8N dispatch ahora usa send_scan_result() internamente y solo
+    envía alertas cuando result == 'malicious'.
     """
     start = time.time()
     try:
@@ -62,15 +66,8 @@ def run_scan_explain_pipeline(
 
         delivered = False
         if dispatch_n8n:
-            llm_report = llm_out.get("parsed_response")
-            if llm_report is None:
-                llm_report = llm_out.get("response_text")
             try:
-                payload = n8n_client.build_detection_payload(
-                    scan_result,
-                    llm_report=llm_report,
-                )
-                delivered = n8n_client.send_detection_to_n8n(payload)
+                delivered = send_scan_result(scan_result)
             except Exception:
                 delivered = False
 

@@ -209,3 +209,31 @@ async def scan_multiple(files: List[UploadFile] = File(...)):
                 tmp_path.unlink(missing_ok=True)
             except Exception:
                 pass
+
+
+@router.get(
+    "/realtime",
+    summary="Monitoreo de procesos en tiempo real",
+    description="Lista procesos activos del sistema con métricas de CPU/memoria y nivel de riesgo.",
+    responses={
+        200: {"description": "Lista de procesos activos"},
+        500: {"description": "Error al obtener procesos"},
+    },
+)
+async def scan_realtime():
+    """
+    GET /scan/realtime — Monitoreo en tiempo real con psutil.
+
+    Delego la lógica al realtime_service para mantener el endpoint delgado.
+    """
+    try:
+        from backend.app.services.realtime_service import get_processes
+        processes = get_processes()
+        return success_response(processes)
+    except ImportError as exc:
+        logger.error("psutil no disponible: %s", exc)
+        return error_response(str(exc), 500)
+    except Exception as exc:
+        logger.error("Error en monitoreo realtime: %s", exc)
+        return error_response(f"Error obteniendo procesos: {exc}", 500)
+

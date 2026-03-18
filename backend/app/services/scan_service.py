@@ -218,7 +218,8 @@ def scan_and_explain(
     1. Escaneo ML (extractors + modelo ONNX)
     2. Clasificación tripartita
     3. Explicación LLM (opcional)
-    4. Persistencia en Supabase (opcional)
+    4. Persistencia en Supabase (con fallback offline)
+    5. Alerta N8N si resultado es malicious
 
     Args:
         file_path: Ruta al archivo a escanear.
@@ -250,12 +251,42 @@ def scan_and_explain(
             logger.warning("LLM no disponible para %s: %s", file_path.name, exc)
             scan_result.explanation = None
 
-    # Paso 4: Persistencia en Supabase
+    # Paso 4: Persistencia en Supabase (con fallback offline)
     if save_to_supabase:
+        result_dict = scan_result.model_dump()
         try:
             from backend.app.integrations.supabase_client import save_scan_safe
-            save_scan_safe(scan_result.model_dump())
+            save_result = save_scan_safe(result_dict)
+
+            if not save_result.get("saved"):
+                # Supabase falló → encolar offline
+                _queue_offline(result_dict)
         except Exception as exc:
-            logger.warning("Error guardando en Supabase: %s", exc)
+            logger.warning("Error guardando en Supabase: %s — encolando offline", exc)
+            _queue_offline(result_dict)
+
+    # Paso 5: Alerta N8N solo si malicious
+    _notify_n8n_if_malicious(scan_result)
 
     return scan_result
+
+
+def _queue_offline(result_dict: dict) -> None:
+    """Encola un resultado para sincronización posterior."""
+    try:
+        from backend.app.services.offline_service import queue_scan
+        queue_scan(result_dict)
+    except Exception as exc:
+        logger.error("Error encolando resultado offline: %s", exc)
+
+
+def _notify_n8n_if_malicious(scan_result: ScanResult) -> None:
+    """Envía alerta a N8N solo si el resultado es malicious."""
+    if scan_result.result != ScanResultLabel.MALICIOUS:
+        return
+    try:
+        from core.integrations.n8n_client import send_scan_result
+        send_scan_result(scan_result.model_dump())
+    except Exception as exc:
+        logger.warning("Error enviando alerta N8N: %s", exc)
+

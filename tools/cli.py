@@ -11,7 +11,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from core.engine import ShadowNetEngine
-from core.integrations.n8n_client import N8NClient
+from core.integrations.n8n_client import send_scan_result
 from core.scan_pipeline import run_scan_explain_pipeline
 from core.llm.explanation_service import ExplanationService, ExplanationServiceConfig
 from security.artifact_verifier import (
@@ -126,13 +126,11 @@ def _format_llm_response(payload: dict) -> None:
 
 def _cmd_scan(args: argparse.Namespace) -> int:
     engine = ShadowNetEngine()
-    n8n_client = N8NClient()
     result = engine.scan_file(args.file)
 
     if not args.explain:
-        # Non-blocking automation dispatch for operational workflows.
-        detection_payload = n8n_client.build_detection_payload(result)
-        n8n_client.send_detection_to_n8n(detection_payload)
+        # N8N dispatch — solo envía si es malicious
+        send_scan_result(result)
         # Mostrar resultado con rich
         scan_table = Table(title="🔬 Resultado del Escaneo", show_header=False)
         scan_table.add_column("key", style="cyan bold")
@@ -157,7 +155,6 @@ def _cmd_scan(args: argparse.Namespace) -> int:
         provider=args.provider or "ollama",
         model=args.model,
         llm_service=llm_service,
-        n8n_client=n8n_client,
         telemetry=telemetry,
         source="cli_scan",
     )
@@ -236,7 +233,6 @@ def _cmd_update_model(args: argparse.Namespace) -> int:
 
 def _cmd_llm_explain(args: argparse.Namespace) -> int:
     telemetry = TelemetryClient()
-    n8n_client = N8NClient()
     llm_service = ExplanationService(
         config=ExplanationServiceConfig(default_provider="ollama")
     )
@@ -255,7 +251,6 @@ def _cmd_llm_explain(args: argparse.Namespace) -> int:
         provider=args.provider or "ollama",
         model=args.model,
         llm_service=llm_service,
-        n8n_client=n8n_client,
         telemetry=telemetry,
         source="cli_llm_explain",
     )

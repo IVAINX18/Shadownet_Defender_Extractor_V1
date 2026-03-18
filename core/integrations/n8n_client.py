@@ -1,39 +1,46 @@
+"""
+core/integrations/n8n_client.py — Integración con N8N para alertas de malware.
+
+Envía alertas a N8N SOLO cuando se detecta malware (result == 'malicious').
+Las URLs del webhook se configuran vía variables de entorno.
+"""
+
 from __future__ import annotations
 
 import getpass
-import hashlib
 import json
 import math
 import os
 import platform
 import socket
-import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any, Dict, Optional
-from urllib import error, request
-from urllib.parse import urlparse
+from urllib import request
 
-from telemetry_client import TelemetryClient
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
-_DEFAULT_RECOMMENDED_ACTION = "Revisar resultado ML y aplicar playbook SOC."
-_DEFAULT_LLM_TEXT = "dato_no_disponible"
 
 # ---------------------------------------------------------------------------
 # n8n webhook URLs — configurables via variables de entorno
 # ---------------------------------------------------------------------------
-# Leo las URLs desde env vars (definidas en .env.test o .env).
-# El fallback hardcodeado se mantiene solo como referencia de desarrollo.
-
-_DEFAULT_TEST_URL = "https://postmeiotic-consolatory-haydee.ngrok-free.dev/webhook-test/shadownet-malware"
-_DEFAULT_PROD_URL = "https://postmeiotic-consolatory-haydee.ngrok-free.dev/webhook/shadownet-malware"
+_DEFAULT_TEST_URL = (
+    "https://postmeiotic-consolatory-haydee.ngrok-free.dev"
+    "/webhook-test/shadownet-malware"
+)
+_DEFAULT_PROD_URL = (
+    "https://postmeiotic-consolatory-haydee.ngrok-free.dev"
+    "/webhook/shadownet-malware"
+)
 
 TEST_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_TEST", _DEFAULT_TEST_URL)
 PRODUCTION_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_PROD", _DEFAULT_PROD_URL)
 
+
+# ---------------------------------------------------------------------------
+# Helpers internos
+# ---------------------------------------------------------------------------
 
 def _to_bool(value: str | None, *, default: bool = False) -> bool:
     """Converts environment-like string values to bool."""
@@ -45,89 +52,6 @@ def _to_bool(value: str | None, *, default: bool = False) -> bool:
 def _utc_timestamp() -> str:
     """Returns an ISO-8601 UTC timestamp."""
     return datetime.now(timezone.utc).isoformat()
-
-
-# Ruta al manifest resuelta respecto a la raíz del proyecto, no CWD.
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-_DEFAULT_MANIFEST = _PROJECT_ROOT / "models" / "model_manifest.json"
-
-
-def _safe_model_version(manifest_path: Path = _DEFAULT_MANIFEST) -> str:
-    """Reads model version from manifest with safe fallback."""
-    try:
-        data = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except Exception:
-        return "unknown"
-    version = data.get("version")
-    return str(version) if version else "unknown"
-
-
-def _safe_sha256(file_path: str | None) -> str:
-    """Returns SHA256 from file path when available, otherwise a placeholder."""
-    if not file_path:
-        return "dato_no_disponible"
-    path = Path(file_path)
-    if not path.exists() or not path.is_file():
-        return "dato_no_disponible"
-
-    digest = hashlib.sha256()
-    with path.open("rb") as fh:
-        for chunk in iter(lambda: fh.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def _risk_level_from_score(score: float) -> str:
-    """Maps ML score to operational risk level labels."""
-    if score >= 0.90:
-        return "CRITICAL"
-    if score >= 0.70:
-        return "HIGH"
-    if score >= 0.50:
-        return "MEDIUM"
-    return "LOW"
-
-
-def _confidence_to_numeric(value: Any) -> float:
-    """Normalizes confidence to numeric value expected by downstream automation."""
-    if isinstance(value, (int, float)) and not isinstance(value, bool):
-        numeric = float(value)
-        if not math.isfinite(numeric):
-            return 0.50
-        return min(max(numeric, 0.0), 1.0)
-
-    text = str(value or "").strip().lower()
-    if not text:
-        return 0.50
-
-    try:
-        numeric = float(text.replace(",", "."))
-    except ValueError:
-        numeric = None
-    if numeric is not None:
-        if not math.isfinite(numeric):
-            return 0.50
-        return min(max(numeric, 0.0), 1.0)
-
-    if text == "high":
-        return 0.97
-    if text == "medium":
-        return 0.75
-    if text == "low":
-        return 0.55
-    return 0.50
-
-
-def _safe_string_list(value: Any) -> list[str]:
-    """Normalizes heterogeneous values into a clean list[str]."""
-    if not isinstance(value, list):
-        return []
-    cleaned: list[str] = []
-    for item in value:
-        text = str(item).strip() if item is not None else ""
-        if text:
-            cleaned.append(text)
-    return cleaned
 
 
 def _safe_float(value: Any, *, default: float = 0.0) -> float:
@@ -148,164 +72,29 @@ def _safe_float(value: Any, *, default: float = 0.0) -> float:
     return numeric
 
 
-def _safe_text(value: Any, *, default: str) -> str:
-    """Returns a stripped string with fallback for missing/empty values."""
-    text = str(value).strip() if value is not None else ""
-    return text or default
-
-
-def _normalize_llm_report_object(value: Any) -> Dict[str, Any]:
-    """Normalizes rich LLM outputs into one dict for JSONB storage."""
-    data: Dict[str, Any]
-    if isinstance(value, dict):
-        data = dict(value)
-    elif isinstance(value, str):
-        text = value.strip()
-        if not text:
-            data = {}
-        else:
-            try:
-                parsed = json.loads(text)
-                data = dict(parsed) if isinstance(parsed, dict) else {"raw_response": text}
-            except json.JSONDecodeError:
-                data = {"raw_response": text}
-    elif value is None:
-        data = {}
-    else:
-        data = {"raw_response": str(value)}
-
-    recommendations = _safe_string_list(data.get("recomendaciones"))
-    recommended_action = _safe_text(
-        data.get("recommended_action"),
-        default=(recommendations[0] if recommendations else _DEFAULT_RECOMMENDED_ACTION),
-    )
-    data["recommended_action"] = recommended_action
-    data["resumen_ejecutivo"] = _safe_text(data.get("resumen_ejecutivo"), default=_DEFAULT_LLM_TEXT)
-    data["explicacion_tecnica"] = _safe_text(data.get("explicacion_tecnica"), default=_DEFAULT_LLM_TEXT)
-    data["justificacion_matematica"] = _safe_text(
-        data.get("justificacion_matematica"),
-        default=_DEFAULT_LLM_TEXT,
-    )
-    data["indicadores_clave"] = _safe_string_list(data.get("indicadores_clave"))
-    return data
-
-
-def _serialize_llm_report(value: Any) -> str:
-    """Serializes llm_report payload using json.dumps before delivery."""
-    normalized = _normalize_llm_report_object(value)
-    return json.dumps(normalized, ensure_ascii=True)
-
-
-def _safe_first_recommendation(llm_explanation: str | None) -> str:
-    """Extracts first recommendation from legacy LLM JSON response when possible."""
-    if not llm_explanation:
-        return _DEFAULT_RECOMMENDED_ACTION
-    try:
-        data = json.loads(llm_explanation)
-    except json.JSONDecodeError:
-        return _DEFAULT_RECOMMENDED_ACTION
-    if not isinstance(data, dict):
-        return _DEFAULT_RECOMMENDED_ACTION
-    recommendations = data.get("recomendaciones")
-    if isinstance(recommendations, list) and recommendations:
-        first = recommendations[0]
-        if isinstance(first, str) and first.strip():
-            return first.strip()
-    return _DEFAULT_RECOMMENDED_ACTION
-
-
-def extract_recommended_action_from_llm_output(
-    llm_output: Dict[str, Any] | None,
-) -> Optional[str]:
-    """
-    Extracts a recommendation from rich LLM outputs when available.
-
-    Supports both:
-    - `parsed_response.recomendaciones` (preferred)
-    - JSON text in `response_text`
-    """
-    if not isinstance(llm_output, dict):
-        return None
-
-    parsed_response = llm_output.get("parsed_response")
-    if isinstance(parsed_response, dict):
-        recommendations = parsed_response.get("recomendaciones")
-        if isinstance(recommendations, list):
-            for candidate in recommendations:
-                if isinstance(candidate, str) and candidate.strip():
-                    return candidate.strip()
-
-    response_text = llm_output.get("response_text")
-    if isinstance(response_text, str):
-        candidate = _safe_first_recommendation(response_text)
-        if candidate != _DEFAULT_RECOMMENDED_ACTION:
-            return candidate
-
-    return None
-
-
-def normalize_detection_payload(report_json: Dict[str, Any] | None) -> Dict[str, Any]:
-    """
-    Ensures the payload expected by n8n/Postgres has stable types and defaults.
-    """
-    payload = dict(report_json) if isinstance(report_json, dict) else {}
-
-    score = _safe_float(payload.get("ml_score", payload.get("score")), default=0.0)
-    payload["ml_score"] = score
-    payload["confidence"] = _confidence_to_numeric(payload.get("confidence"))
-
-    risk_level = str(payload.get("risk_level", "")).strip().upper()
-    payload["risk_level"] = risk_level or _risk_level_from_score(score)
-
-    payload["event_id"] = _safe_text(payload.get("event_id"), default=str(uuid.uuid4()))
-    payload["timestamp"] = _safe_text(payload.get("timestamp"), default=_utc_timestamp())
-    payload["model_version"] = _safe_text(payload.get("model_version"), default=_safe_model_version())
-
-    file_path_raw = str(payload.get("file_path", "")).strip()
-    file_path = file_path_raw if file_path_raw else "dato_no_disponible"
-    payload["file_path"] = file_path
-
-    file_name = str(payload.get("file_name", "")).strip()
-    if not file_name and file_path_raw:
-        file_name = Path(file_path_raw).name
-    payload["file_name"] = file_name or "unknown"
-
-    payload["file_hash"] = _safe_text(payload.get("file_hash"), default="dato_no_disponible")
-
-    llm_report_raw = payload.get("llm_report")
-    if llm_report_raw is None:
-        llm_report_raw = payload.get("llm_explanation")
-    if llm_report_raw is None:
-        llm_report_raw = {}
-    if payload.get("recommended_action"):
-        llm_report_obj = _normalize_llm_report_object(llm_report_raw)
-        llm_report_obj["recommended_action"] = _safe_text(
-            payload.get("recommended_action"),
-            default=llm_report_obj.get("recommended_action", _DEFAULT_RECOMMENDED_ACTION),
-        )
-        payload["llm_report"] = _serialize_llm_report(llm_report_obj)
-    else:
-        payload["llm_report"] = _serialize_llm_report(llm_report_raw)
-    payload.pop("llm_explanation", None)
-    payload.pop("recommended_action", None)
-
-    payload["hostname"] = _safe_text(payload.get("hostname"), default=socket.gethostname())
-    payload["os"] = _safe_text(payload.get("os"), default=platform.platform())
-    payload["user"] = _safe_text(payload.get("user"), default=getpass.getuser())
-
-    return payload
-
+# ---------------------------------------------------------------------------
+# Config
+# ---------------------------------------------------------------------------
 
 @dataclass
 class N8NIntegrationConfig:
     """Runtime config for n8n cloud integration."""
 
-    enabled: bool = field(default_factory=lambda: _to_bool(os.getenv("N8N_ENABLED"), default=False))
-    environment: str = field(default_factory=lambda: os.getenv("ENVIRONMENT", "dev").strip().lower())
-    # Fall back to ngrok constants when env vars are not set.
-    webhook_test: str = field(default_factory=lambda: os.getenv("N8N_WEBHOOK_TEST", TEST_WEBHOOK_URL).strip())
-    webhook_prod: str = field(default_factory=lambda: os.getenv("N8N_WEBHOOK_PROD", PRODUCTION_WEBHOOK_URL).strip())
-    timeout_seconds: int = field(default_factory=lambda: int(os.getenv("N8N_TIMEOUT_SECONDS", "8")))
+    enabled: bool = field(
+        default_factory=lambda: _to_bool(os.getenv("N8N_ENABLED"), default=False)
+    )
+    environment: str = field(
+        default_factory=lambda: os.getenv("ENVIRONMENT", "dev").strip().lower()
+    )
+    webhook_test: str = field(
+        default_factory=lambda: os.getenv("N8N_WEBHOOK_TEST", TEST_WEBHOOK_URL).strip()
+    )
+    webhook_prod: str = field(
+        default_factory=lambda: os.getenv("N8N_WEBHOOK_PROD", PRODUCTION_WEBHOOK_URL).strip()
+    )
+    timeout_seconds: int = field(
+        default_factory=lambda: int(os.getenv("N8N_TIMEOUT_SECONDS", "8"))
+    )
 
     def selected_webhook(self) -> str:
         """Selects webhook by environment (`dev` -> test, `prod` -> production)."""
@@ -314,175 +103,80 @@ class N8NIntegrationConfig:
         return self.webhook_test
 
 
-def build_detection_payload(
-    scan_result: Dict[str, Any],
-    *,
-    llm_report: Optional[Dict[str, Any] | str] = None,
-    llm_explanation: Optional[str] = None,
-) -> Dict[str, Any]:
-    """
-    Builds the standardized detection payload consumed by n8n workflows.
-    """
-    file_path = str(scan_result.get("file", "")).strip() or str(scan_result.get("file_path", "")).strip()
-    file_name = str(scan_result.get("uploaded_filename", "")).strip()
-    if not file_name:
-        file_name = Path(file_path).name if file_path else "unknown"
+# ---------------------------------------------------------------------------
+# send_scan_result — API pública para el backend
+# ---------------------------------------------------------------------------
 
-    score = _safe_float(scan_result.get("score"), default=0.0)
-    confidence_raw = scan_result.get("confidence", "Low")
-    confidence_value = _confidence_to_numeric(confidence_raw)
-    risk_level = _risk_level_from_score(score)
-    llm_report_raw: Any = llm_report if llm_report is not None else llm_explanation
+def send_scan_result(scan_result: Dict[str, Any]) -> bool:
+    """
+    Envía un resultado de escaneo a N8N SOLO si es malicious.
 
+    Si el resultado no es malicious, retorna False sin hacer nada.
+    Nunca lanza excepciones al caller.
+
+    Args:
+        scan_result: Dict con campos del ScanResult (file_name, result,
+                     risk_level, confidence/score, scan_type, etc.)
+
+    Returns:
+        True si se envió exitosamente, False en cualquier otro caso.
+    """
+    result = str(scan_result.get("result", "")).strip().lower()
+    if result != "malicious":
+        logger.debug(
+            "[ShadowNet-N8N] Skipped: result=%s (solo se envía malicious)", result
+        )
+        return False
+
+    # Construyo payload en el formato final del PRD
     payload = {
-        "event_id": str(uuid.uuid4()),
+        "event": "malware_detected",
         "timestamp": _utc_timestamp(),
-        # Flat fields for n8n SQL compatibility.
-        "file_name": file_name,
-        "file_hash": _safe_sha256(file_path),
-        "file_path": file_path or "dato_no_disponible",
-        "ml_score": score,
-        "confidence": confidence_value,
-        "model_version": _safe_model_version(),
-        "risk_level": risk_level,
-        "llm_report": _serialize_llm_report(llm_report_raw),
-        "hostname": socket.gethostname(),
-        "os": platform.platform(),
-        "user": getpass.getuser(),
+        "file_name": str(scan_result.get("file_name", "unknown")),
+        "result": "malicious",
+        "risk_level": str(scan_result.get("risk_level", "high")),
+        "score": _safe_float(
+            scan_result.get("confidence", scan_result.get("score")),
+            default=0.0,
+        ),
+        "scan_type": str(scan_result.get("scan_type", "single")),
+        "user_id": scan_result.get("user_id", getpass.getuser()),
+        "explanation": scan_result.get("explanation"),
+        "system_info": {
+            "os": platform.platform(),
+            "hostname": socket.gethostname(),
+        },
     }
-    return normalize_detection_payload(payload)
 
-
-def send_detection_to_n8n(
-    report_json: Dict[str, Any],
-    *,
-    config: Optional[N8NIntegrationConfig] = None,
-    telemetry: Optional[TelemetryClient] = None,
-) -> bool:
-    """
-    Sends detection payload to n8n.
-
-    Non-blocking contract:
-    - Returns False on any delivery issue.
-    - Never raises to caller.
-    """
-    cfg = config or N8NIntegrationConfig()
-    telemetry_client = telemetry or TelemetryClient()
-    normalized_report = normalize_detection_payload(report_json)
-    risk_level = str(normalized_report.get("risk_level", "LOW")).upper()
-
-    if not cfg.enabled:
-        logger.debug("[ShadowNet-N8N] Skipped: integration disabled")
-        telemetry_client.record_n8n_delivery(
-            delivered=False,
-            skipped=True,
-            environment=cfg.environment,
-            risk_level=risk_level,
-            webhook_host="not_configured",
-            reason="integration_disabled",
-        )
-        return False
-
-    if cfg.environment == "dev" and risk_level == "LOW":
-        logger.debug("[ShadowNet-N8N] Skipped: LOW risk in dev environment")
-        telemetry_client.record_n8n_delivery(
-            delivered=False,
-            skipped=True,
-            environment=cfg.environment,
-            risk_level=risk_level,
-            webhook_host="dev_filter",
-            reason="dev_low_risk_filter",
-        )
-        return False
-
-    webhook_url = cfg.selected_webhook()
-    webhook_host = urlparse(webhook_url).netloc if webhook_url else "not_configured"
-    if not webhook_url:
-        logger.warning("[ShadowNet-N8N] Failed: missing webhook for environment '%s'", cfg.environment)
-        telemetry_client.record_n8n_delivery(
-            delivered=False,
-            skipped=True,
-            environment=cfg.environment,
-            risk_level=risk_level,
-            webhook_host=webhook_host,
-            reason="missing_webhook",
-        )
-        return False
-
-    logger.debug("[ShadowNet-N8N] Sending alert...")
-    req = request.Request(
-        webhook_url,
-        data=json.dumps(normalized_report, ensure_ascii=True).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
     try:
+        cfg = N8NIntegrationConfig()
+        if not cfg.enabled:
+            logger.debug("[ShadowNet-N8N] Integration disabled, skipping malicious alert")
+            return False
+
+        webhook_url = cfg.selected_webhook()
+        if not webhook_url:
+            logger.warning("[ShadowNet-N8N] No webhook URL configured")
+            return False
+
+        data_bytes = json.dumps(payload, ensure_ascii=True).encode("utf-8")
+        req = request.Request(
+            webhook_url,
+            data=data_bytes,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
         with request.urlopen(req, timeout=cfg.timeout_seconds) as resp:
-            status = getattr(resp, "status", 200)
-            if status >= 400:
-                logger.warning("[ShadowNet-N8N] Failed: HTTP %s", status)
-                telemetry_client.record_n8n_delivery(
-                    delivered=False,
-                    skipped=False,
-                    environment=cfg.environment,
-                    risk_level=risk_level,
-                    webhook_host=webhook_host,
-                    reason=f"http_{status}",
+            status = resp.status
+            if 200 <= status < 300:
+                logger.info(
+                    "[ShadowNet-N8N] Malware alert enviado: %s (HTTP %d)",
+                    payload["file_name"],
+                    status,
                 )
-                return False
-        logger.debug("[ShadowNet-N8N] Success")
-        telemetry_client.record_n8n_delivery(
-            delivered=True,
-            skipped=False,
-            environment=cfg.environment,
-            risk_level=risk_level,
-            webhook_host=webhook_host,
-        )
-        return True
-    except error.URLError as exc:
-        reason = "timeout" if "timed out" in str(exc).lower() else "connection_error"
-        logger.warning("[ShadowNet-N8N] Failed: %s", reason)
-        telemetry_client.record_n8n_delivery(
-            delivered=False,
-            skipped=False,
-            environment=cfg.environment,
-            risk_level=risk_level,
-            webhook_host=webhook_host,
-            reason=reason,
-        )
+                return True
+            logger.warning("[ShadowNet-N8N] HTTP %d al enviar alerta", status)
+            return False
+    except Exception as exc:
+        logger.error("[ShadowNet-N8N] Error enviando alerta: %s", exc)
         return False
-    except Exception as exc:  # pragma: no cover
-        logger.warning("[ShadowNet-N8N] Failed: %s", exc)
-        telemetry_client.record_n8n_delivery(
-            delivered=False,
-            skipped=False,
-            environment=cfg.environment,
-            risk_level=risk_level,
-            webhook_host=webhook_host,
-            reason="unexpected_error",
-        )
-        return False
-
-
-class N8NClient:
-    """Thin OO adapter over module-level n8n integration functions."""
-
-    def __init__(self, config: Optional[N8NIntegrationConfig] = None, telemetry: Optional[TelemetryClient] = None):
-        self.config = config or N8NIntegrationConfig()
-        self.telemetry = telemetry or TelemetryClient()
-
-    def build_detection_payload(
-        self,
-        scan_result: Dict[str, Any],
-        *,
-        llm_report: Optional[Dict[str, Any] | str] = None,
-        llm_explanation: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        return build_detection_payload(
-            scan_result,
-            llm_report=llm_report,
-            llm_explanation=llm_explanation,
-        )
-
-    def send_detection_to_n8n(self, report_json: Dict[str, Any]) -> bool:
-        return send_detection_to_n8n(report_json, config=self.config, telemetry=self.telemetry)

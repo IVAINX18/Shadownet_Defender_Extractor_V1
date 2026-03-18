@@ -29,6 +29,19 @@ SUPABASE_URL = os.getenv(
 SUPABASE_TABLE = "scan_results"
 
 
+def _parse_duration(value: Any) -> Optional[float]:
+    """Convierte scan_time como '1.34s' a float de segundos."""
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip().rstrip("s")
+    try:
+        return float(text)
+    except (ValueError, TypeError):
+        return None
+
+
 def _get_supabase_client() -> Any:
     """
     Crea y retorna un cliente de Supabase.
@@ -82,18 +95,21 @@ def save_scan(data: Dict[str, Any]) -> Dict[str, Any]:
     Raises:
         RuntimeError: Si SUPABASE_KEY no está configurada o la inserción falla.
     """
-    # Extraigo solo los campos que necesito persistir
+    # Extraigo los campos que persisto según el esquema de Supabase
     record = {
         "file_name": str(data.get("file_name", "unknown")),
+        "scan_type": str(data.get("scan_type", "single")),
         "result": str(data.get("result", "benign")),
-        "confidence": float(data.get("confidence", 0.0)),
         "risk_level": str(data.get("risk_level", "low")),
+        "score": float(data.get("confidence", data.get("score", 0.0))),
         "explanation": data.get("explanation"),
-        "scan_time": str(data.get("scan_time", "0.00s")),
-        "timestamp": data.get(
-            "timestamp",
-            datetime.now(timezone.utc).isoformat(),
-        ),
+        "scan_duration": _parse_duration(data.get("scan_time")),
+        "user_id": data.get("user_id"),
+        "offline": bool(data.get("offline", False)),
+        "metadata": {
+            k: v for k, v in data.items()
+            if k in ("features_detected", "timestamp")
+        },
     }
 
     try:

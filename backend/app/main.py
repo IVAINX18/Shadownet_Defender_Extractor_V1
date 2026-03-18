@@ -85,6 +85,43 @@ app.include_router(analysis_router)
 app.include_router(health_router)
 
 
+from fastapi import Request
+from fastapi.exceptions import HTTPException
+from fastapi.responses import JSONResponse
+
+
+# ---------------------------------------------------------------------------
+# Manejo global de errores — Formato estandarizado para TODAS las excepciones
+# ---------------------------------------------------------------------------
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    """Manejo de errores HTTP con formato estándar."""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "status": "error",
+            "message": exc.detail,
+            "code": exc.status_code,
+        },
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Manejo de excepciones no capturadas — evita HTML por defecto de FastAPI."""
+    import logging
+    logging.getLogger("backend.main").error("Error no capturado: %s", exc, exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "message": str(exc),
+            "code": 500,
+        },
+    )
+
+
 # ---------------------------------------------------------------------------
 # Punto de entrada para ejecución directa
 # ---------------------------------------------------------------------------
@@ -100,3 +137,4 @@ if __name__ == "__main__":
         port=port,
         reload=True,
     )
+
