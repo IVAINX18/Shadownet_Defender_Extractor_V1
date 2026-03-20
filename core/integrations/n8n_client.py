@@ -141,6 +141,7 @@ def send_scan_result(scan_result: Dict[str, Any]) -> bool:
         ),
         "scan_type": str(scan_result.get("scan_type", "single")),
         "user_id": scan_result.get("user_id", getpass.getuser()),
+        "user_email": scan_result.get("user_email", ""),
         "explanation": scan_result.get("explanation"),
         "system_info": {
             "os": platform.platform(),

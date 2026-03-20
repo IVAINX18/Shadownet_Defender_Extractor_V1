@@ -300,3 +300,129 @@
 2026-03-17 15:17:25,452 - models.inference - INFO - Loading model from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
 2026-03-17 15:17:25,472 - models.inference - INFO - Loading scaler from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
 2026-03-17 15:17:26,223 - models.inference - INFO - Model and scaler loaded successfully.
+2026-03-20 14:41:18,765 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-03-20 14:41:18,809 - models.inference - INFO - Loading model from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-03-20 14:41:18,843 - models.inference - INFO - Loading scaler from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-03-20 14:41:19,991 - models.inference - INFO - Model and scaler loaded successfully.
+2026-03-20 14:45:55,677 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-03-20 14:45:55,680 - models.inference - INFO - Loading model from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-03-20 14:45:55,688 - models.inference - INFO - Loading scaler from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-03-20 14:45:56,308 - models.inference - INFO - Model and scaler loaded successfully.
+2026-03-20 14:45:56,308 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774035955677-Eula.txt
+2026-03-20 14:45:56,356 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774035955677-Eula.txt
+2026-03-20 14:45:56,357 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 14:45:56,357 - backend.scan_service - INFO - Escaneo completado: 1774035955677-Eula.txt → benign (low) en 0.05s
+2026-03-20 14:45:56,380 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774035956379-ProcessExplorer.zip
+2026-03-20 14:45:56,571 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774035956379-ProcessExplorer.zip
+2026-03-20 14:45:56,572 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 14:45:56,573 - backend.scan_service - INFO - Escaneo completado: 1774035956379-ProcessExplorer.zip → benign (low) en 0.19s
+2026-03-20 14:45:56,576 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774035956576-eicar.txt
+2026-03-20 14:45:56,636 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774035956576-eicar.txt
+2026-03-20 14:45:56,636 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 14:45:56,637 - backend.scan_service - INFO - Escaneo completado: 1774035956576-eicar.txt → benign (low) en 0.06s
+2026-03-20 14:45:56,640 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774035956640-eicar_com.zip
+2026-03-20 14:45:56,701 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774035956640-eicar_com.zip
+2026-03-20 14:45:56,702 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 14:45:56,705 - backend.scan_service - INFO - Escaneo completado: 1774035956640-eicar_com.zip → benign (low) en 0.07s
+2026-03-20 14:45:56,712 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774035956712-eicar_test.txt
+2026-03-20 14:45:56,770 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774035956712-eicar_test.txt
+2026-03-20 14:45:56,771 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 14:45:56,772 - backend.scan_service - INFO - Escaneo completado: 1774035956712-eicar_test.txt → benign (low) en 0.06s
+2026-03-20 14:45:56,774 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774035956774-malware_simulated_scan.json
+2026-03-20 14:45:56,831 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774035956774-malware_simulated_scan.json
+2026-03-20 14:45:56,832 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 14:45:56,833 - backend.scan_service - INFO - Escaneo completado: 1774035956774-malware_simulated_scan.json → benign (low) en 0.06s
+2026-03-20 14:45:56,857 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774035956855-procexp.exe
+2026-03-20 14:45:57,973 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 14:45:57,974 - backend.scan_service - INFO - Escaneo completado: 1774035956855-procexp.exe → benign (low) en 1.12s
+2026-03-20 14:45:57,990 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774035957989-procexp64.exe
+2026-03-20 14:45:58,772 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 14:45:58,773 - backend.scan_service - INFO - Escaneo completado: 1774035957989-procexp64.exe → benign (low) en 0.78s
+2026-03-20 14:45:58,787 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774035958786-procexp64a.exe
+2026-03-20 14:45:59,118 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 14:45:59,119 - backend.scan_service - INFO - Escaneo completado: 1774035958786-procexp64a.exe → benign (low) en 0.33s
+2026-03-20 15:05:49,434 - models.inference - INFO - Loading model from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-03-20 15:05:49,467 - models.inference - INFO - Loading scaler from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-03-20 15:05:50,254 - models.inference - INFO - Model and scaler loaded successfully.
+2026-03-20 15:05:50,256 - core.engine - INFO - Scanning file: samples/Eula.txt
+2026-03-20 15:05:50,285 - core.engine - WARNING - Non-PE file skipped: samples/Eula.txt
+2026-03-20 15:05:50,286 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:05:50,287 - core.engine - INFO - Scanning file: samples/ProcessExplorer.zip
+2026-03-20 15:05:50,394 - core.engine - WARNING - Non-PE file skipped: samples/ProcessExplorer.zip
+2026-03-20 15:05:50,395 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:05:50,395 - core.engine - INFO - Scanning file: samples/eicar.txt
+2026-03-20 15:05:50,423 - core.engine - WARNING - Non-PE file skipped: samples/eicar.txt
+2026-03-20 15:05:50,424 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:05:50,424 - core.engine - INFO - Scanning file: samples/eicar_com.zip
+2026-03-20 15:05:50,450 - core.engine - WARNING - Non-PE file skipped: samples/eicar_com.zip
+2026-03-20 15:05:50,451 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:05:50,452 - core.engine - INFO - Scanning file: samples/eicar_test.txt
+2026-03-20 15:05:50,481 - core.engine - WARNING - Non-PE file skipped: samples/eicar_test.txt
+2026-03-20 15:05:50,482 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:05:50,483 - core.engine - INFO - Scanning file: samples/malware_simulated_scan.json
+2026-03-20 15:05:50,515 - core.engine - WARNING - Non-PE file skipped: samples/malware_simulated_scan.json
+2026-03-20 15:05:50,516 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:05:50,517 - core.engine - INFO - Scanning file: samples/procexp.exe
+2026-03-20 15:05:51,567 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 15:05:51,568 - core.engine - INFO - Scanning file: samples/procexp64.exe
+2026-03-20 15:05:52,336 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 15:05:52,337 - core.engine - INFO - Scanning file: samples/procexp64a.exe
+2026-03-20 15:05:52,640 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 15:05:52,641 - core.engine - INFO - Scanning file: samples/test.exe
+2026-03-20 15:05:52,684 - core.engine - WARNING - Non-PE file skipped: samples/test.exe
+2026-03-20 15:05:52,685 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:07:31,899 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-03-20 15:07:31,901 - models.inference - INFO - Loading model from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-03-20 15:07:31,912 - models.inference - INFO - Loading scaler from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-03-20 15:07:32,616 - models.inference - INFO - Model and scaler loaded successfully.
+2026-03-20 15:08:45,216 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037325215-Eula.txt
+2026-03-20 15:08:45,264 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774037325215-Eula.txt
+2026-03-20 15:08:45,264 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:08:45,265 - backend.scan_service - INFO - Escaneo completado: 1774037325215-Eula.txt → benign (low) en 0.05s
+2026-03-20 15:08:46,304 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037326303-ProcessExplorer.zip
+2026-03-20 15:08:46,463 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774037326303-ProcessExplorer.zip
+2026-03-20 15:08:46,465 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:08:46,466 - backend.scan_service - INFO - Escaneo completado: 1774037326303-ProcessExplorer.zip → benign (low) en 0.16s
+2026-03-20 15:08:46,868 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037326868-eicar.txt
+2026-03-20 15:08:46,932 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774037326868-eicar.txt
+2026-03-20 15:08:46,934 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:08:46,934 - backend.scan_service - INFO - Escaneo completado: 1774037326868-eicar.txt → benign (low) en 0.07s
+2026-03-20 15:08:47,452 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037327451-eicar_com.zip
+2026-03-20 15:08:47,522 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774037327451-eicar_com.zip
+2026-03-20 15:08:47,523 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:08:47,523 - backend.scan_service - INFO - Escaneo completado: 1774037327451-eicar_com.zip → benign (low) en 0.07s
+2026-03-20 15:08:48,011 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037328010-eicar_test.txt
+2026-03-20 15:08:48,077 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774037328010-eicar_test.txt
+2026-03-20 15:08:48,078 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:08:48,079 - backend.scan_service - INFO - Escaneo completado: 1774037328010-eicar_test.txt → benign (low) en 0.07s
+2026-03-20 15:08:48,430 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037328430-malware_simulated_scan.json
+2026-03-20 15:08:48,502 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774037328430-malware_simulated_scan.json
+2026-03-20 15:08:48,503 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:08:48,504 - backend.scan_service - INFO - Escaneo completado: 1774037328430-malware_simulated_scan.json → benign (low) en 0.07s
+2026-03-20 15:08:48,992 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037328990-procexp.exe
+2026-03-20 15:08:50,136 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 15:08:50,136 - backend.scan_service - INFO - Escaneo completado: 1774037328990-procexp.exe → benign (low) en 1.14s
+2026-03-20 15:08:50,593 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037330593-procexp64.exe
+2026-03-20 15:08:51,334 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 15:08:51,335 - backend.scan_service - INFO - Escaneo completado: 1774037330593-procexp64.exe → benign (low) en 0.74s
+2026-03-20 15:08:51,824 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037331824-procexp64a.exe
+2026-03-20 15:08:52,149 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 15:08:52,150 - backend.scan_service - INFO - Escaneo completado: 1774037331824-procexp64a.exe → benign (low) en 0.33s
+2026-03-20 15:08:52,677 - backend.routes.analysis - ERROR - Error generando explicación LLM: Ollama respondió con error HTTP 404.
+Mensaje: 404 page not found
+Verifica que el modelo 'llama3.2:3b' esté descargado:
+  ollama pull llama3.2:3b
+2026-03-20 15:18:30,815 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037910814-procexp.exe
+2026-03-20 15:18:32,062 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 15:18:32,063 - backend.scan_service - INFO - Escaneo completado: 1774037910814-procexp.exe → benign (low) en 1.25s
+2026-03-20 15:18:49,654 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037929653-procexp64a.exe
+2026-03-20 15:18:50,065 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 15:18:50,067 - backend.scan_service - INFO - Escaneo completado: 1774037929653-procexp64a.exe → benign (low) en 0.41s
+2026-03-20 15:18:50,580 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774037930580-eicar.txt
+2026-03-20 15:18:50,685 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774037930580-eicar.txt
+2026-03-20 15:18:50,687 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 15:18:50,688 - backend.scan_service - INFO - Escaneo completado: 1774037930580-eicar.txt → benign (low) en 0.11s
+2026-03-20 15:19:13,640 - backend.routes.analysis - ERROR - Error generando explicación LLM: Ollama respondió con error HTTP 404.
+Mensaje: 404 page not found
+Verifica que el modelo 'llama3.2:3b' esté descargado:
+  ollama pull llama3.2:3b

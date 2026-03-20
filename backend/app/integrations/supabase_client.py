@@ -105,6 +105,7 @@ def save_scan(data: Dict[str, Any]) -> Dict[str, Any]:
         "explanation": data.get("explanation"),
         "scan_duration": _parse_duration(data.get("scan_time")),
         "user_id": data.get("user_id"),
+        "user_email": data.get("user_email"),
         "offline": bool(data.get("offline", False)),
         "metadata": {
             k: v for k, v in data.items()
@@ -154,3 +155,32 @@ def save_scan_safe(data: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as exc:
         logger.error("Error inesperado en save_scan_safe: %s", exc)
         return {"saved": False, "reason": str(exc)}
+
+
+def sync_user(user: Dict[str, Any]) -> None:
+    """
+    Sincroniza un usuario de Supabase Auth en la tabla users.
+
+    Inserta el usuario si no existe (ON CONFLICT DO NOTHING).
+    Nunca lanza excepciones al caller.
+
+    Args:
+        user: Dict con "id" (UUID) y "email" del usuario autenticado.
+    """
+    user_id = user.get("id")
+    email = user.get("email", "")
+
+    if not user_id:
+        return
+
+    try:
+        client = _get_supabase_client()
+        client.table("users").upsert(
+            {"id": user_id, "email": email},
+            on_conflict="id",
+        ).execute()
+        logger.debug("Usuario sincronizado: %s", email)
+    except Exception as exc:
+        # No bloqueo el flujo si falla sync de usuario
+        logger.warning("Error sincronizando usuario: %s", exc)
+

@@ -272,6 +272,8 @@ frontend/
 - Escaneo de archivos
 - Resultados
 - Historial
+- Registro (`/register`)
+- Login (`/login`)
 
 ---
 
@@ -296,6 +298,9 @@ Envío de datos pendientes cuando se restaure la conexión.
 - No ejecución de archivos analizados
 - Uso de variables de entorno
 - Configuración de CORS
+- No confiar en datos enviados por el cliente
+- Validación de token JWT en cada request protegido
+- No exponer claves de Supabase en el frontend
 
 ---
 
@@ -312,7 +317,7 @@ Envío de datos pendientes cuando se restaure la conexión.
 
 ## 13. Estado del Proyecto
 
-### ✅ Implementado
+### Implementado
 
 - Modelo ML (PyTorch)
 - Dataset SOREL
@@ -320,19 +325,22 @@ Envío de datos pendientes cuando se restaure la conexión.
 - Integración con Ollama
 - Automatización con N8N
 
-### 🔲 Pendiente
+### Pendiente
 
 #### Backend
 - [ ] API completa en FastAPI
 - [ ] Integración total del modelo
 - [ ] Logs estructurados
+- [ ] Dependencia `get_current_user()` en `auth.py`
 
 #### Frontend
 - [ ] UI completa
 - [ ] Integración con Electron
+- [ ] Vistas de registro y login
+- [ ] Protección de rutas y redirección por sesión
 
 #### Integraciones
-- [ ] Supabase completo
+- [ ] Supabase completo (Auth + base de datos)
 - [ ] Webhooks N8N
 
 #### Offline
@@ -344,14 +352,17 @@ Envío de datos pendientes cuando se restaure la conexión.
 ## 14. Flujo Completo del Sistema
 
 ```
-1. Usuario selecciona archivo
-2. Frontend envía request a FastAPI
-3. Backend ejecuta modelo ML
-4. Resultado enviado a Ollama
-5. Se genera explicación
-6. Se guarda en Supabase
-7. Se dispara N8N (si es malicioso)
-8. Se muestra resultado en UI
+1. Usuario se registra o inicia sesión
+2. Frontend obtiene token de Supabase Auth
+3. Usuario selecciona archivo
+4. Frontend envía request a FastAPI con token en header
+5. Backend valida token y extrae usuario
+6. Backend ejecuta modelo ML
+7. Resultado enviado a Ollama
+8. Se genera explicación
+9. Se guarda en Supabase con user_id y user_email
+10. Se dispara N8N (si es malicioso)
+11. Se muestra resultado en UI
 ```
 
 ---
@@ -393,13 +404,14 @@ Envío de datos pendientes cuando se restaure la conexión.
 ## 18. Siguientes Pasos Técnicos
 
 1. Crear estructura backend
-2. Implementar `/scan/file`
-3. Integrar modelo ML
-4. Conectar Ollama
-5. Integrar Supabase
-6. Conectar N8N
-7. Crear UI básica
-8. Integrar Electron
+2. Implementar sistema de autenticación con Supabase Auth
+3. Implementar `/scan/file`
+4. Integrar modelo ML
+5. Conectar Ollama
+6. Integrar Supabase (Auth + base de datos)
+7. Conectar N8N
+8. Crear UI básica con vistas de login y registro
+9. Integrar Electron
 
 ---
 
@@ -419,7 +431,9 @@ Cada escaneo debe generar el siguiente objeto estructurado:
   "features_detected": [],
   "timestamp": "ISO8601",
   "explanation": "string",
-  "risk_level": "low | medium | high"
+  "risk_level": "low | medium | high",
+  "user_id": "string",
+  "user_email": "string"
 }
 ```
 
@@ -454,7 +468,8 @@ El sistema debe retornar una explicación estructurada generada por Ollama que i
 | `explanation` | Explicación generada por Ollama |
 | `scan_time` | Tiempo de escaneo |
 | `timestamp` | Fecha y hora del escaneo |
-| `user_id` | Identificador del usuario |
+| `user_id` | Identificador del usuario autenticado |
+| `user_email` | Email del usuario autenticado |
 
 ### 19.5 Activación de N8N
 
@@ -503,7 +518,7 @@ El sistema debe retornar una explicación estructurada generada por Ollama que i
 
 El frontend debe mostrar:
 
-- Estado del archivo (colorizado: 🟢 verde, 🟡 amarillo, 🔴 rojo)
+- Estado del archivo (colorizado: verde, amarillo, rojo)
 - Nivel de riesgo
 - Explicación detallada
 - Tiempo de escaneo
@@ -522,7 +537,196 @@ Un escaneo se considera **exitoso** si:
 
 - [x] Se obtiene clasificación válida
 - [x] Se genera explicación (si hay conexión)
-- [x] Se almacena correctamente (modo online)
+- [x] Se almacena correctamente con datos del usuario autenticado (modo online)
 - [x] Se muestra correctamente en el frontend
 
 ---
+
+## 20. Sistema de Usuarios (Autenticación y Sesión)
+
+### 20.1 Enfoque General
+
+El sistema de autenticación será gestionado mediante **Supabase Auth**, evitando implementar lógica manual de autenticación en el backend.
+
+Principios:
+
+- El backend no gestiona credenciales directamente
+- El frontend se comunica con Supabase para login y registro
+- El backend valida tokens y extrae información del usuario
+
+---
+
+### 20.2 Registro de Usuario
+
+El usuario podrá registrarse mediante email y contraseña. El frontend utilizará el SDK de Supabase:
+
+```javascript
+supabase.auth.signUp({
+  email,
+  password
+})
+```
+
+---
+
+### 20.3 Inicio de Sesión (Login)
+
+El usuario podrá autenticarse mediante:
+
+```javascript
+supabase.auth.signInWithPassword({
+  email,
+  password
+})
+```
+
+**Respuesta esperada:**
+
+- `access_token`
+- `refresh_token`
+- `user`:
+  - `id`
+  - `email`
+
+---
+
+### 20.4 Persistencia de Sesión
+
+El frontend debe:
+
+- Guardar el `access_token`
+- Incluirlo en cada request al backend
+
+**Formato del header:**
+
+```
+Authorization: Bearer <access_token>
+```
+
+---
+
+### 20.5 Validación en Backend
+
+El backend debe validar el token JWT enviado por el frontend y extraer el usuario autenticado.
+
+**Ubicación:**
+
+```
+backend/app/api/dependencies/auth.py
+```
+
+**Responsabilidad:** Crear la dependencia `get_current_user()`.
+
+**Ejemplo conceptual:**
+
+```python
+def get_current_user(token: str):
+    # Valido el token con Supabase
+    # Retorno user_id y email extraídos del token
+```
+
+---
+
+### 20.6 Uso en Endpoints
+
+Todos los endpoints protegidos deben requerir autenticación y obtener el usuario desde el token:
+
+```python
+@router.post("/scan/file")
+def scan_file(user=Depends(get_current_user)):
+    ...
+```
+
+---
+
+### 20.7 Integración con el Flujo de Escaneo
+
+El backend debe:
+
+- Ignorar cualquier `user_email` enviado por el frontend
+- Utilizar únicamente los datos extraídos del token validado
+
+El objeto `scan_result` debe incluir:
+
+```json
+{
+  "user_id": "...",
+  "user_email": "..."
+}
+```
+
+Estos valores provienen exclusivamente del token validado.
+
+---
+
+### 20.8 Persistencia en Supabase
+
+La tabla `scan_results` debe incluir los siguientes campos adicionales:
+
+| Campo | Tipo |
+|-------|------|
+| `user_id` | text |
+| `user_email` | text |
+
+Estos valores deben:
+
+- Ser consistentes con Supabase Auth
+- Permitir consultas filtradas por usuario
+
+---
+
+### 20.9 Integración con N8N y Alertas
+
+Cuando `result == "malicious"`, el backend enviará a N8N el siguiente payload:
+
+```json
+{
+  "event": "malware_detected",
+  "user_id": "...",
+  "user_email": "...",
+  "file_name": "...",
+  "risk_level": "high",
+  "result": "malicious",
+  "explanation": "...",
+  "timestamp": "ISO8601"
+}
+```
+
+**Requisitos:**
+
+- El correo debe provenir del usuario autenticado
+- No debe ser manipulable desde el frontend
+
+---
+
+### 20.10 Seguridad
+
+- No confiar en datos enviados por el cliente
+- Validar siempre el token antes de procesar cualquier request
+- No exponer claves de Supabase en el frontend
+- Usar variables de entorno para toda configuración sensible
+
+---
+
+### 20.11 Frontend — Nuevas Vistas
+
+Se deben añadir las siguientes rutas:
+
+- `/register` — Formulario de registro
+- `/login` — Formulario de inicio de sesión
+
+Además:
+
+- Protección de rutas privadas
+- Redirección automática si el usuario no está autenticado
+
+---
+
+### 20.12 Impacto en el Sistema
+
+Con esta integración:
+
+- Cada escaneo estará ligado a un usuario real
+- Se habilita historial por usuario
+- Se permite envío de alertas personalizadas al correo correcto
+- Se mejora la seguridad general del sistema al eliminar la confianza en datos del cliente

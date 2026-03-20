@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 from typing import List
 
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
 
 # Agrego la raíz del proyecto al path para importar módulos existentes
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
@@ -24,7 +24,8 @@ if str(_PROJECT_ROOT) not in sys.path:
 from backend.app.schemas.dto import ScanResult, ScanType
 from backend.app.utils.response import success_response, error_response
 from backend.app.services.scan_service import scan_single_file, scan_multiple_files
-from backend.app.integrations.supabase_client import save_scan_safe
+from backend.app.integrations.supabase_client import save_scan_safe, sync_user
+from backend.app.api.dependencies.auth import get_current_user
 from utils.logger import setup_logger
 
 logger = setup_logger("backend.routes.scan")
@@ -62,7 +63,7 @@ def _sanitize_filename(filename: str | None) -> str:
         500: {"description": "Error interno del servidor"},
     },
 )
-async def scan_file(file: UploadFile = File(...)):
+async def scan_file(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
     """
     POST /scan/file — Escaneo individual de archivo.
 
@@ -113,7 +114,12 @@ async def scan_file(file: UploadFile = File(...)):
         # Actualizo el nombre al original (no al temporal)
         scan_result.file_name = safe_name
 
-        # Guardo en Supabase sin bloquear el flujo
+        # Inyecto datos del usuario autenticado
+        scan_result.user_id = user["id"]
+        scan_result.user_email = user["email"]
+
+        # Sincronizo usuario y guardo en Supabase
+        sync_user(user)
         save_scan_safe(scan_result.model_dump())
 
         return success_response(scan_result)
@@ -144,7 +150,7 @@ async def scan_file(file: UploadFile = File(...)):
         500: {"description": "Error interno del servidor"},
     },
 )
-async def scan_multiple(files: List[UploadFile] = File(...)):
+async def scan_multiple(files: List[UploadFile] = File(...), user: dict = Depends(get_current_user)):
     """
     POST /scan/multiple — Escaneo de múltiples archivos.
 
@@ -189,9 +195,12 @@ async def scan_multiple(files: List[UploadFile] = File(...)):
         results = scan_multiple_files(file_paths)
 
         # Corrijo los nombres de archivo al original y guardo en Supabase
+        sync_user(user)
         for i, (_, original_name) in enumerate(temp_files):
             if i < len(results):
                 results[i].file_name = original_name
+                results[i].user_id = user["id"]
+                results[i].user_email = user["email"]
                 save_scan_safe(results[i].model_dump())
 
         # Convierto a lista de dicts para la respuesta
@@ -220,7 +229,7 @@ async def scan_multiple(files: List[UploadFile] = File(...)):
         500: {"description": "Error al obtener procesos"},
     },
 )
-async def scan_realtime():
+async def scan_realtime(user: dict = Depends(get_current_user)):
     """
     GET /scan/realtime — Monitoreo en tiempo real con psutil.
 

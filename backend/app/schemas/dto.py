@@ -80,6 +80,14 @@ class ScanResult(BaseModel):
     risk_level: RiskLevel = Field(
         ..., description="Nivel de riesgo: low | medium | high"
     )
+    user_id: Optional[str] = Field(
+        default=None,
+        description="ID del usuario autenticado (inyectado por el backend)",
+    )
+    user_email: Optional[str] = Field(
+        default=None,
+        description="Email del usuario autenticado (inyectado por el backend)",
+    )
 
 
 class ScanResponse(BaseModel):

@@ -31,3 +31,7 @@ requests>=2.31.0
 
 # --- Variables de entorno (.env) ---
 python-dotenv>=1.0.0
+
+# --- Autenticación (JWT Supabase Auth) ---
+PyJWT>=2.0.0
+cryptography>=41.0.0
