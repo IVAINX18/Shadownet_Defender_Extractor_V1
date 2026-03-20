@@ -426,3 +426,10 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 Mensaje: 404 page not found
 Verifica que el modelo 'llama3.2:3b' esté descargado:
   ollama pull llama3.2:3b
+2026-03-20 15:32:13,465 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-03-20 15:32:13,470 - models.inference - INFO - Loading model from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-03-20 15:32:13,493 - models.inference - INFO - Loading scaler from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-03-20 15:32:14,529 - models.inference - INFO - Model and scaler loaded successfully.
+2026-03-20 15:32:14,855 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774038734854-procexp64a.exe
+2026-03-20 15:32:15,191 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 15:32:15,192 - backend.scan_service - INFO - Escaneo completado: 1774038734854-procexp64a.exe → benign (low) en 0.34s
