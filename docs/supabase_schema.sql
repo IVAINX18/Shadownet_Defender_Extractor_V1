@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS scan_results (
     result          TEXT NOT NULL,
     risk_level      TEXT NOT NULL DEFAULT 'low',
     score           DOUBLE PRECISION DEFAULT 0.0,
+    analysis_type   TEXT,
     explanation     TEXT,
     scan_duration   DOUBLE PRECISION,
     offline         BOOLEAN DEFAULT FALSE,

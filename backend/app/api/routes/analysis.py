@@ -95,6 +95,7 @@ async def explain_scan(payload: ExplainRequest, user: dict = Depends(get_current
                 "provider": llm_result.get("provider", payload.provider),
                 "model": llm_result.get("model", "unknown"),
                 "prompt_version": llm_result.get("prompt_version", "v1"),
+                "status": llm_result.get("llm_status", "ok"),
             },
         }
 

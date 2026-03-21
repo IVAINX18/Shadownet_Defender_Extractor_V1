@@ -433,3 +433,67 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-03-20 15:32:14,855 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774038734854-procexp64a.exe
 2026-03-20 15:32:15,191 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
 2026-03-20 15:32:15,192 - backend.scan_service - INFO - Escaneo completado: 1774038734854-procexp64a.exe → benign (low) en 0.34s
+2026-03-20 17:11:02,647 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-03-20 17:11:02,652 - models.inference - INFO - Loading model from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-03-20 17:11:02,711 - models.inference - INFO - Loading scaler from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-03-20 17:11:04,247 - models.inference - INFO - Model and scaler loaded successfully.
+2026-03-20 17:18:26,240 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045106236-procexp64a.exe
+2026-03-20 17:18:26,840 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 17:18:26,841 - backend.scan_service - INFO - Archivo PE analizado: 1774045106236-procexp64a.exe | type=pe | result=benign | risk=low | score=0.0000 | inference_time=0.601s
+2026-03-20 17:18:29,605 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045109605-eicar.txt
+2026-03-20 17:18:29,770 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045109605-eicar.txt
+2026-03-20 17:18:29,772 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:18:29,773 - backend.scan_service - INFO - Archivo no PE detectado: 1774045109605-eicar.txt | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.168s
+2026-03-20 17:18:31,635 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045111634-eicar_com.zip
+2026-03-20 17:18:31,951 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045111634-eicar_com.zip
+2026-03-20 17:18:31,954 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:18:31,955 - backend.scan_service - INFO - Archivo no PE detectado: 1774045111634-eicar_com.zip | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.320s
+2026-03-20 17:30:31,329 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-03-20 17:30:31,331 - models.inference - INFO - Loading model from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-03-20 17:30:31,366 - models.inference - INFO - Loading scaler from /home/ivainx18/Documentos/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-03-20 17:30:32,289 - models.inference - INFO - Model and scaler loaded successfully.
+2026-03-20 17:30:33,015 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045833015-Eula.txt
+2026-03-20 17:30:33,100 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045833015-Eula.txt
+2026-03-20 17:30:33,100 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:30:33,101 - backend.scan_service - INFO - Archivo no PE detectado: 1774045833015-Eula.txt | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.086s
+2026-03-20 17:30:34,211 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045834210-ProcessExplorer.zip
+2026-03-20 17:30:34,388 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045834210-ProcessExplorer.zip
+2026-03-20 17:30:34,390 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:30:34,391 - backend.scan_service - INFO - Archivo no PE detectado: 1774045834210-ProcessExplorer.zip | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.180s
+2026-03-20 17:30:34,805 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045834804-eicar.txt
+2026-03-20 17:30:34,890 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045834804-eicar.txt
+2026-03-20 17:30:34,891 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:30:34,892 - backend.scan_service - INFO - Archivo no PE detectado: 1774045834804-eicar.txt | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.087s
+2026-03-20 17:30:49,318 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045849318-Eula.txt
+2026-03-20 17:30:49,396 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045849318-Eula.txt
+2026-03-20 17:30:49,397 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:30:49,398 - backend.scan_service - INFO - Archivo no PE detectado: 1774045849318-Eula.txt | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.080s
+2026-03-20 17:30:49,790 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045849789-ProcessExplorer.zip
+2026-03-20 17:30:49,947 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045849789-ProcessExplorer.zip
+2026-03-20 17:30:49,948 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:30:49,949 - backend.scan_service - INFO - Archivo no PE detectado: 1774045849789-ProcessExplorer.zip | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.159s
+2026-03-20 17:30:50,316 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045850316-eicar.txt
+2026-03-20 17:30:50,416 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045850316-eicar.txt
+2026-03-20 17:30:50,417 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:30:50,418 - backend.scan_service - INFO - Archivo no PE detectado: 1774045850316-eicar.txt | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.103s
+2026-03-20 17:30:50,867 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045850867-eicar_com.zip
+2026-03-20 17:30:50,951 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045850867-eicar_com.zip
+2026-03-20 17:30:50,952 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:30:50,953 - backend.scan_service - INFO - Archivo no PE detectado: 1774045850867-eicar_com.zip | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.086s
+2026-03-20 17:30:51,319 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045851319-eicar_test.txt
+2026-03-20 17:30:51,400 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045851319-eicar_test.txt
+2026-03-20 17:30:51,402 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:30:51,402 - backend.scan_service - INFO - Archivo no PE detectado: 1774045851319-eicar_test.txt | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.083s
+2026-03-20 17:30:51,776 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045851776-malware_simulated_scan.json
+2026-03-20 17:30:51,853 - core.engine - WARNING - Non-PE file skipped: /tmp/shadownet_uploads/1774045851776-malware_simulated_scan.json
+2026-03-20 17:30:51,855 - core.engine - INFO - Scan finished: NOT_PE (Score: -1.0)
+2026-03-20 17:30:51,855 - backend.scan_service - INFO - Archivo no PE detectado: 1774045851776-malware_simulated_scan.json | type=non_pe | result=suspicious | reason=unsupported_file_type | inference_time=0.079s
+2026-03-20 17:30:52,334 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045852333-procexp.exe
+2026-03-20 17:30:53,492 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 17:30:53,493 - backend.scan_service - INFO - Archivo PE analizado: 1774045852333-procexp.exe | type=pe | result=benign | risk=low | score=0.0000 | inference_time=1.159s
+2026-03-20 17:30:53,929 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045853928-procexp64.exe
+2026-03-20 17:30:54,736 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 17:30:54,737 - backend.scan_service - INFO - Archivo PE analizado: 1774045853928-procexp64.exe | type=pe | result=benign | risk=low | score=0.0000 | inference_time=0.808s
+2026-03-20 17:31:00,154 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1774045860153-procexp64a.exe
+2026-03-20 17:31:00,629 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
+2026-03-20 17:31:00,630 - backend.scan_service - INFO - Archivo PE analizado: 1774045860153-procexp64a.exe | type=pe | result=benign | risk=low | score=0.0000 | inference_time=0.476s

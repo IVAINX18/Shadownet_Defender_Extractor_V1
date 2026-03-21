@@ -12,7 +12,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # ---------------------------------------------------------------------------
@@ -40,6 +40,19 @@ class ScanType(str, Enum):
     REALTIME = "realtime"
 
 
+class AnalysisType(str, Enum):
+    """
+    Tipo de análisis ejecutado.
+
+    - pe: Archivo PE analizado por el motor ML (features + ONNX)
+    - non_pe: Archivo no PE — no fue analizado por el modelo ML
+    - realtime: Análisis de procesos en ejecución
+    """
+    PE = "pe"
+    NON_PE = "non_pe"
+    REALTIME = "realtime"
+
+
 # ---------------------------------------------------------------------------
 # Response DTOs — Formato de salida al frontend (PRD sección 19.1)
 # ---------------------------------------------------------------------------
@@ -51,6 +64,12 @@ class ScanResult(BaseModel):
     Cumplo el esquema exacto del PRD sección 19.1 para que el frontend
     siempre reciba la misma estructura.
     """
+
+    # uso use_enum_values para que Pydantic serialice los enums como
+    # sus valores string planos ("benign") en vez de la representación
+    # del enum ("ScanResultLabel.BENIGN"). Esto garantiza consistencia
+    # en el JSON de la API y en la persistencia en Supabase.
+    model_config = ConfigDict(use_enum_values=True)
     file_name: str = Field(..., description="Nombre del archivo analizado")
     scan_type: ScanType = Field(
         default=ScanType.SINGLE,
@@ -79,6 +98,10 @@ class ScanResult(BaseModel):
     )
     risk_level: RiskLevel = Field(
         ..., description="Nivel de riesgo: low | medium | high"
+    )
+    analysis_type: Optional[AnalysisType] = Field(
+        default=None,
+        description="Tipo de análisis: pe | non_pe | realtime",
     )
     user_id: Optional[str] = Field(
         default=None,

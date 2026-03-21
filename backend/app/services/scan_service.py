@@ -5,10 +5,8 @@ Orquesto el flujo completo de escaneo:
   1. Validar archivo
   2. Ejecutar motor ML existente (ShadowNetEngine)
   3. Aplicar clasificación tripartita (benign/suspicious/malicious)
-  4. Construir ScanResult estandarizado según PRD sección 19
-
-Mantengo la lógica de negocio separada de los endpoints para que
-los routes solo se encarguen de recibir requests y devolver responses.
+  4. Manejar archivos NO PE como suspicious (no como benign)
+  5. Construir ScanResult estandarizado según PRD sección 19
 """
 
 from __future__ import annotations
@@ -29,6 +27,7 @@ from core.engine import ShadowNetEngine
 from utils.logger import setup_logger
 
 from backend.app.schemas.dto import (
+    AnalysisType,
     RiskLevel,
     ScanResult,
     ScanResultLabel,
@@ -97,8 +96,9 @@ def scan_single_file(
 
     Flujo:
       1. Llamo a ShadowNetEngine.scan_file() (extrae features + inferencia ONNX)
-      2. Aplico clasificación tripartita sobre el score
-      3. Construyo ScanResult estandarizado
+      2. Si es NOT_PE → clasifico como suspicious (archivo no analizable ≠ seguro)
+      3. Si es PE válido → clasificación tripartita sobre el score ML
+      4. Construyo ScanResult estandarizado
 
     Args:
         file_path: Ruta absoluta al archivo a escanear.
@@ -121,13 +121,44 @@ def scan_single_file(
     raw_result = engine.scan_file(file_path)
     elapsed = time.time() - start_time
 
-    # Extraigo el score del motor
-    score = float(raw_result.get("score", 0.0))
-    if score < 0.0:
-        score = 0.0
+    # Determino si el archivo es PE o no a partir del resultado del motor
+    engine_label = raw_result.get("label", "")
+    is_not_pe = engine_label == "NOT_PE"
 
-    # Aplico clasificación tripartita
-    result_label, risk_level = classify_tripartite(score)
+    if is_not_pe:
+        # Archivo NO PE — no fue analizado por el modelo ML.
+        # NO lo trato como "benign" porque no puedo confirmar que sea seguro.
+        # Lo clasifico como "suspicious / medium" para que el usuario investigue.
+        result_label = ScanResultLabel.SUSPICIOUS
+        risk_level = RiskLevel.MEDIUM
+        confidence = 0.0
+        analysis_type = AnalysisType.NON_PE
+
+        logger.info(
+            "Archivo no PE detectado: %s | type=non_pe | result=suspicious | "
+            "reason=unsupported_file_type | inference_time=%.3fs",
+            file_path.name,
+            elapsed,
+        )
+    else:
+        # Archivo PE válido — uso el score del modelo ML
+        score = float(raw_result.get("score", 0.0))
+        if score < 0.0:
+            score = 0.0
+
+        result_label, risk_level = classify_tripartite(score)
+        confidence = round(score, 4)
+        analysis_type = AnalysisType.PE
+
+        logger.info(
+            "Archivo PE analizado: %s | type=pe | result=%s | risk=%s | "
+            "score=%.4f | inference_time=%.3fs",
+            file_path.name,
+            result_label.value,
+            risk_level.value,
+            score,
+            elapsed,
+        )
 
     # Extraigo features detectadas del resultado del motor
     details = raw_result.get("details", {})
@@ -146,20 +177,13 @@ def scan_single_file(
         file_name=file_path.name,
         scan_type=scan_type,
         result=result_label,
-        confidence=round(score, 4),
+        confidence=confidence,
         scan_time=f"{elapsed:.2f}s",
         features_detected=features,
         timestamp=datetime.now(timezone.utc).isoformat(),
         explanation=None,  # Se llena después si se solicita LLM
         risk_level=risk_level,
-    )
-
-    logger.info(
-        "Escaneo completado: %s → %s (%s) en %s",
-        file_path.name,
-        result_label.value,
-        risk_level.value,
-        scan_result.scan_time,
+        analysis_type=analysis_type,
     )
 
     return scan_result
@@ -183,18 +207,20 @@ def scan_multiple_files(
             result = scan_single_file(fp, scan_type=ScanType.MULTIPLE)
             results.append(result)
         except Exception as exc:
-            # Si un archivo falla, registro el error pero continúo con los demás
+            # Si un archivo falla, registro el error pero continúo con los demás.
+            # Lo marco como suspicious porque no puedo confirmar que sea seguro.
             logger.error("Error escaneando %s: %s", fp, exc)
             error_result = ScanResult(
                 file_name=fp.name,
                 scan_type=ScanType.MULTIPLE,
-                result=ScanResultLabel.BENIGN,
+                result=ScanResultLabel.SUSPICIOUS,
                 confidence=0.0,
                 scan_time="0.00s",
                 features_detected=[],
                 timestamp=datetime.now(timezone.utc).isoformat(),
                 explanation=f"Error durante escaneo: {exc}",
-                risk_level=RiskLevel.LOW,
+                risk_level=RiskLevel.MEDIUM,
+                analysis_type=AnalysisType.NON_PE,
             )
             results.append(error_result)
     return results
@@ -282,11 +308,15 @@ def _queue_offline(result_dict: dict) -> None:
 
 def _notify_n8n_if_malicious(scan_result: ScanResult) -> None:
     """Envía alerta a N8N solo si el resultado es malicious."""
-    if scan_result.result != ScanResultLabel.MALICIOUS:
+    # Uso .value para comparar de forma segura con el string
+    # ya que use_enum_values=True puede cambiar el tipo a str
+    result_val = scan_result.result
+    if isinstance(result_val, ScanResultLabel):
+        result_val = result_val.value
+    if result_val != "malicious":
         return
     try:
         from core.integrations.n8n_client import send_scan_result
         send_scan_result(scan_result.model_dump())
     except Exception as exc:
         logger.warning("Error enviando alerta N8N: %s", exc)
-
