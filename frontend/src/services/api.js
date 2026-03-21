@@ -72,7 +72,8 @@ export async function scanFile(file) {
 
   const { data } = await api.post('/scan/file', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
-    timeout: 60000,
+    // Archivos grandes (hasta 200 MB): el upload + inferencia pueden superar 60 s
+    timeout: 300000,
   })
   return data
 }
@@ -110,6 +111,15 @@ export async function explainResult(scanResult, provider = 'ollama') {
  */
 export async function getRealtime() {
   const { data } = await api.get('/scan/realtime')
+  return data
+}
+
+/**
+ * Últimos escaneos persistidos (Supabase) para el usuario autenticado.
+ * GET /scan/recent
+ */
+export async function getRecentScans(limit = 10) {
+  const { data } = await api.get('/scan/recent', { params: { limit } })
   return data
 }
 

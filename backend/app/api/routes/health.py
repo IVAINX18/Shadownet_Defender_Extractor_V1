@@ -16,6 +16,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from backend.app.config import MAX_UPLOAD_MB
 from backend.app.services.scan_service import get_engine
 from backend.app.utils.response import success_response
 
@@ -45,4 +46,5 @@ def health():
         "status": "ok",
         "model": model_state,
         "version": "1.0.0",
+        "max_upload_mb": MAX_UPLOAD_MB,
     })

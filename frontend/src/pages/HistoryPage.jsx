@@ -65,7 +65,7 @@ export default function HistoryPage() {
               <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                    {['PID', 'Name', 'CPU %', 'Memory MB', 'Risk'].map(h => (
+                    {['PID', 'Name', 'CPU %', 'Mem %', 'RSS MB', 'Risk'].map(h => (
                       <th key={h} style={{ textAlign: 'left', padding: '10px 14px', fontSize: '0.65rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         {h}
                       </th>
@@ -79,10 +79,19 @@ export default function HistoryPage() {
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                       <td style={{ padding: '8px 14px', color: 'var(--text-muted)', fontFamily: 'monospace', fontSize: '0.7rem' }}>{p.pid}</td>
                       <td style={{ padding: '8px 14px', color: 'var(--text-primary)' }}>{p.name}</td>
-                      <td style={{ padding: '8px 14px', color: 'var(--text-secondary)' }}>{p.cpu_percent?.toFixed(1)}</td>
-                      <td style={{ padding: '8px 14px', color: 'var(--text-secondary)' }}>{p.memory_mb?.toFixed(1)}</td>
+                      <td style={{ padding: '8px 14px', color: 'var(--text-secondary)' }}>
+                        {(p.cpu_percent ?? p.cpu ?? 0).toFixed(1)}
+                      </td>
+                      <td style={{ padding: '8px 14px', color: 'var(--text-secondary)' }}>
+                        {(p.memory_percent ?? p.memory ?? 0).toFixed(1)}
+                      </td>
+                      <td style={{ padding: '8px 14px', color: 'var(--text-secondary)', fontFamily: 'monospace', fontSize: '0.7rem' }}>
+                        {p.memory_mb != null ? p.memory_mb.toFixed(1) : '—'}
+                      </td>
                       <td style={{ padding: '8px 14px' }}>
-                        <StatusBadge result={p.risk_level === 'high' ? 'malicious' : p.risk_level === 'medium' ? 'suspicious' : 'benign'} />
+                        <StatusBadge
+                          result={p.risk_level === 'suspicious' ? 'suspicious' : 'benign'}
+                        />
                       </td>
                     </tr>
                   ))}

@@ -13,6 +13,13 @@
 const { app, BrowserWindow } = require('electron')
 const path = require('path')
 
+// Linux: a veces el renderer queda vacío y solo se ve backgroundColor (GPU/Wayland/drivers).
+// Desactivar aceleración por hardware lo evita en la mayoría de los casos.
+// Para forzar GPU de nuevo: ELECTRON_ENABLE_GPU=1
+if (process.platform === 'linux' && process.env.ELECTRON_ENABLE_GPU !== '1') {
+  app.disableHardwareAcceleration()
+}
+
 // Determino si estoy en desarrollo o producción
 const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged
 

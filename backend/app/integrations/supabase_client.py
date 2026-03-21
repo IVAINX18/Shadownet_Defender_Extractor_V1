@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 import os
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger("backend.supabase")
 
@@ -155,6 +155,54 @@ def save_scan_safe(data: Dict[str, Any]) -> Dict[str, Any]:
     except Exception as exc:
         logger.error("Error inesperado en save_scan_safe: %s", exc)
         return {"saved": False, "reason": str(exc)}
+
+
+def fetch_recent_scans(user_id: str, *, limit: int = 10) -> List[Dict[str, Any]]:
+    """
+    Obtiene los últimos escaneos del usuario desde Supabase (tabla scan_results).
+
+    Ordeno por created_at descendente si existe en la tabla; si la consulta falla
+    (columna distinta), reintento sin orden y ordeno en Python por created_at/id.
+    """
+    if not user_id:
+        return []
+
+    try:
+        client = _get_supabase_client()
+    except (RuntimeError, ImportError) as exc:
+        logger.warning("Supabase no disponible para historial: %s", exc)
+        return []
+
+    try:
+        res = (
+            client.table(SUPABASE_TABLE)
+            .select("*")
+            .eq("user_id", str(user_id))
+            .order("created_at", desc=True)
+            .limit(limit)
+            .execute()
+        )
+        return list(res.data or [])
+    except Exception as exc:
+        logger.warning("Listado reciente (order created_at) falló: %s", exc)
+
+    try:
+        res = (
+            client.table(SUPABASE_TABLE)
+            .select("*")
+            .eq("user_id", str(user_id))
+            .limit(max(limit, 50))
+            .execute()
+        )
+        rows = list(res.data or [])
+        rows.sort(
+            key=lambda r: str(r.get("created_at") or r.get("id") or ""),
+            reverse=True,
+        )
+        return rows[:limit]
+    except Exception as exc:
+        logger.warning("No se pudieron listar escaneos recientes: %s", exc)
+        return []
 
 
 def sync_user(user: Dict[str, Any]) -> None:

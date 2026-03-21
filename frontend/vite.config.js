@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
-  base: './',
+  // En dev usar '/' evita rarezas con el servidor; en build './' sigue siendo lo correcto para loadFile en Electron.
+  base: command === 'serve' ? '/' : './',
   server: {
     port: 5173,
     proxy: {
@@ -14,4 +15,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))

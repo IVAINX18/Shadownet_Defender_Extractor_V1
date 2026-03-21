@@ -26,7 +26,16 @@ function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          width: '100%',
+          background: 'var(--bg-primary)',
+        }}
+      >
         <LoadingSpinner size="lg" text="Verifying session..." />
       </div>
     )
@@ -34,6 +43,33 @@ function ProtectedRoute({ children }) {
 
   if (!isAuthenticated) return <Navigate to="/login" replace />
   return children
+}
+
+/**
+ * HomeRedirect — / y rutas desconocidas: login si no hay sesión, dashboard si sí.
+ * Así http://localhost:5173/ no depende de añadir /login a mano.
+ */
+function HomeRedirect() {
+  const { isAuthenticated, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          width: '100%',
+          background: 'var(--bg-primary)',
+        }}
+      >
+        <LoadingSpinner size="lg" text="Verifying session..." />
+      </div>
+    )
+  }
+
+  return <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />
 }
 
 /**
@@ -73,8 +109,9 @@ function App() {
               <Route path="/history" element={<HistoryPage />} />
             </Route>
 
-            {/* Default redirect */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            {/* Raíz y rutas no definidas */}
+            <Route path="/" element={<HomeRedirect />} />
+            <Route path="*" element={<HomeRedirect />} />
           </Routes>
         </BrowserRouter>
       </TokenSync>

@@ -21,19 +21,17 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+from backend.app.config import MAX_UPLOAD_BYTES, MAX_UPLOAD_MB
 from backend.app.schemas.dto import ScanResult, ScanType
 from backend.app.utils.response import success_response, error_response
 from backend.app.services.scan_service import scan_single_file, scan_multiple_files
-from backend.app.integrations.supabase_client import save_scan_safe, sync_user
+from backend.app.integrations.supabase_client import save_scan_safe, sync_user, fetch_recent_scans
 from backend.app.api.dependencies.auth import get_current_user
 from utils.logger import setup_logger
 
 logger = setup_logger("backend.routes.scan")
 
 router = APIRouter(prefix="/scan", tags=["Escaneo"])
-
-# Tamaño máximo de archivo permitido (20 MB)
-MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 
 
 def _sanitize_filename(filename: str | None) -> str:
@@ -93,7 +91,7 @@ async def scan_file(file: UploadFile = File(...), user: dict = Depends(get_curre
 
     if len(content) > MAX_UPLOAD_BYTES:
         return error_response(
-            f"Archivo demasiado grande. Máximo permitido: {MAX_UPLOAD_BYTES // (1024*1024)} MB.",
+            f"Archivo demasiado grande. Máximo permitido: {MAX_UPLOAD_MB} MB.",
             413,
         )
 
@@ -178,7 +176,11 @@ async def scan_multiple(files: List[UploadFile] = File(...), user: dict = Depend
                 continue
 
             if len(content) > MAX_UPLOAD_BYTES:
-                logger.warning("Archivo demasiado grande omitido: %s", safe_name)
+                logger.warning(
+                    "Archivo demasiado grande omitido (> %s MB): %s",
+                    MAX_UPLOAD_MB,
+                    safe_name,
+                )
                 continue
 
             tmp_path = tmp_dir / f"{int(time.time() * 1000)}-{safe_name}"
@@ -218,6 +220,25 @@ async def scan_multiple(files: List[UploadFile] = File(...), user: dict = Depend
                 tmp_path.unlink(missing_ok=True)
             except Exception:
                 pass
+
+
+@router.get(
+    "/recent",
+    summary="Últimos escaneos del usuario",
+    description="Lista los resultados guardados en Supabase para el usuario autenticado.",
+)
+async def scan_recent(
+    user: dict = Depends(get_current_user),
+    limit: int = 10,
+):
+    """
+    GET /scan/recent — Datos reales desde Supabase (sin inventar actividad en el dashboard).
+
+    Si Supabase no está configurado o falla, devuelvo lista vacía (status success).
+    """
+    lim = max(1, min(limit, 50))
+    rows = fetch_recent_scans(user["id"], limit=lim)
+    return success_response(rows)
 
 
 @router.get(

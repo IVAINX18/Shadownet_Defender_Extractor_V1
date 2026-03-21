@@ -1,18 +1,31 @@
 /**
  * pages/ScanPage.jsx — Escaneo de archivos.
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import FileUpload from '../components/FileUpload'
 import ScanResultCard from '../components/ScanResultCard'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { scanFile, explainResult } from '../services/api'
+import { scanFile, explainResult, healthCheck } from '../services/api'
+import { DEFAULT_MAX_UPLOAD_BYTES } from '../constants/uploadLimits'
 
 export default function ScanPage() {
+  const [maxUploadBytes, setMaxUploadBytes] = useState(DEFAULT_MAX_UPLOAD_BYTES)
   const [scanning, setScanning] = useState(false)
   const [explaining, setExplaining] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
   const [scanHistory, setScanHistory] = useState([])
+
+  useEffect(() => {
+    healthCheck()
+      .then((body) => {
+        const mb = body?.data?.max_upload_mb
+        if (typeof mb === 'number' && mb > 0) {
+          setMaxUploadBytes(mb * 1024 * 1024)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const handleScan = async (file) => {
     setScanning(true); setError(''); setResult(null)
@@ -50,7 +63,11 @@ export default function ScanPage() {
       </div>
 
       <div style={{ marginBottom: 20 }}>
-        <FileUpload onFileSelected={handleScan} disabled={scanning} />
+        <FileUpload
+          onFileSelected={handleScan}
+          disabled={scanning}
+          maxBytes={maxUploadBytes}
+        />
       </div>
 
       {scanning && (

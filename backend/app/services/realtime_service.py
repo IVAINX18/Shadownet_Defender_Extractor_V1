@@ -1,13 +1,18 @@
 """
 backend/app/services/realtime_service.py — Monitoreo de procesos en tiempo real.
 
-Uso psutil para listar procesos activos con métricas de CPU y memoria,
+Uso psutil para listar procesos activos con métricas de CPU/memoria,
 asignando un nivel de riesgo básico según umbrales de consumo.
+
+Nota sobre CPU: psutil.cpu_percent por proceso necesita dos lecturas separadas
+en el tiempo; hago una pasada inicial y un sleep breve antes de medir para que
+los valores no queden siempre en 0.
 """
 
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any, Dict, List
 
 logger = logging.getLogger("backend.realtime_service")
@@ -17,14 +22,8 @@ def get_processes(*, top_n: int = 50) -> List[Dict[str, Any]]:
     """
     Lista los procesos activos del sistema con métricas de rendimiento.
 
-    Uso psutil.process_iter() para iterar de forma segura sobre los procesos.
-    Si un proceso desaparece durante la iteración, lo omito silenciosamente.
-
-    Args:
-        top_n: Número máximo de procesos a retornar (los de mayor CPU).
-
-    Returns:
-        Lista de dicts con pid, name, cpu, memory y risk_level.
+    Retorno por proceso: pid, name, cpu (%), memory (% del sistema), memory_mb (RSS),
+    risk_level (benign | suspicious según umbrales de CPU/memoria %).
     """
     try:
         import psutil
@@ -35,18 +34,27 @@ def get_processes(*, top_n: int = 50) -> List[Dict[str, Any]]:
             "Instálalo con: pip install psutil"
         )
 
-    processes: List[Dict[str, Any]] = []
-
-    for proc in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
+    candidates: List[Any] = []
+    for proc in psutil.process_iter(["pid", "name"]):
         try:
-            info = proc.info
-            pid = info.get("pid", 0)
-            name = info.get("name", "unknown")
-            cpu = info.get("cpu_percent", 0.0) or 0.0
-            memory = info.get("memory_percent", 0.0) or 0.0
+            proc.cpu_percent(interval=None)
+            candidates.append(proc)
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            continue
 
-            # Asigno riesgo básico según umbrales de consumo
-            if cpu > 80 or memory > 80:
+    time.sleep(0.12)
+
+    processes: List[Dict[str, Any]] = []
+    for proc in candidates:
+        try:
+            cpu = float(proc.cpu_percent(interval=None) or 0.0)
+            mem_pct = float(proc.memory_percent() or 0.0)
+            rss = proc.memory_info().rss
+            memory_mb = round(rss / (1024 * 1024), 2)
+            pid = proc.pid
+            name = proc.name() or "unknown"
+
+            if cpu > 80 or mem_pct > 80:
                 risk_level = "suspicious"
             else:
                 risk_level = "benign"
@@ -55,12 +63,14 @@ def get_processes(*, top_n: int = 50) -> List[Dict[str, Any]]:
                 "pid": pid,
                 "name": name,
                 "cpu": round(cpu, 2),
-                "memory": round(memory, 2),
+                "cpu_percent": round(cpu, 2),
+                "memory": round(mem_pct, 2),
+                "memory_percent": round(mem_pct, 2),
+                "memory_mb": memory_mb,
                 "risk_level": risk_level,
             })
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
 
-    # Ordeno por CPU descendente y limito
     processes.sort(key=lambda p: p["cpu"], reverse=True)
     return processes[:top_n]
