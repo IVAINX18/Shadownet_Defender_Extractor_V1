@@ -43,7 +43,7 @@ export default function RegisterPage() {
     }}>
       <div className="card animate-fade-in" style={{ padding: 36, width: '100%', maxWidth: 400 }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <img src="/logo-light.png" alt="ShadowNet" style={{ width: 80, height: 80, objectFit: 'contain', margin: '0 auto 12px' }} />
+          <img src="/logo-vector.png" alt="ShadowNet" style={{ width: 100, height: 'auto', objectFit: 'contain', margin: '0 auto 12px' }} />
           <h1 style={{ fontSize: '1.4rem', fontWeight: 700 }}><span className="gradient-text">Create Account</span></h1>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: 4 }}>Join ShadowNet Defender</p>
         </div>

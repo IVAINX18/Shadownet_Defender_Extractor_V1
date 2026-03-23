@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import StatusBadge from '../components/StatusBadge'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { getRealtime } from '../services/api'
+import { Activity, ClipboardList, History as HistoryIcon, RefreshCw, ScrollText } from 'lucide-react'
 
 export default function HistoryPage() {
   const [processes, setProcesses] = useState([])
@@ -25,8 +26,8 @@ export default function HistoryPage() {
   return (
     <div style={{ maxWidth: 900, margin: '0 auto' }} className="animate-fade-in">
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-          📋 Monitor & History
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <ClipboardList size={26} color="var(--accent)" /> Monitor & History
         </h1>
         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
           Real-time process monitoring and scan history
@@ -42,14 +43,14 @@ export default function HistoryPage() {
               fontSize: '0.8rem', fontWeight: 500, cursor: 'pointer',
               background: activeTab === tab ? 'var(--accent)' : 'var(--bg-card)',
               color: activeTab === tab ? 'white' : 'var(--text-secondary)',
-              transition: 'all 0.15s',
+              transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 6,
             }}>
-            {tab === 'realtime' ? '⚡ Real-time' : '📜 History'}
+            {tab === 'realtime' ? <><Activity size={16} /> Real-time</> : <><HistoryIcon size={16} /> History</>}
           </button>
         ))}
         {activeTab === 'realtime' && (
-          <button onClick={loadProcesses} className="btn-secondary" style={{ marginLeft: 'auto', fontSize: '0.7rem', padding: '6px 12px' }}>
-            🔄 Refresh
+          <button onClick={loadProcesses} className="btn-secondary" style={{ marginLeft: 'auto', fontSize: '0.75rem', padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <RefreshCw size={14} /> Refresh
           </button>
         )}
       </div>
@@ -107,7 +108,9 @@ export default function HistoryPage() {
 
       {activeTab === 'history' && (
         <div className="card" style={{ padding: 40, textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem', marginBottom: 12 }}>📜</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+            <ScrollText size={48} color="var(--text-muted)" strokeWidth={1} />
+          </div>
           <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>Scan History</h3>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', maxWidth: 350, margin: '0 auto' }}>
             Your past scan results are stored in Supabase. Use the Scan page to analyze files — results are automatically saved.

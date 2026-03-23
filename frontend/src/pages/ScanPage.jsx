@@ -1,7 +1,7 @@
 /**
  * pages/ScanPage.jsx — Escaneo de archivos.
  */
-import { useState, useEffect } from 'react'
+import { Search, XCircle } from 'lucide-react'
 import FileUpload from '../components/FileUpload'
 import ScanResultCard from '../components/ScanResultCard'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -54,8 +54,8 @@ export default function ScanPage() {
   return (
     <div style={{ maxWidth: 700, margin: '0 auto' }} className="animate-fade-in">
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-          🔍 Deep File Scan
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Search size={24} color="var(--accent)" /> Deep File Scan
         </h1>
         <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
           Upload a file to analyze it with ShadowNet's AI engine
@@ -81,8 +81,8 @@ export default function ScanPage() {
           background: 'var(--red-bg)', border: '1px solid var(--red-border)',
           borderRadius: 8, padding: 14, marginBottom: 20,
           fontSize: '0.8rem', color: 'var(--red)',
-        }} className="animate-fade-in">
-          ❌ {error}
+        }} className="animate-fade-in flex items-center gap-2">
+          <XCircle size={16} /> {error}
         </div>
       )}
 

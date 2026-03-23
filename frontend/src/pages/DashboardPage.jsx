@@ -18,6 +18,7 @@ import {
   formatBytes,
   timeAgoLabel,
 } from '../utils/dashboardStats'
+import { Cpu, MemoryStick, HardDrive, Cloud, Shield, Zap, AlertTriangle, CheckCircle } from 'lucide-react'
 
 function modelLabel(model) {
   if (model === 'loaded') return { text: 'Cargado', color: 'var(--green)' }
@@ -56,7 +57,7 @@ export default function DashboardPage() {
   const systemCards = [
     {
       key: 'cpu',
-      icon: '🖥️',
+      icon: <Cpu size={22} />,
       label: 'CPU USAGE (local)',
       value: isElectron && Number.isFinite(cpuPct) ? String(cpuPct) : '—',
       unit: Number.isFinite(cpuPct) ? '%' : '',
@@ -66,7 +67,7 @@ export default function DashboardPage() {
     },
     {
       key: 'ram',
-      icon: '💾',
+      icon: <MemoryStick size={22} />,
       label: 'RAM USAGE (local)',
       value:
         isElectron && metrics?.ram
@@ -79,7 +80,7 @@ export default function DashboardPage() {
     },
     {
       key: 'disk',
-      icon: '💿',
+      icon: <HardDrive size={22} />,
       label: 'DISK USAGE (local)',
       value:
         isElectron && metrics?.disk
@@ -98,7 +99,7 @@ export default function DashboardPage() {
     },
     {
       key: 'api',
-      icon: '☁️',
+      icon: <Cloud size={22} />,
       label: 'PROCESOS (API)',
       value: health.online ? String(processCount) : '—',
       unit: health.online ? ' activos' : '',
@@ -209,7 +210,7 @@ export default function DashboardPage() {
                 fontSize: '1.4rem',
               }}
             >
-              🛡️
+              <Shield size={28} color="var(--accent)" strokeWidth={2} />
             </div>
             <h3
               style={{
@@ -255,7 +256,7 @@ export default function DashboardPage() {
                 fontSize: '1.4rem',
               }}
             >
-              ⚡
+              <Zap size={28} color="var(--text-primary)" strokeWidth={2} />
             </div>
             <h3
               style={{
@@ -467,7 +468,7 @@ export default function DashboardPage() {
                         flexShrink: 0,
                       }}
                     >
-                      {isBad ? '⚠️' : isWarn ? '⚡' : '✅'}
+                      {isBad ? <AlertTriangle size={14} color="var(--red)" /> : isWarn ? <Zap size={14} color="var(--yellow)" /> : <CheckCircle size={14} color="var(--green)" />}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>

@@ -7,6 +7,7 @@
  * - Contenido principal scrollable
  */
 import { Outlet } from 'react-router-dom'
+import { Bell, Search, User } from 'lucide-react'
 import Sidebar from './Sidebar'
 import { useAuth } from '../context/AuthContext'
 
@@ -14,54 +15,65 @@ export default function Layout() {
   const { user } = useAuth()
 
   return (
-    <div style={{ display: 'flex', width: '100%', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', width: '100%', minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <Sidebar />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         {/* Top bar */}
         <header style={{
-          height: 56,
+          height: 64,
           background: 'var(--bg-secondary)',
           borderBottom: '1px solid var(--border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 24px',
+          padding: '0 32px',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <h2 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-              ShadowNet Defender - Malware Detection
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <h2 style={{ fontSize: '0.95rem', fontWeight: 500, color: 'var(--text-primary)' }}>
+              ShadowNet Defender <span style={{ color: 'var(--text-muted)', margin: '0 8px' }}>/</span> Overview
             </h2>
             <span className="badge-secure">
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
               SECURE / NO THREAT DETECTED
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <span style={{ fontSize: '1rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>🔔</span>
-            <span style={{ fontSize: '1rem', cursor: 'pointer', color: 'var(--text-secondary)' }}>🔍</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div>
-                <p style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)', textAlign: 'right' }}>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+            <div style={{ display: 'flex', gap: 16 }}>
+              <button style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                <Search size={18} />
+              </button>
+              <button style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', position: 'relative' }}>
+                <Bell size={18} />
+                <span style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, background: 'var(--accent)', borderRadius: '50%', border: '2px solid var(--bg-secondary)' }} />
+              </button>
+            </div>
+            
+            <div style={{ width: 1, height: 24, background: 'var(--border)' }} />
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ fontSize: '0.8rem', fontWeight: 500, color: 'var(--text-primary)' }}>
                   {user?.email?.split('@')[0] || 'User'}
                 </p>
-                <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textAlign: 'right' }}>
-                  System Admin
+                <p style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                  System Administrator
                 </p>
               </div>
               <div style={{
-                width: 32, height: 32, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                width: 36, height: 36, borderRadius: '50%',
+                background: 'var(--bg-input)', border: '1px solid var(--border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'white', fontSize: '0.75rem', fontWeight: 700,
+                color: 'var(--text-secondary)'
               }}>
-                {user?.email?.[0]?.toUpperCase() || '?'}
+                <User size={18} />
               </div>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main style={{ flex: 1, padding: 24, overflowY: 'auto', background: 'var(--bg-primary)' }}>
+        <main style={{ flex: 1, padding: 32, overflowY: 'auto', overflowX: 'hidden' }}>
           <Outlet />
         </main>
       </div>

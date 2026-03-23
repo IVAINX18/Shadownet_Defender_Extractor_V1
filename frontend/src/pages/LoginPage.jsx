@@ -40,7 +40,7 @@ export default function LoginPage() {
       <div className="card animate-fade-in" style={{ padding: 36, width: '100%', maxWidth: 400 }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <img src="/logo-light.png" alt="ShadowNet Defender" style={{ width: 100, height: 100, objectFit: 'contain', margin: '0 auto 12px' }} />
+          <img src="/logo-vector.png" alt="ShadowNet Defender" style={{ width: 140, height: 'auto', objectFit: 'contain', margin: '0 auto 12px' }} />
           <h1 style={{ fontSize: '1.4rem', fontWeight: 700 }}>
             <span className="gradient-text">ShadowNet Defender</span>
           </h1>

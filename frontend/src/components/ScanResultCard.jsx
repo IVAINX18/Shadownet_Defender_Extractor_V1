@@ -1,6 +1,7 @@
 /**
  * components/ScanResultCard.jsx — Tarjeta de resultado de escaneo.
  */
+import { FileText, RefreshCw, Bot } from 'lucide-react'
 import StatusBadge from './StatusBadge'
 
 export default function ScanResultCard({ result, onExplain, explaining = false }) {
@@ -14,11 +15,11 @@ export default function ScanResultCard({ result, onExplain, explaining = false }
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
-            width: 40, height: 40, borderRadius: 10,
-            background: 'var(--bg-input)',
+            width: 44, height: 44, borderRadius: 10,
+            background: 'var(--bg-input)', border: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '1.2rem',
-          }}>📄</div>
+            color: 'var(--accent)'
+          }}><FileText size={20} strokeWidth={2} /></div>
           <div>
             <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>
               {result.file_name}
@@ -71,9 +72,13 @@ export default function ScanResultCard({ result, onExplain, explaining = false }
           onClick={() => onExplain(result)}
           disabled={explaining}
           className="btn-secondary"
-          style={{ width: '100%' }}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
         >
-          {explaining ? '🔄 Generating explanation...' : '🤖 Get AI Explanation'}
+          {explaining ? (
+            <><RefreshCw size={16} className="animate-spin" /> Generating explanation...</>
+          ) : (
+            <><Bot size={16} /> Get AI Explanation</>
+          )}
         </button>
       ) : null}
     </div>

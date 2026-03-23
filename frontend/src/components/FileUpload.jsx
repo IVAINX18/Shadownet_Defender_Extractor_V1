@@ -5,6 +5,7 @@
  * warnBytes: solo aviso visual para archivos grandes (subida permitida).
  */
 import { useState, useRef, useCallback } from 'react'
+import { UploadCloud, FolderUp } from 'lucide-react'
 import { formatBytes } from '../utils/dashboardStats'
 import { LARGE_FILE_WARN_BYTES } from '../constants/uploadLimits'
 
@@ -84,10 +85,10 @@ export default function FileUpload({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '2rem',
+            color: isDragging ? 'var(--accent)' : 'var(--text-secondary)'
           }}
         >
-          {isDragging ? '📥' : '📁'}
+          {isDragging ? <UploadCloud size={32} /> : <FolderUp size={32} />}
         </div>
         <div style={{ textAlign: 'center' }}>
           <p
