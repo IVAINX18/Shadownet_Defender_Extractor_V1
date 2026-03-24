@@ -17,5 +17,6 @@
         "${workspaceFolder}",
         "${workspaceFolder}/src"
     ],
-    "cursorpyright.analysis.typeCheckingMode": "off"
+    "cursorpyright.analysis.typeCheckingMode": "off",
+    "kiroAgent.configureMCP": "Disabled"
 }
