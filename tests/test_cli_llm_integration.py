@@ -1,0 +1,103 @@
+import argparse
+from io import StringIO
+
+from rich.console import Console
+
+from tools import cli
+from core.llm.explanation_service import ExplanationService
+
+
+class _DummyEngine:
+    def scan_file(self, file_path):
+        return {
+            "file": file_path,
+            "status": "detected",
+            "score": 0.91,
+            "label": "MALWARE",
+            "confidence": "High",
+            "scan_time_ms": 10.0,
+            "details": {},
+        }
+
+
+class _DummyExplanationService:
+    """Stub que simula ExplanationService.explain() con éxito."""
+
+    def explain(self, scan_result, provider=None, model=None):
+        return {
+            "provider": provider or "ollama",
+            "model": model or "mistral",
+            "response_text": '{"resumen_ejecutivo":"ok"}',
+        }
+
+
+class _DummyExplanationServiceFail:
+    """Stub que simula ExplanationService.explain() con fallo."""
+
+    def explain(self, scan_result, provider=None, model=None):
+        raise RuntimeError("ollama no disponible")
+
+
+class _DummyTelemetry:
+    def record_llm_interaction(self, **kwargs):
+        return None
+
+    def record_scan(self, **kwargs):
+        return None
+
+    def record_n8n_delivery(self, **kwargs):
+        return None
+
+    def record_runtime_error(self, **kwargs):
+        return None
+
+
+
+
+
+def test_cli_scan_with_explain_success(monkeypatch):
+    """CLI scan --explain prints scan table and LLM panels (Rich output)."""
+    captured = StringIO()
+    test_console = Console(file=captured, force_terminal=False, width=200)
+
+    monkeypatch.setattr(cli, "ShadowNetEngine", lambda: _DummyEngine())
+    monkeypatch.setattr(cli, "ExplanationService", lambda **kw: _DummyExplanationService())
+    monkeypatch.setattr(cli, "TelemetryClient", lambda: _DummyTelemetry())
+    monkeypatch.setattr(cli, "send_scan_result", lambda *a, **kw: False)
+    monkeypatch.setattr(cli, "console", test_console)
+
+    args = argparse.Namespace(
+        file="archivo.exe",
+        explain=True,
+        provider="ollama",
+        model="mistral",
+    )
+    code = cli._cmd_scan(args)
+    output = captured.getvalue()
+    assert code == 0
+    assert "MALWARE" in output
+    assert "0.91" in output
+
+
+def test_cli_scan_with_explain_error(monkeypatch):
+    """CLI scan --explain surfaces LLM error in Rich output and returns code 1."""
+    captured = StringIO()
+    test_console = Console(file=captured, force_terminal=False, width=200)
+
+    monkeypatch.setattr(cli, "ShadowNetEngine", lambda: _DummyEngine())
+    monkeypatch.setattr(cli, "ExplanationService", lambda **kw: _DummyExplanationServiceFail())
+    monkeypatch.setattr(cli, "TelemetryClient", lambda: _DummyTelemetry())
+    monkeypatch.setattr(cli, "send_scan_result", lambda *a, **kw: False)
+    monkeypatch.setattr(cli, "console", test_console)
+
+    args = argparse.Namespace(
+        file="archivo.exe",
+        explain=True,
+        provider="ollama",
+        model="mistral",
+    )
+    code = cli._cmd_scan(args)
+    output = captured.getvalue()
+    assert code == 1
+    # The error response is shown as JSON panel containing the error text
+    assert "MALWARE" in output

@@ -3,19 +3,18 @@ from importlib import import_module
 from typing import Any, Optional
 
 
-MIN_PYTHON = (3, 11)
-MAX_PYTHON_EXCLUSIVE = (3, 12)
+MIN_PYTHON = (3, 10)
 
 
 def validate_python_version() -> None:
-    """Enforces the supported runtime window for reproducible installs."""
+    """Enforces the minimum supported Python version for reproducible installs."""
     current = sys.version_info[:2]
-    if current < MIN_PYTHON or current >= MAX_PYTHON_EXCLUSIVE:
+    if current < MIN_PYTHON:
         raise RuntimeError(
             "Unsupported Python version "
             f"{sys.version_info.major}.{sys.version_info.minor}. "
-            "ShadowNet Defender requires Python >=3.11,<3.12. "
-            "Create a compatible venv with: python3.11 -m venv .venv"
+            "ShadowNet Defender requires Python >=3.10. "
+            "Create a compatible venv with: python3.10 -m venv .venv"
         )
 
 

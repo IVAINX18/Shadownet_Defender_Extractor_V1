@@ -1,12 +1,37 @@
-# Runtime mínimo para escaneo/inferencia en producción.
-# Política Python: 3.11.x
-pefile
-numpy
-scipy
-scikit-learn
-onnx
-onnxruntime
-joblib
-rich
-colorama
-tqdm
+# ============================================================
+# base.in — Dependencias core de producción / inferencia
+# Requeridas para: backend/app/, core/, extractors/, models/,
+#                  security/, scripts/, tools/
+# ============================================================
+
+# --- Análisis de PE (Portable Executable) ---
+pefile>=2023.2.7
+
+# --- Inferencia numérica y ML ---
+numpy>=1.24.0
+scikit-learn>=1.3.0
+onnx>=1.15.0
+onnxruntime>=1.16.0
+joblib>=1.3.0
+
+# --- Validación de datos y schemas ---
+pydantic>=2.0.0
+
+# --- Persistencia (Supabase) ---
+supabase>=2.0.0
+
+# --- CLI y visualización en terminal ---
+rich>=13.7.0
+
+# --- LLM (Ollama vía OpenAI-compatible API) ---
+openai>=1.0.0
+
+# --- HTTP (n8n webhook, updater, telemetry) ---
+requests>=2.31.0
+
+# --- Variables de entorno (.env) ---
+python-dotenv>=1.0.0
+
+# --- Autenticación (JWT Supabase Auth) ---
+PyJWT>=2.0.0
+cryptography>=41.0.0

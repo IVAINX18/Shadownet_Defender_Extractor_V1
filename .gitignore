@@ -1,2 +1,16 @@
 node_modules/
 .env
+.env.test
+.env.*
+!.env.example
+!.env.*.example
+.env.render-sync
+.env.render-values
+.env.tunnel-runtime
+.venv/
+.venv_copy/
+__pycache__/
+*.pyc
+*.log
+.tmp/
+logs/

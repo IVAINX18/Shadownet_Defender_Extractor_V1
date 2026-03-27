@@ -8,13 +8,29 @@ from models.inference import ShadowNetModel
 from configs.settings import MODEL_PATH, SCALER_PATH, MALWARE_THRESHOLD, HIGH_CONFIDENCE_THRESHOLD
 from utils.logger import setup_logger
 from utils.runtime_checks import validate_python_version
+from core.errors import NonPEFileError
 
 logger = setup_logger(__name__)
 
 class ShadowNetEngine:
     """
-    Core engine for ShadowNet Defender.
-    Orchestrates the scanning process.
+    Motor central de ShadowNet Defender. Orquesta el proceso de escaneo.
+
+    📚 PARA JUNIORS — Patrón Facade (Fachada):
+
+        Esta clase es la "puerta de entrada" al sistema. Ni la CLI, ni la API,
+        ni ningún otro módulo necesitan saber cómo funcionan internamente los
+        extractores o el modelo ONNX. Solo llaman a `engine.scan_file(path)`
+        y reciben un diccionario con el resultado.
+
+        El flujo interno es:
+        1. PEFeatureExtractor → lee el archivo y genera un vector de 2381 dims
+        2. ShadowNetModel    → normaliza el vector y ejecuta inferencia ONNX
+        3. Labeling           → convierte el score numérico en etiqueta legible
+
+        Si en el futuro cambiamos el modelo (ej: de LightGBM a PyTorch),
+        solo modificamos esta clase y los módulos internos, sin afectar a
+        la CLI ni a la API. Esto es Clean Architecture en acción.
     """
     
     def __init__(self):
@@ -60,7 +76,7 @@ class ShadowNetEngine:
             # 1. Feature Extraction
             logger.debug("Extracting features...")
             features = self.extractor.extract(str(file_path))
-            
+
             # 2. Inference
             if self.model:
                 logger.debug("Running inference...")
@@ -86,6 +102,11 @@ class ShadowNetEngine:
                 result["error"] = "Model not loaded"
                 logger.error("Attempted scan without model loaded")
 
+        except NonPEFileError:
+            result["status"] = "not_supported"
+            result["label"] = "NOT_PE"
+            result["error"] = "File is not a valid PE executable"
+            logger.warning(f"Non-PE file skipped: {file_path}")
         except Exception as e:
             logger.error(f"Scan failed for {file_path}: {e}")
             result["error"] = str(e)

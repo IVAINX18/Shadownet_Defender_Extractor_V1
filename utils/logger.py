@@ -1,13 +1,20 @@
 import logging
+import logging.handlers
 import sys
 from rich.logging import RichHandler
 from pathlib import Path
 from configs.settings import LOG_DIR, LOG_FILE
 
+# Maximum log file size before rotation (5 MB).
+_MAX_LOG_BYTES = 5 * 1024 * 1024
+# Number of rotated backup files to keep.
+_BACKUP_COUNT = 3
+
+
 def setup_logger(name: str = "ShadowNet", level: int = logging.INFO) -> logging.Logger:
     """
     Configures and returns a logger instance.
-    Uses RichHandler for console output and FileHandler for file logs.
+    Uses RichHandler for console output and RotatingFileHandler for file logs.
     """
     # Create logs directory if it doesn't exist
     if not LOG_DIR.exists():
@@ -28,9 +35,14 @@ def setup_logger(name: str = "ShadowNet", level: int = logging.INFO) -> logging.
         show_path=False
     )
     console_handler.setLevel(level)
-    
-    # File Handler
-    file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8")
+
+    # File Handler with rotation (5 MB max, 3 backups)
+    file_handler = logging.handlers.RotatingFileHandler(
+        LOG_FILE,
+        maxBytes=_MAX_LOG_BYTES,
+        backupCount=_BACKUP_COUNT,
+        encoding="utf-8",
+    )
     file_handler.setLevel(level)
     file_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

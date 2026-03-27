@@ -1,0 +1,264 @@
+/* ============================================================
+   ShadowNet Defender — Design System (Pure Vanilla CSS)
+   
+   Dark cybersecurity theme matching the reference design.
+   NO TailwindCSS — pure CSS custom properties + utility classes.
+   ============================================================ */
+
+:root {
+  --bg-primary: #0a0c10;
+  --bg-secondary: #11151a;
+  --bg-card: #14181f;
+  --bg-card-hover: #1a2028;
+  --bg-input: #11151a;
+  --bg-sidebar: #0f1217;
+
+  --border: #222731;
+  --border-accent: #6b4cba;
+  --border-focus: #7a5cd6;
+
+  --text-primary: #e1e7ef;
+  --text-secondary: #8b949e;
+  --text-muted: #5e6670;
+
+  --accent: #7a5cd6;
+  --accent-hover: #8e73e6;
+  --accent-dim: rgba(122, 92, 214, 0.12);
+
+  --green: #37a345;
+  --green-bg: rgba(55, 163, 69, 0.1);
+  --green-border: rgba(55, 163, 69, 0.25);
+  --yellow: #b8861b;
+  --yellow-bg: rgba(184, 134, 27, 0.1);
+  --yellow-border: rgba(184, 134, 27, 0.25);
+  --red: #d94138;
+  --red-bg: rgba(217, 65, 56, 0.1);
+  --red-border: rgba(217, 65, 56, 0.25);
+  --blue: #408bea;
+  --blue-bg: rgba(64, 139, 234, 0.1);
+}
+
+/* ============================================================
+   Reset + Base
+   ============================================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  background-color: var(--bg-primary);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ============================================================
+   Animations
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+.animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+
+/* ============================================================
+   Cards
+   ============================================================ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+.card:hover {
+  border-color: #3a4060;
+}
+
+.card-accent {
+  background: var(--bg-card);
+  border: 1px solid var(--border-accent);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+.card-accent:hover {
+  border-color: var(--accent-hover);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.08);
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn-primary {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.35);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.btn-secondary:hover {
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+}
+
+/* ============================================================
+   Inputs
+   ============================================================ */
+.input-field {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+.input-field:focus {
+  border-color: var(--border-focus);
+}
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+/* ============================================================
+   Gradient text
+   ============================================================ */
+.gradient-text {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa, #c4b5fd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   Badges
+   ============================================================ */
+.badge-secure {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: 999px;
+  color: var(--green);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--yellow-bg);
+  border: 1px solid var(--yellow-border);
+  border-radius: 999px;
+  color: var(--yellow);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-border);
+  border-radius: 999px;
+  color: var(--red);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   Metric bars
+   ============================================================ */
+.metric-bars {
+  display: flex;
+  gap: 3px;
+  margin-top: 8px;
+}
+.metric-bar {
+  width: 18px;
+  height: 10px;
+  border-radius: 2px;
+  opacity: 0.7;
+}

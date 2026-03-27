@@ -1,8 +1,16 @@
-# Default reproducible install profile (full project)
--r requirements/full.lock.txt
+# ============================================================
+# ShadowNet Defender Extractor V2 — requirements.txt
+# Perfil completo: instala todo lo necesario para el proyecto.
+# ============================================================
+#
+# Perfil por defecto (producción + desarrollo + viz + ML):
+-r requirements/base.in
+-r requirements/ml.in
+-r requirements/viz.in
+-r requirements/dev.in
 
-# Profile-specific installs:
-# pip install -r requirements/base.lock.txt
-# pip install -r requirements/ml.lock.txt
-# pip install -r requirements/viz.lock.txt
-# pip install -r requirements/dev.lock.txt
+# Perfiles individuales (uso alternativo):
+# pip install -r requirements/base.in       → solo producción / inferencia
+# pip install -r requirements/ml.in         → + entrenamiento / evaluación
+# pip install -r requirements/viz.in        → + gráficos / análisis visual
+# pip install -r requirements/dev.in        → + API, servidor y testing
