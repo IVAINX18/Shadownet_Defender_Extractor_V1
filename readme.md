@@ -5,7 +5,7 @@ Sistema avanzado de detección de malware mediante aprendizaje profundo y explic
 
 <div align="center">
 
-![ShadowNet Defender Logo](LogoDefender/Logo-ShadowNet-Defender-FnLb.png)
+![ShadowNet Defender Logo](docs/assets/Logo-ShadowNet-Defender-FnLb.png)
 
 ![Licencia Académica](https://img.shields.io/badge/Licencia-Propiedad_Académica_Privada-red?style=for-the-badge)
 ![Estado](https://img.shields.io/badge/Estado-Activo-success?style=for-the-badge)
