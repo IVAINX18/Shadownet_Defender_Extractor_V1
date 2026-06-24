@@ -825,3 +825,13 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-06-24 13:54:51,471 - core.overlay - INFO - Overlay analizado — size=19.7MB ratio=98.7% entropy=7.9987 embedded_pe=0 installer=no suspicious_strings=0
 2026-06-24 13:54:51,541 - core.heuristics - INFO - Heurística — score=105 level=CRITICAL operational=DANGEROUS | triggers=6
 2026-06-24 13:54:51,547 - core.engine - INFO - Escaneo completo: sample1.exe | label=BENIGN | score=0.0000 | operational=DANGEROUS | risk=CRITICAL(105) | phases=['YARA', 'ML_STATIC', 'OVERLAY_FORENSICS'] | time=1555ms
+2026-06-24 14:09:10,575 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 14:09:10,708 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 14:09:14,844 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 14:09:14,855 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 14:09:15,054 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-06-24 14:09:15,061 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
+2026-06-24 14:09:15,352 - core.engine - INFO - Extrayendo features de: sample2.exe
+2026-06-24 14:09:16,407 - extractors.extractor - INFO - Extracción completada: sample2.exe | modo=PE_STRICT | ratio_analizado=100.0% | packer_detectado=True | tiempo=1049.1ms
+2026-06-24 14:09:16,494 - core.heuristics - INFO - Heurística — score=40 level=MEDIUM operational=SUSPICIOUS | triggers=3
+2026-06-24 14:09:16,506 - core.engine - INFO - Escaneo completo: sample2.exe | label=BENIGN | score=0.0000 | operational=SUSPICIOUS | risk=MEDIUM(40) | phases=['YARA', 'ML_STATIC', 'OVERLAY_FORENSICS'] | time=1434ms
