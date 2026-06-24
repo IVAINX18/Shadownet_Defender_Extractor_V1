@@ -40,6 +40,8 @@ from configs.settings import (
     SCALER_PATH,
 )
 from core.errors import NonPEFileError
+from core.overlay import OverlayAnalyzer
+from core.heuristics import HeuristicRiskEngine
 from extractors.extractor import PEFeatureExtractor
 from models.inference import ShadowNetModel
 from utils.logger import setup_logger
@@ -72,6 +74,12 @@ class ShadowNetEngine:
         # ── Módulo 4: Desempacador UPX ────────────────────────────────
         self._unpacker = self._init_unpacker()
 
+        # ── Módulo 5: Analizador de Overlay (Anti-dropper) ───────────
+        self._overlay_analyzer = OverlayAnalyzer()
+
+        # ── Módulo 6: Motor Heurístico de Riesgo ─────────────────────
+        self._risk_engine = HeuristicRiskEngine()
+
     # ------------------------------------------------------------------
     # API Pública
     # ------------------------------------------------------------------
@@ -103,7 +111,13 @@ class ShadowNetEngine:
             "details": {},
             "yara_matches": [],
             "was_unpacked": False,
-            "detection_phases": [],  # Para trazabilidad del pipeline
+            "detection_phases": [],
+            # Campos nuevos — compatibles con SOREL-20M (no tocan el vector)
+            "operational_status": "UNKNOWN",   # CLEAN / SUSPICIOUS / DANGEROUS
+            "risk_level": "LOW",
+            "risk_score": 0,
+            "overlay_analysis": {},
+            "heuristic_assessment": {},
         }
 
         if not file_path.exists():
@@ -124,11 +138,16 @@ class ShadowNetEngine:
         # ── FASE 3: Extracción ML + Inferencia ONNX ───────────────────
         self._run_ml_phase(analysis_path, result)
 
+        # ── FASE 4: Análisis Forense de Overlay + Heurística ─────────
+        # Se ejecuta siempre, independientemente del resultado ML.
+        # Usa el archivo ORIGINAL (no el desempacado) para detectar
+        # overlays cifrados que UPX no puede desempacar.
+        self._run_overlay_phase(file_path, result)
+
         # ── Limpieza del archivo desempacado temporal ─────────────────
         if result["was_unpacked"] and analysis_path != file_path:
             try:
                 analysis_path.unlink(missing_ok=True)
-                # Limpiar directorio temporal si está vacío
                 if analysis_path.parent.exists():
                     try:
                         analysis_path.parent.rmdir()
@@ -140,10 +159,14 @@ class ShadowNetEngine:
         elapsed = time.time() - start_time
         result["scan_time_ms"] = round(elapsed * 1000, 2)
         logger.info(
-            "Escaneo completo: %s | label=%s | score=%.4f | phases=%s | time=%.0fms",
+            "Escaneo completo: %s | label=%s | score=%.4f | operational=%s | "
+            "risk=%s(%d) | phases=%s | time=%.0fms",
             file_path.name,
             result["label"],
             result.get("score", -1.0),
+            result["operational_status"],
+            result["risk_level"],
+            result["risk_score"],
             result["detection_phases"],
             elapsed * 1000,
         )
@@ -290,6 +313,120 @@ class ShadowNetEngine:
         except Exception as exc:
             logger.error("Fallo en fase ML para %s: %s", analysis_path, exc)
             result["error"] = str(exc)
+
+    def _run_overlay_phase(self, file_path: Path, result: Dict[str, Any]) -> None:
+        """
+        Fase 4 — Análisis forense de overlay + YARA sobre overlay + heurística.
+
+        Se ejecuta SIEMPRE sobre el archivo original, independientemente
+        del resultado del modelo ML. Es la capa que detecta droppers y
+        loaders con payloads cifrados en overlay.
+
+        No modifica 'label', 'score' ni 'confidence' del modelo ONNX.
+        Solo agrega: overlay_analysis, heuristic_assessment,
+        operational_status, risk_level, risk_score.
+        """
+        result["detection_phases"].append("OVERLAY_FORENSICS")
+        try:
+            raw_data = file_path.read_bytes()
+
+            # Recuperar el objeto PE del extractor si existe en caché
+            # (El extractor ya habrá corrido en la fase ML)
+            pe_obj = None  # No disponible aquí; OverlayAnalyzer parsea el header por su cuenta
+
+            # 4a. Análisis del overlay
+            overlay_report = self._overlay_analyzer.analyze(raw_data, pe_obj)
+
+            # 4b. YARA sobre el overlay (si hay overlay y YARA disponible)
+            if overlay_report.overlay_present and self._yara_scanner and self._yara_scanner.is_available:
+                overlay_bytes = raw_data[overlay_report.overlay_offset:]
+
+                # Escaneo sobre el overlay completo (limitado a 20 MB por seguridad)
+                yara_overlay = self._yara_scanner.scan_bytes(
+                    overlay_bytes[:20 * 1024 * 1024],
+                    label=f"{file_path.name}::overlay",
+                )
+                if yara_overlay.has_matches:
+                    overlay_report.overlay_yara_hits = yara_overlay.threat_names
+                    logger.warning(
+                        "YARA: Amenaza en OVERLAY de %s — Reglas: %s | Categorías: %s",
+                        file_path.name,
+                        yara_overlay.threat_names,
+                        yara_overlay.categories,
+                    )
+
+                # 4c. YARA sobre cada PE embebido encontrado
+                for emb in overlay_report.embedded_pe_details:
+                    emb_start = overlay_report.overlay_offset + emb.offset_in_overlay
+                    emb_bytes = raw_data[emb_start:emb_start + min(emb.estimated_size, 5 * 1024 * 1024)]
+                    yara_emb = self._yara_scanner.scan_bytes(
+                        emb_bytes,
+                        label=f"{file_path.name}::embedded_pe@{emb.offset_in_overlay}",
+                    )
+                    if yara_emb.has_matches:
+                        overlay_report.embedded_pe_yara_hits.extend(yara_emb.threat_names)
+                        logger.warning(
+                            "YARA: Amenaza en PE EMBEBIDO de %s @ overlay+%d — Reglas: %s",
+                            file_path.name,
+                            emb.offset_in_overlay,
+                            yara_emb.threat_names,
+                        )
+
+            # 4d. Scoring heurístico
+            packer_indicators = {}
+            if hasattr(self.extractor, "last_diagnostics") and self.extractor.last_diagnostics:
+                packer_indicators = (
+                    self.extractor.last_diagnostics
+                    .get("diagnostics", {})
+                    .get("packer_indicators", {})
+                )
+
+            ml_score = result.get("score", None)
+            if ml_score is not None and ml_score < 0:
+                ml_score = None  # Score -1 = no disponible
+
+            risk = self._risk_engine.assess(
+                overlay_report=overlay_report,
+                packer_indicators=packer_indicators,
+                ml_score=ml_score,
+            )
+
+            # 4e. Actualizar resultado (NO se modifica label/score/confidence del ML)
+            result["overlay_analysis"] = overlay_report.to_dict()
+            result["heuristic_assessment"] = risk.to_dict()
+            result["operational_status"] = risk.operational_status
+            result["risk_level"] = risk.risk_level
+            result["risk_score"] = risk.risk_score
+
+            # Si YARA encontró algo en el overlay, actualizar yara_matches del resultado
+            if overlay_report.overlay_yara_hits or overlay_report.embedded_pe_yara_hits:
+                all_yara_hits = (
+                    result.get("yara_matches", []) +
+                    overlay_report.overlay_yara_hits +
+                    overlay_report.embedded_pe_yara_hits
+                )
+                result["yara_matches"] = list(set(all_yara_hits))
+                # Si YARA confirma malware en overlay, elevar status sin cambiar label ML
+                if result["status"] == "clean":
+                    result["status"] = "suspicious"
+
+            # Agregar telemetría forense a details
+            result["details"]["overlay_forensics"] = {
+                "overlay_present": overlay_report.overlay_present,
+                "overlay_ratio": round(overlay_report.overlay_ratio, 4),
+                "overlay_entropy": round(overlay_report.overlay_entropy, 4),
+                "global_entropy": round(overlay_report.global_entropy, 4),
+                "embedded_pe_detected": overlay_report.embedded_pe_detected,
+                "embedded_pe_count": overlay_report.embedded_pe_count,
+                "is_known_installer": overlay_report.is_known_installer,
+                "installer_type": overlay_report.installer_type,
+                "risk_score": risk.risk_score,
+                "risk_level": risk.risk_level,
+                "operational_status": risk.operational_status,
+            }
+
+        except Exception as exc:
+            logger.error("Error en fase de overlay/heurística para %s: %s", file_path.name, exc)
 
     # ------------------------------------------------------------------
     # Inicialización de Módulos Auxiliares

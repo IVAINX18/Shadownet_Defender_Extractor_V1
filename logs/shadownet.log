@@ -763,3 +763,65 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-06-24 12:10:15,806 - extractors.extractor - INFO - Extracción completada: upx_file.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=88.5ms
 2026-06-24 12:10:15,812 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Malware alert enviado: malware.exe (HTTP 200)
 2026-06-24 12:10:15,818 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] Error enviando alerta: <urlopen error Connection refused>
+2026-06-24 13:36:25,499 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 13:36:25,631 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 13:36:29,353 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 13:36:29,355 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 13:36:29,518 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-06-24 13:36:29,533 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
+2026-06-24 13:36:29,954 - core.engine - INFO - Extrayendo features de: sample1.exe
+2026-06-24 13:36:33,734 - extractors.extractor - INFO - Extracción completada: sample1.exe | modo=PE_FASTLOAD | ratio_analizado=50.2% | packer_detectado=True | tiempo=3778.4ms
+2026-06-24 13:36:33,755 - core.engine - INFO - Escaneo completo: sample1.exe | label=BENIGN | score=0.0000 | phases=['YARA', 'ML_STATIC'] | time=4207ms
+2026-06-24 13:38:35,812 - extractors.extractor - INFO - Extracción completada: sample1.exe | modo=PE_FASTLOAD | ratio_analizado=50.2% | packer_detectado=True | tiempo=1973.1ms
+2026-06-24 13:53:54,411 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.6% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:53:54,751 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=99.8% entropy=7.9999 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:53:54,797 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=99.8% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:53:54,832 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.6% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:53:54,836 - core.overlay - INFO - Instalador legítimo detectado: NSIS (FP protection activa)
+2026-06-24 13:53:54,837 - core.overlay - INFO - Instalador legítimo detectado: InnoSetup (FP protection activa)
+2026-06-24 13:53:54,840 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN | triggers=0
+2026-06-24 13:53:54,841 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS | triggers=6
+2026-06-24 13:53:54,842 - core.heuristics - INFO - Heurística — score=35 level=MEDIUM operational=SUSPICIOUS | triggers=1
+2026-06-24 13:53:54,843 - core.heuristics - INFO - Heurística — score=100 level=CRITICAL operational=DANGEROUS | triggers=7
+2026-06-24 13:53:54,844 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS | triggers=6
+2026-06-24 13:53:54,845 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=DANGEROUS | triggers=0
+2026-06-24 13:53:54,846 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS | triggers=6
+2026-06-24 13:53:54,847 - core.heuristics - INFO - Heurística — score=40 level=MEDIUM operational=SUSPICIOUS | triggers=2
+2026-06-24 13:53:54,849 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN | triggers=0
+2026-06-24 13:53:54,852 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN | triggers=1
+2026-06-24 13:53:54,876 - core.overlay - INFO - PE embebido en overlay @ offset +10240 | entropy=7.9990 | structurally_valid=True
+2026-06-24 13:53:54,888 - core.overlay - INFO - Overlay analizado — size=0.5MB ratio=99.1% entropy=7.9991 embedded_pe=1 installer=no suspicious_strings=0
+2026-06-24 13:53:54,889 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS | triggers=6
+2026-06-24 13:54:33,636 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.9% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:54:33,658 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=50.0% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:54:33,782 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=100.0% entropy=7.9999 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:54:33,824 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=100.0% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:54:33,841 - core.overlay - INFO - PE embebido en overlay @ offset +1024 | entropy=0.7733 | structurally_valid=True
+2026-06-24 13:54:33,842 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=69.3% entropy=1.4217 embedded_pe=1 installer=no suspicious_strings=0
+2026-06-24 13:54:33,867 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.9% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:54:33,869 - core.overlay - INFO - Instalador legítimo detectado: NSIS (FP protection activa)
+2026-06-24 13:54:33,871 - core.overlay - INFO - Instalador legítimo detectado: InnoSetup (FP protection activa)
+2026-06-24 13:54:33,873 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN | triggers=0
+2026-06-24 13:54:33,875 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS | triggers=6
+2026-06-24 13:54:33,876 - core.heuristics - INFO - Heurística — score=35 level=MEDIUM operational=SUSPICIOUS | triggers=1
+2026-06-24 13:54:33,880 - core.heuristics - INFO - Heurística — score=100 level=CRITICAL operational=DANGEROUS | triggers=7
+2026-06-24 13:54:33,882 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS | triggers=6
+2026-06-24 13:54:33,883 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=DANGEROUS | triggers=0
+2026-06-24 13:54:33,884 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS | triggers=6
+2026-06-24 13:54:33,886 - core.heuristics - INFO - Heurística — score=40 level=MEDIUM operational=SUSPICIOUS | triggers=2
+2026-06-24 13:54:33,887 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN | triggers=0
+2026-06-24 13:54:33,888 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN | triggers=1
+2026-06-24 13:54:33,914 - core.overlay - INFO - PE embebido en overlay @ offset +10240 | entropy=7.9990 | structurally_valid=True
+2026-06-24 13:54:33,925 - core.overlay - INFO - Overlay analizado — size=0.5MB ratio=99.1% entropy=7.9990 embedded_pe=1 installer=no suspicious_strings=0
+2026-06-24 13:54:33,926 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS | triggers=6
+2026-06-24 13:54:48,618 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 13:54:48,672 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 13:54:49,942 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 13:54:49,944 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 13:54:49,988 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-06-24 13:54:49,990 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
+2026-06-24 13:54:50,151 - core.engine - INFO - Extrayendo features de: sample1.exe
+2026-06-24 13:54:51,155 - extractors.extractor - INFO - Extracción completada: sample1.exe | modo=PE_FASTLOAD | ratio_analizado=50.2% | packer_detectado=True | tiempo=1003.2ms
+2026-06-24 13:54:51,471 - core.overlay - INFO - Overlay analizado — size=19.7MB ratio=98.7% entropy=7.9987 embedded_pe=0 installer=no suspicious_strings=0
+2026-06-24 13:54:51,541 - core.heuristics - INFO - Heurística — score=105 level=CRITICAL operational=DANGEROUS | triggers=6
+2026-06-24 13:54:51,547 - core.engine - INFO - Escaneo completo: sample1.exe | label=BENIGN | score=0.0000 | operational=DANGEROUS | risk=CRITICAL(105) | phases=['YARA', 'ML_STATIC', 'OVERLAY_FORENSICS'] | time=1555ms
