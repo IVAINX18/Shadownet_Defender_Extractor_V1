@@ -10,7 +10,7 @@ from extractors.extractor import PEFeatureExtractor
 
 def test_diagnostics():
     print("======================================================================")
-    print("🧪 PROBANDO NUEVAS CARACTERÍSTICAS DEL EXTRACTOR ADVERSARIAL")
+    print("PROBANDO NUEVAS CARACTERÍSTICAS DEL EXTRACTOR ADVERSARIAL")
     print("======================================================================")
     
     extractor = PEFeatureExtractor()
