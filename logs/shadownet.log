@@ -555,3 +555,211 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-05-12 10:07:46,415 - core.engine - INFO - Scanning file: /tmp/shadownet_uploads/1778598466413-procexp.exe
 2026-05-12 10:07:49,081 - core.engine - INFO - Scan finished: BENIGN (Score: 0.0)
 2026-05-12 10:07:49,082 - backend.scan_service - INFO - Archivo PE analizado: 1778598466413-procexp.exe | type=pe | result=benign | risk=low | score=0.0000 | inference_time=2.667s
+2026-06-24 11:08:08,745 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/tmp6v3ska_i.exe ('Invalid e_lfanew value, probably not a PE file'). Intentando parseo relajado (fast_load)...
+2026-06-24 11:27:23,910 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/worms.yar(76): unreferenced string "$str_bot"
+2026-06-24 11:27:23,938 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:27:24,664 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:27:24,697 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:27:25,763 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:27:25,765 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:27:25,769 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/worms.yar(76): unreferenced string "$str_bot"
+2026-06-24 11:27:25,770 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-06-24 11:27:25,773 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:27:25,824 - core.engine - INFO - Extrayendo features de: procexp64.exe
+2026-06-24 11:27:26,315 - core.engine - INFO - Escaneo completo: procexp64.exe | label=BENIGN | score=0.0000 | phases=['ML_STATIC'] | time=542ms
+2026-06-24 11:29:43,927 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/worms.yar(76): unreferenced string "$str_telnet"
+2026-06-24 11:29:43,955 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:29:44,684 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:29:44,697 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:29:45,768 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:29:45,771 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:29:45,774 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/worms.yar(76): unreferenced string "$str_telnet"
+2026-06-24 11:29:45,775 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-06-24 11:29:45,779 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:29:45,858 - core.engine - INFO - Extrayendo features de: procexp64.exe
+2026-06-24 11:29:46,476 - core.engine - INFO - Escaneo completo: procexp64.exe | label=BENIGN | score=0.0000 | phases=['ML_STATIC'] | time=696ms
+2026-06-24 11:30:13,547 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/worms.yar(42): unreferenced string "$str_smb1"
+2026-06-24 11:30:13,590 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:30:14,328 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:30:14,346 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:30:15,779 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:30:15,788 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:30:15,797 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/worms.yar(42): unreferenced string "$str_smb1"
+2026-06-24 11:30:15,803 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-06-24 11:30:15,807 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:30:15,957 - core.engine - INFO - Extrayendo features de: procexp64.exe
+2026-06-24 11:30:16,682 - core.engine - INFO - Escaneo completo: procexp64.exe | label=BENIGN | score=0.0000 | phases=['ML_STATIC'] | time=872ms
+2026-06-24 11:30:55,387 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/trojans.yar(74): unreferenced string "$str_server"
+2026-06-24 11:30:55,419 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:30:56,160 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:30:56,182 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:30:57,345 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:30:57,350 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:30:57,353 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/trojans.yar(74): unreferenced string "$str_server"
+2026-06-24 11:30:57,354 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-06-24 11:30:57,355 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:30:57,435 - core.engine - INFO - Extrayendo features de: procexp64.exe
+2026-06-24 11:30:58,182 - core.engine - INFO - Escaneo completo: procexp64.exe | label=BENIGN | score=0.0000 | phases=['ML_STATIC'] | time=826ms
+2026-06-24 11:31:33,282 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/trojans.yar(42): unreferenced string "$str_c21"
+2026-06-24 11:31:33,322 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:31:34,048 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:31:34,064 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:31:35,101 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:31:35,103 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:31:35,111 - security.yara_scanner - ERROR - Error compilando reglas YARA: /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/trojans.yar(42): unreferenced string "$str_c21"
+2026-06-24 11:31:35,113 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-06-24 11:31:35,114 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:31:35,218 - core.engine - INFO - Extrayendo features de: procexp64.exe
+2026-06-24 11:31:36,062 - core.engine - INFO - Escaneo completo: procexp64.exe | label=BENIGN | score=0.0000 | phases=['ML_STATIC'] | time=948ms
+2026-06-24 11:32:14,110 - security.yara_scanner - WARNING - YARA: Error compilando trojans.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/trojans.yar(42): unreferenced string "$str_c21"
+2026-06-24 11:32:14,140 - security.yara_scanner - WARNING - YARA: Error compilando ransomware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/ransomware.yar(134): unreferenced string "$api_del"
+2026-06-24 11:32:14,146 - security.yara_scanner - WARNING - YARA: Error compilando spyware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/spyware.yar(115): unreferenced string "$str_exfil2"
+2026-06-24 11:32:14,161 - security.yara_scanner - INFO - YARA: 1/4 archivo(s) de reglas cargados exitosamente (3 con errores omitidos).
+2026-06-24 11:32:14,179 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:32:14,848 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:32:14,864 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:32:16,034 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:32:16,038 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:32:16,048 - security.yara_scanner - WARNING - YARA: Error compilando trojans.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/trojans.yar(42): unreferenced string "$str_c21"
+2026-06-24 11:32:16,051 - security.yara_scanner - WARNING - YARA: Error compilando ransomware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/ransomware.yar(134): unreferenced string "$api_del"
+2026-06-24 11:32:16,057 - security.yara_scanner - WARNING - YARA: Error compilando spyware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/spyware.yar(115): unreferenced string "$str_exfil2"
+2026-06-24 11:32:16,079 - security.yara_scanner - INFO - YARA: 1/4 archivo(s) de reglas cargados exitosamente (3 con errores omitidos).
+2026-06-24 11:32:16,081 - core.engine - INFO - YARA scanner activo con 1 archivo(s) de reglas.
+2026-06-24 11:32:16,083 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:32:16,164 - core.engine - INFO - Extrayendo features de: procexp64.exe
+2026-06-24 11:32:16,947 - core.engine - INFO - Escaneo completo: procexp64.exe | label=BENIGN | score=0.0000 | phases=['YARA', 'ML_STATIC'] | time=863ms
+2026-06-24 11:33:00,425 - security.yara_scanner - WARNING - YARA: Error compilando ransomware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/ransomware.yar(40): unreferenced string "$str_wmi"
+2026-06-24 11:33:00,447 - security.yara_scanner - WARNING - YARA: Error compilando spyware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/spyware.yar(80): unreferenced string "$str_token"
+2026-06-24 11:33:00,478 - security.yara_scanner - INFO - YARA: 2/4 archivo(s) de reglas cargados exitosamente (2 con errores omitidos).
+2026-06-24 11:33:00,511 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:33:01,269 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:33:01,297 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:33:03,405 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:33:03,411 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:33:03,428 - security.yara_scanner - WARNING - YARA: Error compilando ransomware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/ransomware.yar(40): unreferenced string "$str_wmi"
+2026-06-24 11:33:03,436 - security.yara_scanner - WARNING - YARA: Error compilando spyware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/spyware.yar(80): unreferenced string "$str_token"
+2026-06-24 11:33:03,480 - security.yara_scanner - INFO - YARA: 2/4 archivo(s) de reglas cargados exitosamente (2 con errores omitidos).
+2026-06-24 11:33:03,483 - core.engine - INFO - YARA scanner activo con 2 archivo(s) de reglas.
+2026-06-24 11:33:03,488 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:33:03,597 - core.engine - INFO - Extrayendo features de: procexp64.exe
+2026-06-24 11:33:04,379 - core.engine - INFO - Escaneo completo: procexp64.exe | label=BENIGN | score=0.0000 | phases=['YARA', 'ML_STATIC'] | time=889ms
+2026-06-24 11:33:31,785 - security.yara_scanner - WARNING - YARA: Error compilando spyware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/spyware.yar(44): unreferenced string "$str_klog1"
+2026-06-24 11:33:31,841 - security.yara_scanner - INFO - YARA: 3/4 archivo(s) de reglas cargados exitosamente (1 con errores omitidos).
+2026-06-24 11:33:31,868 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:33:32,592 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:33:32,613 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:33:33,753 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:33:33,759 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:33:33,787 - security.yara_scanner - WARNING - YARA: Error compilando spyware.yar (se omite): /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/security/yara_rules/spyware.yar(44): unreferenced string "$str_klog1"
+2026-06-24 11:33:33,823 - security.yara_scanner - INFO - YARA: 3/4 archivo(s) de reglas cargados exitosamente (1 con errores omitidos).
+2026-06-24 11:33:33,825 - core.engine - INFO - YARA scanner activo con 3 archivo(s) de reglas.
+2026-06-24 11:33:33,825 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:33:33,958 - core.engine - INFO - Extrayendo features de: procexp64.exe
+2026-06-24 11:33:34,628 - core.engine - INFO - Escaneo completo: procexp64.exe | label=BENIGN | score=0.0000 | phases=['YARA', 'ML_STATIC'] | time=802ms
+2026-06-24 11:33:54,617 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-06-24 11:33:54,674 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:33:55,401 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:33:55,426 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:33:56,529 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:33:56,535 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:33:56,606 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-06-24 11:33:56,609 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
+2026-06-24 11:33:56,611 - core.unpacking - INFO - Binario UPX no encontrado. El desempacado estará deshabilitado. Para habilitarlo: sudo apt install upx-ucl
+2026-06-24 11:33:56,621 - security.yara_scanner - WARNING - YARA: 1 regla(s) coincidieron en procexp64.exe — Amenazas: ['Keylogger_Generic']
+2026-06-24 11:33:56,628 - core.engine - WARNING - YARA: Amenaza confirmada en procexp64.exe — Reglas: ['Keylogger_Generic'] | Categorías: ['spyware']
+2026-06-24 11:49:13,243 - core.unpacking - INFO - Archivo empacado con UPX detectado: procexp64_packed.exe
+2026-06-24 11:49:13,278 - core.unpacking - INFO - Desempacado UPX exitoso: procexp64_packed.exe → unpacked_procexp64_packed.exe (952.0 KB → 2349.5 KB)
+2026-06-24 11:49:13,588 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 11:49:13,626 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 11:49:15,116 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 11:49:15,119 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 11:49:15,185 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-06-24 11:49:15,191 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
+2026-06-24 11:49:15,200 - security.yara_scanner - WARNING - YARA: 1 regla(s) coincidieron en procexp64.exe — Amenazas: ['Keylogger_Generic']
+2026-06-24 11:49:15,202 - core.engine - WARNING - YARA: Amenaza confirmada en procexp64.exe — Reglas: ['Keylogger_Generic'] | Categorías: ['spyware']
+2026-06-24 11:49:15,214 - core.unpacking - INFO - Archivo empacado con UPX detectado: procexp64_packed.exe
+2026-06-24 11:49:15,240 - core.unpacking - INFO - Desempacado UPX exitoso: procexp64_packed.exe → unpacked_procexp64_packed.exe (952.0 KB → 2349.5 KB)
+2026-06-24 11:49:15,241 - core.engine - INFO - Analizando PE desempacado: procexp64_packed.exe → unpacked_procexp64_packed.exe
+2026-06-24 11:49:15,241 - core.engine - INFO - Extrayendo features de: unpacked_procexp64_packed.exe
+2026-06-24 11:49:15,975 - core.engine - INFO - Escaneo completo: procexp64_packed.exe | label=BENIGN | score=0.0000 | phases=['YARA', 'UPX_DETECT', 'UPX_UNPACK', 'ML_STATIC'] | time=769ms
+2026-06-24 11:49:16,528 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-06-24 11:49:16,540 - security.yara_scanner - WARNING - YARA: 1 regla(s) coincidieron en procexp64.exe — Amenazas: ['Keylogger_Generic']
+2026-06-24 12:05:59,023 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Malware alert enviado: malware.exe (HTTP 200)
+2026-06-24 12:05:59,055 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] Error enviando alerta: <urlopen error Connection refused>
+2026-06-24 12:08:15,000 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-0/test_raw_fallback_non_pe0/test.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:08:15,020 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-0/test_raw_fallback_non_pe0/test.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-06-24 12:08:15,021 - extractors.extractor - INFO - Extracción completada: test.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=38.4ms
+2026-06-24 12:08:15,314 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-0/test_distributed_sampling0/large_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:08:15,324 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-0/test_distributed_sampling0/large_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:08:15,779 - extractors.extractor - INFO - Extracción completada: large_file.bin | modo=RAW_FALLBACK | ratio_analizado=83.3% | packer_detectado=False | tiempo=740.1ms
+2026-06-24 12:08:15,811 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-0/test_packer_detection0/upx_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:08:15,825 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-0/test_packer_detection0/upx_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:08:15,827 - extractors.extractor - INFO - Extracción completada: upx_file.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=29.6ms
+2026-06-24 12:08:23,543 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-1/test_raw_fallback_non_pe0/test.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:08:23,565 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-1/test_raw_fallback_non_pe0/test.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-06-24 12:08:23,567 - extractors.extractor - INFO - Extracción completada: test.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=37.9ms
+2026-06-24 12:08:23,912 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-1/test_distributed_sampling0/large_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:08:23,932 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-1/test_distributed_sampling0/large_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:08:24,449 - extractors.extractor - INFO - Extracción completada: large_file.bin | modo=RAW_FALLBACK | ratio_analizado=83.3% | packer_detectado=False | tiempo=866.9ms
+2026-06-24 12:08:24,474 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-1/test_packer_detection0/upx_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:08:24,493 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-1/test_packer_detection0/upx_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:08:24,494 - extractors.extractor - INFO - Extracción completada: upx_file.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=37.2ms
+2026-06-24 12:08:36,277 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-2/test_raw_fallback_non_pe0/test.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:08:36,308 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-2/test_raw_fallback_non_pe0/test.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-06-24 12:08:36,310 - extractors.extractor - INFO - Extracción completada: test.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=59.4ms
+2026-06-24 12:08:36,645 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-2/test_distributed_sampling0/large_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:08:36,667 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-2/test_distributed_sampling0/large_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:08:37,080 - extractors.extractor - INFO - Extracción completada: large_file.bin | modo=RAW_FALLBACK | ratio_analizado=83.3% | packer_detectado=False | tiempo=754.4ms
+2026-06-24 12:08:37,113 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-2/test_packer_detection0/upx_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:08:37,146 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-2/test_packer_detection0/upx_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:08:37,148 - extractors.extractor - INFO - Extracción completada: upx_file.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=64.4ms
+2026-06-24 12:08:37,154 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Malware alert enviado: malware.exe (HTTP 200)
+2026-06-24 12:08:37,156 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] Error enviando alerta: <urlopen error Connection refused>
+2026-06-24 12:09:00,089 - models.inference - INFO - Loading model from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-06-24 12:09:00,132 - models.inference - INFO - Loading scaler from /home/ivainx18/Escritorio/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-06-24 12:09:01,350 - models.inference - INFO - Model and scaler loaded successfully.
+2026-06-24 12:09:01,351 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-06-24 12:09:01,390 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-06-24 12:09:01,393 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
+2026-06-24 12:09:01,406 - security.yara_scanner - WARNING - YARA: 1 regla(s) coincidieron en procexp64.exe — Amenazas: ['Keylogger_Generic']
+2026-06-24 12:09:01,408 - core.engine - WARNING - YARA: Amenaza confirmada en procexp64.exe — Reglas: ['Keylogger_Generic'] | Categorías: ['spyware']
+2026-06-24 12:09:17,835 - extractors.extractor - INFO - Extracción completada: procexp64.exe | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=488.1ms
+2026-06-24 12:09:17,869 - extractors.extractor - WARNING - pefile: parseo estricto falló para samples/plain_text.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:09:17,876 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para samples/plain_text.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-06-24 12:09:17,878 - extractors.extractor - INFO - Extracción completada: plain_text.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=35.4ms
+2026-06-24 12:09:18,223 - extractors.extractor - WARNING - pefile: parseo estricto falló para samples/bloated_evasion.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:09:18,226 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para samples/bloated_evasion.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:09:18,693 - extractors.extractor - INFO - Extracción completada: bloated_evasion.bin | modo=RAW_FALLBACK | ratio_analizado=66.7% | packer_detectado=False | tiempo=788.5ms
+2026-06-24 12:09:18,706 - extractors.extractor - WARNING - pefile: parseo estricto falló para samples/packed_upx_simulated.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:09:18,710 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para samples/packed_upx_simulated.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:09:18,712 - extractors.extractor - INFO - Extracción completada: packed_upx_simulated.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=15.6ms
+2026-06-24 12:10:03,543 - extractors.extractor - INFO - Extracción completada: procexp64.exe | modo=PE_STRICT | ratio_analizado=100.0% | packer_detectado=False | tiempo=508.1ms
+2026-06-24 12:10:03,586 - extractors.extractor - WARNING - pefile: parseo estricto falló para samples/plain_text.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:10:03,592 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para samples/plain_text.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-06-24 12:10:03,595 - extractors.extractor - INFO - Extracción completada: plain_text.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=40.5ms
+2026-06-24 12:10:04,040 - extractors.extractor - WARNING - pefile: parseo estricto falló para samples/bloated_evasion.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:10:04,052 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para samples/bloated_evasion.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:10:04,700 - extractors.extractor - INFO - Extracción completada: bloated_evasion.bin | modo=RAW_FALLBACK | ratio_analizado=66.7% | packer_detectado=False | tiempo=1083.4ms
+2026-06-24 12:10:04,710 - extractors.extractor - WARNING - pefile: parseo estricto falló para samples/packed_upx_simulated.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:10:04,722 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para samples/packed_upx_simulated.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:10:04,724 - extractors.extractor - INFO - Extracción completada: packed_upx_simulated.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=18.6ms
+2026-06-24 12:10:09,889 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-3/test_raw_fallback_non_pe0/test.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:10:09,954 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-3/test_raw_fallback_non_pe0/test.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-06-24 12:10:09,957 - extractors.extractor - INFO - Extracción completada: test.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=105.1ms
+2026-06-24 12:10:10,357 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-3/test_distributed_sampling0/large_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:10:10,374 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-3/test_distributed_sampling0/large_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:10:10,965 - extractors.extractor - INFO - Extracción completada: large_file.bin | modo=RAW_FALLBACK | ratio_analizado=83.3% | packer_detectado=False | tiempo=977.1ms
+2026-06-24 12:10:10,995 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-3/test_packer_detection0/upx_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:10:11,019 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-3/test_packer_detection0/upx_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:10:11,021 - extractors.extractor - INFO - Extracción completada: upx_file.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=51.0ms
+2026-06-24 12:10:14,771 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-4/test_raw_fallback_non_pe0/test.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:10:14,810 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-4/test_raw_fallback_non_pe0/test.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-06-24 12:10:14,814 - extractors.extractor - INFO - Extracción completada: test.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=90.3ms
+2026-06-24 12:10:15,170 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-4/test_distributed_sampling0/large_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:10:15,206 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-4/test_distributed_sampling0/large_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:10:15,712 - extractors.extractor - INFO - Extracción completada: large_file.bin | modo=RAW_FALLBACK | ratio_analizado=83.3% | packer_detectado=False | tiempo=875.2ms
+2026-06-24 12:10:15,761 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-4/test_packer_detection0/upx_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-06-24 12:10:15,804 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-4/test_packer_detection0/upx_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-06-24 12:10:15,806 - extractors.extractor - INFO - Extracción completada: upx_file.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=88.5ms
+2026-06-24 12:10:15,812 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Malware alert enviado: malware.exe (HTTP 200)
+2026-06-24 12:10:15,818 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] Error enviando alerta: <urlopen error Connection refused>

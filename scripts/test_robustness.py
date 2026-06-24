@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score
 
 from tests._mock_model import MockModel
 
-# 📚 MockModel se importa de tests/_mock_model.py
+# * MockModel se importa de tests/_mock_model.py
 # para evitar duplicación con evaluate_model_metrics.py y explain_global_model.py
 
 def test_robustness():

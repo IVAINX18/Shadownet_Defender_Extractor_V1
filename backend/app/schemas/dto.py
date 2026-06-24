@@ -44,13 +44,15 @@ class AnalysisType(str, Enum):
     """
     Tipo de análisis ejecutado.
 
-    - pe: Archivo PE analizado por el motor ML (features + ONNX)
-    - non_pe: Archivo no PE — no fue analizado por el modelo ML
-    - realtime: Análisis de procesos en ejecución
+    - pe         : Archivo PE analizado por el motor ML (features + ONNX)
+    - non_pe     : Archivo no PE — no fue analizado por el modelo ML
+    - realtime   : Análisis de procesos en ejecución
+    - yara       : Detectado por firma YARA (sin necesidad de inferencia ML)
     """
     PE = "pe"
     NON_PE = "non_pe"
     REALTIME = "realtime"
+    YARA = "yara"
 
 
 # ---------------------------------------------------------------------------
@@ -110,6 +112,19 @@ class ScanResult(BaseModel):
     user_email: Optional[str] = Field(
         default=None,
         description="Email del usuario autenticado (inyectado por el backend)",
+    )
+    # ── Campos del Pipeline Híbrido ─────────────────────────────────────────
+    yara_matches: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Reglas YARA que coincidieron con el archivo (vacío si ninguna)",
+    )
+    was_unpacked: bool = Field(
+        default=False,
+        description="True si el archivo fue desempacado (UPX) antes del análisis",
+    )
+    detection_phases: List[str] = Field(
+        default_factory=list,
+        description="Fases del pipeline de detección ejecutadas: YARA, UPX_DETECT, UPX_UNPACK, ML_STATIC",
     )
 
 

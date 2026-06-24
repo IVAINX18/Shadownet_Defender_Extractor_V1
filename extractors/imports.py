@@ -52,7 +52,7 @@ class ImportsFeatureBlock(FeatureBlock):
         
         return normalized
     
-    # 📚 NOTA: _hash_feature se movió a _math_utils.hash_feature_sha256()
+    # NOTA: _hash_feature se movió a _math_utils.hash_feature_sha256()
     # para evitar duplicación con exports.py y section_info.py.
     
     def extract(self, pe: pefile.PE, raw_data: bytes) -> np.ndarray:
@@ -73,8 +73,8 @@ class ImportsFeatureBlock(FeatureBlock):
         if not hasattr(pe, 'DIRECTORY_ENTRY_IMPORT'):
             return vector
         
-        # Iterate over each imported DLL
-        for dll_entry in pe.DIRECTORY_ENTRY_IMPORT:
+        # Iterate over each imported DLL (limit to 100 to prevent DoS)
+        for dll_entry in pe.DIRECTORY_ENTRY_IMPORT[:100]:
             try:
                 # Decode DLL name
                 dll_name_bytes = dll_entry.dll
@@ -88,8 +88,8 @@ class ImportsFeatureBlock(FeatureBlock):
             except Exception:
                 dll_name = "unknown"
             
-            # Iterate over imported functions
-            for func in dll_entry.imports:
+            # Iterate over imported functions (limit to 500 per DLL to prevent DoS)
+            for func in dll_entry.imports[:500]:
                 try:
                     # Check if import by name or ordinal
                     if func.name:

@@ -46,3 +46,54 @@ def test_string_extractor(dummy_pe_bytes):
     extractor = StringExtractorBlock()
     vector = extractor.extract(None, dummy_pe_bytes)
     assert vector.shape == (104,)
+
+def test_raw_fallback_non_pe(tmp_path):
+    # Crear un archivo de texto plano no-PE
+    non_pe_file = tmp_path / "test.txt"
+    non_pe_file.write_bytes(b"Este es un archivo de texto plano que no tiene estructura de ejecutable PE.")
+    
+    from extractors.extractor import PEFeatureExtractor
+    extractor = PEFeatureExtractor()
+    vector = extractor.extract(str(non_pe_file))
+    
+    # Debe ser de tamaño 2381 exacto
+    assert vector.shape == (2381,)
+    
+    # Verificar diagnósticos de fallback crudo
+    diag = extractor.last_diagnostics["diagnostics"]
+    assert diag["extraction_mode"] == "RAW_FALLBACK"
+    assert "pefile_failed" in diag["degradation_reason"]
+    assert diag["packer_indicators"]["packer_detected"] is False
+
+def test_distributed_sampling(tmp_path):
+    # Crear un archivo de 12 MB (bloated con ceros)
+    large_file = tmp_path / "large_file.bin"
+    large_file.write_bytes(b"MZ" + b"\x00" * (12 * 1024 * 1024))
+    
+    from extractors.extractor import PEFeatureExtractor
+    extractor = PEFeatureExtractor()
+    vector = extractor.extract(str(large_file))
+    
+    assert vector.shape == (2381,)
+    
+    # Diagnósticos de muestreo
+    diag = extractor.last_diagnostics["diagnostics"]
+    assert diag["extraction_mode"] == "PE_FASTLOAD" or diag["extraction_mode"] == "RAW_FALLBACK"
+    assert diag["bytes_sampled"] <= 10 * 1024 * 1024
+    assert diag["bytes_sampled"] >= 10 * 1024 * 1024 - 5
+    assert diag["percentage_analyzed"] < 100.0
+
+def test_packer_detection(tmp_path):
+    # Crear un archivo con firma UPX
+    upx_file = tmp_path / "upx_file.bin"
+    upx_file.write_bytes(b"MZ" + b"\x00" * 100 + b"UPX!" + b"\x00" * 100)
+    
+    from extractors.extractor import PEFeatureExtractor
+    extractor = PEFeatureExtractor()
+    vector = extractor.extract(str(upx_file))
+    
+    diag = extractor.last_diagnostics["diagnostics"]
+    assert diag["packer_indicators"]["is_packed_upx"] is True
+    assert diag["packer_indicators"]["packer_detected"] is True
+    assert "upx_signature_in_bytes" in diag["packer_indicators"]["packer_reasons"]
+

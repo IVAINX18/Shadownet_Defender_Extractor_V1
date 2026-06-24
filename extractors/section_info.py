@@ -36,7 +36,7 @@ class SectionInfoBlock(FeatureBlock):
     def dim(self) -> int:
         return self.DIM
         
-    # 📚 NOTA: _calculate_entropy y _hash_name se movieron a _math_utils.py
+    # * NOTA: _calculate_entropy y _hash_name se movieron a _math_utils.py
     # para evitar duplicación DRY. Se usan las funciones compartidas importadas arriba.
 
     def _hash_name(self, name: str) -> int:
@@ -68,7 +68,8 @@ class SectionInfoBlock(FeatureBlock):
         hist_names = np.zeros(self.NAME_HASH_BINS, dtype=np.float32)
         
         if num_sections > 0:
-            for section in sections:
+            # Protejo contra denegación de servicio (DoS) limitando a un máximo de 96 secciones analizadas.
+            for section in sections[:96]:
                 r_size = section.SizeOfRawData
                 v_size = section.Misc_VirtualSize
                 
@@ -152,11 +153,12 @@ class SectionInfoBlock(FeatureBlock):
         vector[14] = count_shared
         
         # C: Distributions (Normalized)
-        if num_sections > 0:
-            hist_entropy /= num_sections
-            hist_raw_size /= num_sections
-            hist_virt_size /= num_sections
-            hist_names /= num_sections
+        analyzed_count = min(num_sections, 96)
+        if analyzed_count > 0:
+            hist_entropy /= analyzed_count
+            hist_raw_size /= analyzed_count
+            hist_virt_size /= analyzed_count
+            hist_names /= analyzed_count
             
         vector[15 : 15 + self.ENTROPY_BINS] = hist_entropy
         vector[65 : 65 + self.SIZE_BINS] = hist_raw_size

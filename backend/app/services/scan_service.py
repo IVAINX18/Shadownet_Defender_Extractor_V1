@@ -121,17 +121,37 @@ def scan_single_file(
     raw_result = engine.scan_file(file_path)
     elapsed = time.time() - start_time
 
-    # Determino si el archivo es PE o no a partir del resultado del motor
-    engine_label = raw_result.get("label", "")
-    is_not_pe = engine_label == "NOT_PE"
+    # Extraer metadatos del pipeline híbrido
+    yara_matches    = raw_result.get("yara_matches", [])
+    was_unpacked    = raw_result.get("was_unpacked", False)
+    detection_phases = raw_result.get("detection_phases", [])
 
-    if is_not_pe:
+    # Determino el flujo de clasificación según lo que detectó el engine
+    engine_label = raw_result.get("label", "")
+    is_not_pe   = engine_label == "NOT_PE"
+    is_yara_hit = bool(yara_matches)  # YARA detectó una firma conocida
+
+    if is_yara_hit:
+        # YARA confirmó malware por firma determinista — máxima confianza
+        result_label  = ScanResultLabel.MALICIOUS
+        risk_level    = RiskLevel.HIGH
+        confidence    = 1.0
+        analysis_type = AnalysisType.YARA
+
+        logger.warning(
+            "YARA: Malware confirmado en %s | reglas=%s | time=%.3fs",
+            file_path.name,
+            [m.get("rule") for m in yara_matches],
+            elapsed,
+        )
+
+    elif is_not_pe:
         # Archivo NO PE — no fue analizado por el modelo ML.
         # NO lo trato como "benign" porque no puedo confirmar que sea seguro.
         # Lo clasifico como "suspicious / medium" para que el usuario investigue.
-        result_label = ScanResultLabel.SUSPICIOUS
-        risk_level = RiskLevel.MEDIUM
-        confidence = 0.0
+        result_label  = ScanResultLabel.SUSPICIOUS
+        risk_level    = RiskLevel.MEDIUM
+        confidence    = 0.0
         analysis_type = AnalysisType.NON_PE
 
         logger.info(
@@ -147,16 +167,17 @@ def scan_single_file(
             score = 0.0
 
         result_label, risk_level = classify_tripartite(score)
-        confidence = round(score, 4)
+        confidence    = round(score, 4)
         analysis_type = AnalysisType.PE
 
         logger.info(
             "Archivo PE analizado: %s | type=pe | result=%s | risk=%s | "
-            "score=%.4f | inference_time=%.3fs",
+            "score=%.4f | unpacked=%s | inference_time=%.3fs",
             file_path.name,
             result_label.value,
             risk_level.value,
             score,
+            was_unpacked,
             elapsed,
         )
 
@@ -165,12 +186,15 @@ def scan_single_file(
     features: List[str] = []
     if isinstance(details, dict):
         # Combino imports y secciones sospechosas como features relevantes
-        suspicious_imports = details.get("suspicious_imports", [])
+        suspicious_imports  = details.get("suspicious_imports", [])
         suspicious_sections = details.get("suspicious_sections", [])
+        threat_names        = details.get("threat_names", [])  # Nombres YARA
         if isinstance(suspicious_imports, list):
             features.extend([str(f) for f in suspicious_imports[:10]])
         if isinstance(suspicious_sections, list):
             features.extend([str(s) for s in suspicious_sections[:10]])
+        if isinstance(threat_names, list):
+            features.extend([f"YARA:{n}" for n in threat_names[:5]])
 
     # Construyo ScanResult estandarizado según el PRD
     scan_result = ScanResult(
@@ -184,6 +208,10 @@ def scan_single_file(
         explanation=None,  # Se llena después si se solicita LLM
         risk_level=risk_level,
         analysis_type=analysis_type,
+        # Campos del pipeline híbrido
+        yara_matches=yara_matches,
+        was_unpacked=was_unpacked,
+        detection_phases=detection_phases,
     )
 
     return scan_result

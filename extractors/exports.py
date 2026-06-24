@@ -36,7 +36,8 @@ class ExportsFeatureBlock(FeatureBlock):
             return vector
 
         try:
-            for exp in pe.DIRECTORY_ENTRY_EXPORT.symbols:
+            # Limit to 500 to prevent DoS attacks on export tables
+            for exp in pe.DIRECTORY_ENTRY_EXPORT.symbols[:500]:
                 # Check for name or ordinal
                 if exp.name:
                     try:
