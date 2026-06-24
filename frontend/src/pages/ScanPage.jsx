@@ -1,6 +1,7 @@
 /**
  * pages/ScanPage.jsx — Escaneo de archivos.
  */
+import { useEffect, useState } from 'react'
 import { Search, XCircle } from 'lucide-react'
 import FileUpload from '../components/FileUpload'
 import ScanResultCard from '../components/ScanResultCard'
