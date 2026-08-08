@@ -835,3 +835,337 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-06-24 14:09:16,407 - extractors.extractor - INFO - Extracción completada: sample2.exe | modo=PE_STRICT | ratio_analizado=100.0% | packer_detectado=True | tiempo=1049.1ms
 2026-06-24 14:09:16,494 - core.heuristics - INFO - Heurística — score=40 level=MEDIUM operational=SUSPICIOUS | triggers=3
 2026-06-24 14:09:16,506 - core.engine - INFO - Escaneo completo: sample2.exe | label=BENIGN | score=0.0000 | operational=SUSPICIOUS | risk=MEDIUM(40) | phases=['YARA', 'ML_STATIC', 'OVERLAY_FORENSICS'] | time=1434ms
+2026-06-24 14:35:15,723 - core.heuristics - INFO - Heurística — score=30 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-06-24 14:35:15,740 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=True | triggers=4
+2026-06-24 14:45:33,720 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=87 (CRITICAL) | families=xworm | indicators=27
+2026-06-24 14:45:33,720 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=87 (CRITICAL) | families=xworm | indicators=27
+2026-06-24 14:45:33,738 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:45:33,738 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:45:33,749 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=47 (MEDIUM) | families=agenttesla | indicators=15
+2026-06-24 14:45:33,749 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=47 (MEDIUM) | families=agenttesla | indicators=15
+2026-06-24 14:45:33,756 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:45:33,756 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,465 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | families=asyncrat | indicators=4
+2026-06-24 14:46:32,465 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | families=asyncrat | indicators=4
+2026-06-24 14:46:32,496 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,496 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,514 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | families=asyncrat | indicators=5
+2026-06-24 14:46:32,514 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | families=asyncrat | indicators=5
+2026-06-24 14:46:32,532 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:32,532 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:32,550 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,550 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,566 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | families=unknown | indicators=2
+2026-06-24 14:46:32,566 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | families=unknown | indicators=2
+2026-06-24 14:46:32,582 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=unknown | indicators=4
+2026-06-24 14:46:32,582 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=unknown | indicators=4
+2026-06-24 14:46:32,600 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,600 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,620 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:32,620 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:32,662 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=agenttesla | indicators=3
+2026-06-24 14:46:32,662 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=agenttesla | indicators=3
+2026-06-24 14:46:32,683 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=agenttesla | indicators=3
+2026-06-24 14:46:32,683 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=agenttesla | indicators=3
+2026-06-24 14:46:32,701 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:32,701 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:32,718 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=4
+2026-06-24 14:46:32,718 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=4
+2026-06-24 14:46:32,735 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:32,735 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:32,751 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | families=quasarrat | indicators=3
+2026-06-24 14:46:32,751 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | families=quasarrat | indicators=3
+2026-06-24 14:46:32,768 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | families=agenttesla | indicators=4
+2026-06-24 14:46:32,768 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | families=agenttesla | indicators=4
+2026-06-24 14:46:32,785 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | families=xworm | indicators=11
+2026-06-24 14:46:32,785 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | families=xworm | indicators=11
+2026-06-24 14:46:32,803 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=agenttesla | indicators=10
+2026-06-24 14:46:32,803 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=agenttesla | indicators=10
+2026-06-24 14:46:32,828 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,828 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,847 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | families=njrat | indicators=12
+2026-06-24 14:46:32,847 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | families=njrat | indicators=12
+2026-06-24 14:46:32,877 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,877 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:32,897 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=njrat | indicators=3
+2026-06-24 14:46:32,897 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=njrat | indicators=3
+2026-06-24 14:46:32,918 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | families=quasarrat | indicators=3
+2026-06-24 14:46:32,918 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | families=quasarrat | indicators=3
+2026-06-24 14:46:34,778 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | families=asyncrat | indicators=4
+2026-06-24 14:46:34,778 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | families=asyncrat | indicators=4
+2026-06-24 14:46:57,482 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | families=asyncrat | indicators=4
+2026-06-24 14:46:57,482 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | families=asyncrat | indicators=4
+2026-06-24 14:46:57,514 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,514 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,531 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | families=asyncrat | indicators=5
+2026-06-24 14:46:57,531 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | families=asyncrat | indicators=5
+2026-06-24 14:46:57,547 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:57,547 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:57,563 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,563 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,581 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | families=unknown | indicators=2
+2026-06-24 14:46:57,581 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | families=unknown | indicators=2
+2026-06-24 14:46:57,598 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=unknown | indicators=4
+2026-06-24 14:46:57,598 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=unknown | indicators=4
+2026-06-24 14:46:57,614 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,614 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,632 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:57,632 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:57,649 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=agenttesla | indicators=3
+2026-06-24 14:46:57,649 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=agenttesla | indicators=3
+2026-06-24 14:46:57,666 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=agenttesla | indicators=3
+2026-06-24 14:46:57,666 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | families=agenttesla | indicators=3
+2026-06-24 14:46:57,682 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:57,682 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:57,708 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=4
+2026-06-24 14:46:57,708 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=4
+2026-06-24 14:46:57,728 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:57,728 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | families=unknown | indicators=3
+2026-06-24 14:46:57,746 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | families=quasarrat | indicators=3
+2026-06-24 14:46:57,746 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | families=quasarrat | indicators=3
+2026-06-24 14:46:57,763 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | families=agenttesla | indicators=4
+2026-06-24 14:46:57,763 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | families=agenttesla | indicators=4
+2026-06-24 14:46:57,782 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | families=xworm | indicators=11
+2026-06-24 14:46:57,782 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | families=xworm | indicators=11
+2026-06-24 14:46:57,800 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=agenttesla | indicators=10
+2026-06-24 14:46:57,800 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=agenttesla | indicators=10
+2026-06-24 14:46:57,817 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,817 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,836 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | families=njrat | indicators=12
+2026-06-24 14:46:57,836 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | families=njrat | indicators=12
+2026-06-24 14:46:57,861 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,861 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | families=unknown | indicators=0
+2026-06-24 14:46:57,879 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=njrat | indicators=3
+2026-06-24 14:46:57,879 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | families=njrat | indicators=3
+2026-06-24 14:46:57,900 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | families=quasarrat | indicators=3
+2026-06-24 14:46:57,900 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | families=quasarrat | indicators=3
+2026-06-24 14:46:59,774 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | families=asyncrat | indicators=4
+2026-06-24 14:46:59,774 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | families=asyncrat | indicators=4
+2026-06-24 15:18:50,949 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=39 us=11 pinvoke=0
+2026-06-24 15:18:50,949 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=39 us=11 pinvoke=0
+2026-06-24 15:18:50,974 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=96 (CRITICAL) | family=xworm | indicators=37
+2026-06-24 15:18:50,974 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=96 (CRITICAL) | family=xworm | indicators=37
+2026-06-24 15:20:58,064 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=20 us=6 pinvoke=0
+2026-06-24 15:20:58,064 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=20 us=6 pinvoke=0
+2026-06-24 15:20:58,084 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=96 (CRITICAL) | family=xworm | indicators=21
+2026-06-24 15:20:58,084 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=96 (CRITICAL) | family=xworm | indicators=21
+2026-06-24 15:21:56,117 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=11 us=2 pinvoke=0
+2026-06-24 15:21:56,117 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=11 us=2 pinvoke=0
+2026-06-24 15:21:56,131 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:21:56,131 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:21:56,133 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=10 us=1 pinvoke=0
+2026-06-24 15:21:56,133 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=10 us=1 pinvoke=0
+2026-06-24 15:21:56,134 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:21:56,134 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:21:56,136 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=9 us=1 pinvoke=0
+2026-06-24 15:21:56,136 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=9 us=1 pinvoke=0
+2026-06-24 15:21:56,137 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=7 (LOW) | family=unknown | indicators=2
+2026-06-24 15:21:56,137 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=7 (LOW) | family=unknown | indicators=2
+2026-06-24 15:21:56,139 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=14 us=4 pinvoke=0
+2026-06-24 15:21:56,139 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=14 us=4 pinvoke=0
+2026-06-24 15:21:56,140 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=87 (CRITICAL) | family=xworm | indicators=15
+2026-06-24 15:21:56,140 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=87 (CRITICAL) | family=xworm | indicators=15
+2026-06-24 15:21:56,142 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=12 us=3 pinvoke=0
+2026-06-24 15:21:56,142 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=12 us=3 pinvoke=0
+2026-06-24 15:21:56,143 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=60 (HIGH) | family=asyncrat | indicators=12
+2026-06-24 15:21:56,143 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=60 (HIGH) | family=asyncrat | indicators=12
+2026-06-24 15:21:56,144 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=7 us=7 pinvoke=0
+2026-06-24 15:21:56,144 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=7 us=7 pinvoke=0
+2026-06-24 15:21:56,147 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=35 (MEDIUM) | family=agenttesla | indicators=13
+2026-06-24 15:21:56,147 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=35 (MEDIUM) | family=agenttesla | indicators=13
+2026-06-24 15:21:56,148 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=16 us=7 pinvoke=0
+2026-06-24 15:21:56,148 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=0 type_refs=0 assembly_refs=0 strings=16 us=7 pinvoke=0
+2026-06-24 15:21:56,150 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=96 (CRITICAL) | family=xworm | indicators=19
+2026-06-24 15:21:56,150 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=96 (CRITICAL) | family=xworm | indicators=19
+2026-06-24 15:22:04,600 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,600 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,634 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-06-24 15:22:04,634 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-06-24 15:22:04,639 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,639 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,651 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,651 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,657 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,657 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,666 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-06-24 15:22:04,666 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-06-24 15:22:04,672 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,672 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,683 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,683 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,706 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,706 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,716 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,716 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,719 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,719 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,731 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-06-24 15:22:04,731 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-06-24 15:22:04,734 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,734 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,748 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,748 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,750 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,750 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,765 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,765 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,767 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,767 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,782 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,782 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,784 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,784 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,797 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-06-24 15:22:04,797 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-06-24 15:22:04,799 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,799 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,814 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-06-24 15:22:04,814 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-06-24 15:22:04,816 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,816 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,831 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,831 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,833 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,833 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,857 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,857 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,860 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,860 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,873 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,873 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:04,876 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,876 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,891 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-06-24 15:22:04,891 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-06-24 15:22:04,895 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,895 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,910 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-06-24 15:22:04,910 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-06-24 15:22:04,912 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,912 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,929 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-06-24 15:22:04,929 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-06-24 15:22:04,931 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,931 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,945 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-06-24 15:22:04,945 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-06-24 15:22:04,947 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,947 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,962 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,962 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,964 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,964 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,980 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-06-24 15:22:04,980 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-06-24 15:22:04,982 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,982 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,998 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,998 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:04,999 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:04,999 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:05,014 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-06-24 15:22:05,014 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-06-24 15:22:05,017 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:05,017 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:05,031 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-06-24 15:22:05,031 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-06-24 15:22:05,040 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:05,040 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:06,432 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-06-24 15:22:06,432 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-06-24 15:22:20,508 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,508 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,548 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-06-24 15:22:20,548 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-06-24 15:22:20,553 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,553 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,572 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,572 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,577 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,577 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,596 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-06-24 15:22:20,596 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-06-24 15:22:20,598 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,598 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,613 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,613 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,615 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,615 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,630 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,630 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,632 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,632 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,646 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-06-24 15:22:20,646 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-06-24 15:22:20,649 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,649 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,664 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,664 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,665 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,665 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,680 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,680 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,682 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,682 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,697 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,697 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,699 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,699 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,714 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-06-24 15:22:20,714 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-06-24 15:22:20,716 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,716 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,730 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-06-24 15:22:20,730 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-06-24 15:22:20,732 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,732 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,747 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,747 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,749 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,749 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,763 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,763 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,765 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,765 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,781 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,781 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-06-24 15:22:20,783 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,783 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,804 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-06-24 15:22:20,804 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-06-24 15:22:20,809 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,809 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,825 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-06-24 15:22:20,825 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-06-24 15:22:20,827 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,827 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,842 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-06-24 15:22:20,842 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-06-24 15:22:20,844 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,844 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,859 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-06-24 15:22:20,859 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-06-24 15:22:20,862 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,862 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,877 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,877 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,879 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,879 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,895 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-06-24 15:22:20,895 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-06-24 15:22:20,896 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,896 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,910 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,910 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-06-24 15:22:20,912 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,912 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,927 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-06-24 15:22:20,927 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-06-24 15:22:20,930 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,930 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,945 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-06-24 15:22:20,945 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-06-24 15:22:20,953 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:20,953 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-06-24 15:22:22,327 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-06-24 15:22:22,327 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4

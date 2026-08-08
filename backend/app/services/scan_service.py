@@ -212,6 +212,29 @@ def scan_single_file(
         yara_matches=yara_matches,
         was_unpacked=was_unpacked,
         detection_phases=detection_phases,
+        # Telemetría .NET extendida (Mejora 8)
+        is_dotnet=raw_result.get("is_dotnet", False),
+        clr_version=raw_result.get("clr_version") or None,
+        assembly_name=raw_result.get("assembly_name") or None,
+        obfuscator_detected=raw_result.get("obfuscator_detected", False),
+        obfuscator_name=raw_result.get("obfuscator_name") or None,
+        embedded_assemblies_count=raw_result.get("embedded_assemblies_count", 0),
+        reflection_usage=raw_result.get("reflection_usage", False),
+        dynamic_loading_detected=raw_result.get("dynamic_loading_detected", False),
+        dotnet_risk_score=raw_result.get("dotnet_risk_score", 0),
+        dotnet_risk_level=raw_result.get("dotnet_risk_level", "LOW"),
+        # Telemetría IL Behavioral (M16)
+        dotnet_threat_score=raw_result.get("dotnet_threat_score", 0),
+        dotnet_threat_level=raw_result.get("dotnet_threat_level", "LOW"),
+        injection_detected=raw_result.get("injection_detected", False),
+        persistence_detected=raw_result.get("persistence_detected", False),
+        networking_detected=raw_result.get("networking_detected", False),
+        credential_theft_detected=raw_result.get("credential_theft_detected", False),
+        worm_behavior_detected=raw_result.get("worm_behavior_detected", False),
+        rat_detected=raw_result.get("rat_detected", False),
+        stealer_detected=raw_result.get("stealer_detected", False),
+        top_family=raw_result.get("top_family") or None,
+        family_likelihoods=raw_result.get("family_likelihoods", {}),
     )
 
     return scan_result

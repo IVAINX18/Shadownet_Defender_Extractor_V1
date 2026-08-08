@@ -42,6 +42,8 @@ from configs.settings import (
 from core.errors import NonPEFileError
 from core.overlay import OverlayAnalyzer
 from core.heuristics import HeuristicRiskEngine
+from core.dotnet import DotNetAnalyzer
+from core.dotnet.il_analyzer import ILBehavioralAnalyzer
 from extractors.extractor import PEFeatureExtractor
 from models.inference import ShadowNetModel
 from utils.logger import setup_logger
@@ -79,6 +81,12 @@ class ShadowNetEngine:
 
         # ── Módulo 6: Motor Heurístico de Riesgo ─────────────────────
         self._risk_engine = HeuristicRiskEngine()
+
+        # ── Módulo 7: Analizador .NET / CLR (Mejoras 1-8) ────────────
+        self._dotnet_analyzer = DotNetAnalyzer()
+
+        # ── Módulo 8: IL Behavioral Analyzer (Mejoras IL 1-18) ───────
+        self._il_analyzer = ILBehavioralAnalyzer()
 
     # ------------------------------------------------------------------
     # API Pública
@@ -118,6 +126,31 @@ class ShadowNetEngine:
             "risk_score": 0,
             "overlay_analysis": {},
             "heuristic_assessment": {},
+            # Telemetría .NET extendida (Mejora 8) — valores por defecto
+            "is_dotnet": False,
+            "clr_version": "",
+            "assembly_name": "",
+            "obfuscator_detected": False,
+            "obfuscator_name": "",
+            "embedded_assemblies_count": 0,
+            "reflection_usage": False,
+            "dynamic_loading_detected": False,
+            "dotnet_risk_score": 0,
+            "dotnet_risk_level": "LOW",
+            "dotnet_analysis": {},
+            # Telemetría IL Behavioral (M16) — valores por defecto
+            "il_behavioral": {},
+            "dotnet_threat_score": 0,
+            "dotnet_threat_level": "LOW",
+            "family_likelihoods": {},
+            "top_family": "",
+            "injection_detected": False,
+            "persistence_detected": False,
+            "networking_detected": False,
+            "credential_theft_detected": False,
+            "worm_behavior_detected": False,
+            "rat_detected": False,
+            "stealer_detected": False,
         }
 
         if not file_path.exists():
@@ -143,6 +176,19 @@ class ShadowNetEngine:
         # Usa el archivo ORIGINAL (no el desempacado) para detectar
         # overlays cifrados que UPX no puede desempacar.
         self._run_overlay_phase(file_path, result)
+
+        # ── FASE 5: Análisis .NET / CLR (Mejoras 1-8) ────────────────
+        # Se ejecuta siempre que el archivo sea PE válido.
+        # Detecta CLR header, ofuscadores, assemblies embebidos, IL sospechoso.
+        # Pasa el dotnet_report al risk engine para ajustar pesos (Mejora 2).
+        self._run_dotnet_phase(file_path, result)
+
+        # ── FASE 6: IL Behavioral Analysis ────────────────────────────
+        # Se ejecuta solo si el archivo es .NET (detectado en Fase 5).
+        # Analiza semánticamente el código IL para identificar RATs,
+        # Loaders, Stealers, Worms, Downloaders y Droppers.
+        # Eleva el operational_status si dotnet_threat_score ≥ umbral.
+        self._run_il_phase(file_path, result)
 
         # ── Limpieza del archivo desempacado temporal ─────────────────
         if result["was_unpacked"] and analysis_path != file_path:
@@ -427,6 +473,204 @@ class ShadowNetEngine:
 
         except Exception as exc:
             logger.error("Error en fase de overlay/heurística para %s: %s", file_path.name, exc)
+
+    def _run_dotnet_phase(self, file_path: Path, result: Dict[str, Any]) -> None:
+        """
+        Fase 5 — Análisis .NET/CLR.
+
+        Detecta si el archivo es un ensamblado .NET y, si es así:
+            - Extrae CLR Header, metadata streams, assembly info.
+            - Detecta ofuscadores conocidos.
+            - Detecta assemblies/PEs embebidos en recursos.
+            - Detecta indicadores IL sospechosos.
+            - Genera dotnet_risk_score y dotnet_risk_level.
+            - Re-evalúa la heurística con pesos .NET (Mejora 2).
+
+        No modifica label, score ni confidence del modelo ONNX.
+        """
+        if result.get("label") == "NOT_PE":
+            return
+
+        result["detection_phases"].append("DOTNET_ANALYSIS")
+        try:
+            raw_data = file_path.read_bytes()
+            dotnet_report = self._dotnet_analyzer.analyze(raw_data)
+
+            if not dotnet_report.is_dotnet:
+                return
+
+            # ── Poblar telemetría extendida (Mejora 8) ─────────────────
+            result["is_dotnet"] = True
+            result["clr_version"] = dotnet_report.assembly_info.clr_version
+            result["assembly_name"] = dotnet_report.assembly_info.assembly_name
+            result["obfuscator_detected"] = dotnet_report.obfuscator.detected
+            result["obfuscator_name"] = dotnet_report.obfuscator.name
+            result["embedded_assemblies_count"] = dotnet_report.embedded.embedded_assemblies_count
+            result["reflection_usage"] = dotnet_report.suspicious_il.reflection_usage
+            result["dynamic_loading_detected"] = dotnet_report.suspicious_il.dynamic_loading_detected
+            result["dotnet_risk_score"] = dotnet_report.risk_profile.dotnet_risk_score
+            result["dotnet_risk_level"] = dotnet_report.risk_profile.dotnet_risk_level
+            result["dotnet_analysis"] = dotnet_report.to_dict()
+
+            logger.info(
+                "Fase .NET: assembly=%s clr=%s obfuscator=%s dotnet_risk=%s(%d)",
+                result["assembly_name"],
+                result["clr_version"],
+                result["obfuscator_name"] or "none",
+                result["dotnet_risk_level"],
+                result["dotnet_risk_score"],
+            )
+
+            # ── Re-evaluar heurística con contexto .NET (Mejora 2) ─────
+            if result.get("heuristic_assessment"):
+                try:
+                    overlay_report = self._overlay_analyzer.analyze(raw_data, None)
+                    packer_indicators = (
+                        result.get("details", {})
+                        .get("diagnostics", {})
+                        .get("packer_indicators", {})
+                    )
+                    ml_score = result.get("score")
+                    if ml_score is not None and ml_score < 0:
+                        ml_score = None
+
+                    risk = self._risk_engine.assess(
+                        overlay_report=overlay_report,
+                        packer_indicators=packer_indicators,
+                        ml_score=ml_score,
+                        dotnet_report=dotnet_report,
+                    )
+
+                    result["heuristic_assessment"] = risk.to_dict()
+                    result["operational_status"] = risk.operational_status
+                    result["risk_level"] = risk.risk_level
+                    result["risk_score"] = risk.risk_score
+
+                    if "overlay_forensics" in result.get("details", {}):
+                        result["details"]["overlay_forensics"].update({
+                            "risk_score": risk.risk_score,
+                            "risk_level": risk.risk_level,
+                            "operational_status": risk.operational_status,
+                            "dotnet_context_applied": True,
+                        })
+
+                    logger.info(
+                        "Heurística re-evaluada con contexto .NET: "
+                        "score=%d level=%s operational=%s",
+                        risk.risk_score, risk.risk_level, risk.operational_status,
+                    )
+                except Exception as e:
+                    logger.warning("No se pudo re-evaluar heurística en contexto .NET: %s", e)
+
+            # ── Elevar status si dotnet_risk es HIGH o CRITICAL ────────
+            if dotnet_report.risk_profile.dotnet_risk_level in ("HIGH", "CRITICAL"):
+                if result.get("operational_status") == "CLEAN":
+                    result["operational_status"] = "SUSPICIOUS"
+                    logger.info(
+                        "Operational status elevado a SUSPICIOUS por dotnet_risk=%s",
+                        dotnet_report.risk_profile.dotnet_risk_level,
+                    )
+
+        except Exception as exc:
+            logger.error("Error en fase .NET para %s: %s", file_path.name, exc)
+
+    def _run_il_phase(self, file_path: Path, result: Dict[str, Any]) -> None:
+        """
+        Fase 6 — IL Behavioral Analysis.
+
+        Solo se ejecuta si el archivo fue identificado como .NET en Fase 5.
+        Analiza semánticamente el IL buscando comportamientos maliciosos
+        típicos de RATs, Loaders, Stealers, Worms y Downloaders.
+
+        M15 — Integración con Operational Status:
+            Si dotnet_threat_score >= 50 (HIGH) y operational_status == CLEAN
+            → eleva a SUSPICIOUS.
+            Si dotnet_threat_score >= 75 (CRITICAL)
+            → eleva a DANGEROUS independientemente del ML score.
+
+        No modifica label, score ni confidence del modelo ONNX.
+        """
+        # Solo ejecutar en archivos .NET detectados
+        if not result.get("is_dotnet", False):
+            return
+
+        result["detection_phases"].append("IL_BEHAVIORAL")
+        try:
+            raw_data = file_path.read_bytes()
+            il_report = self._il_analyzer.analyze(raw_data)
+
+            # ── Poblar telemetría IL (M16) ─────────────────────────────
+            il_dict = il_report.to_dict()
+            result["il_behavioral"] = il_dict
+            result["dotnet_threat_score"] = il_report.dotnet_threat_score
+            result["dotnet_threat_level"] = il_report.dotnet_threat_level
+            result["family_likelihoods"] = il_report.family_likelihoods
+            result["top_family"] = il_report.top_family
+            result["injection_detected"] = il_report.injection.detected
+            result["persistence_detected"] = il_report.persistence.detected
+            result["networking_detected"] = il_report.networking.detected
+            result["credential_theft_detected"] = il_report.credential_theft.detected
+            result["worm_behavior_detected"] = il_report.worm.detected
+            result["rat_detected"] = il_report.rat.detected
+            result["stealer_detected"] = il_report.stealer.detected
+            # Actualizar campos ya existentes de la fase dotnet
+            result["reflection_usage"] = il_report.reflection.detected
+            result["dynamic_loading_detected"] = il_report.dynamic_loading.detected
+
+            # ── M15: Elevar Operational Status según threat_score ──────
+            threat_score = il_report.dotnet_threat_score
+            current_status = result.get("operational_status", "CLEAN")
+
+            if threat_score >= 75:
+                # CRITICAL — forzar DANGEROUS sin importar ML
+                result["operational_status"] = "DANGEROUS"
+                logger.warning(
+                    "IL: dotnet_threat_score=%d (CRITICAL) → DANGEROUS | "
+                    "top_family=%s | file=%s",
+                    threat_score,
+                    il_report.top_family or "unknown",
+                    file_path.name,
+                )
+            elif threat_score >= 50 and current_status in ("CLEAN", "UNKNOWN"):
+                result["operational_status"] = "SUSPICIOUS"
+                logger.warning(
+                    "IL: dotnet_threat_score=%d (HIGH) → SUSPICIOUS | "
+                    "top_family=%s | file=%s",
+                    threat_score,
+                    il_report.top_family or "unknown",
+                    file_path.name,
+                )
+            elif threat_score >= 25 and current_status == "CLEAN":
+                result["operational_status"] = "SUSPICIOUS"
+                logger.info(
+                    "IL: dotnet_threat_score=%d (MEDIUM) → SUSPICIOUS | file=%s",
+                    threat_score,
+                    file_path.name,
+                )
+
+            # ── Añadir resumen IL a details ────────────────────────────
+            result["details"]["il_behavioral"] = {
+                "threat_score": threat_score,
+                "threat_level": il_report.dotnet_threat_level,
+                "top_family": il_report.top_family,
+                "indicators_fired": len(il_report.all_evidence),
+                "evidence_sample": il_report.all_evidence[:10],
+                "family_likelihoods": il_report.family_likelihoods,
+            }
+
+            logger.info(
+                "Fase IL completa: %s | threat=%d (%s) | family=%s | "
+                "operational=%s | indicators=%d",
+                file_path.name,
+                threat_score,
+                il_report.dotnet_threat_level,
+                il_report.top_family or "none",
+                result["operational_status"],
+                len(il_report.all_evidence),
+            )
+
+        except Exception as exc:
+            logger.error("Error en fase IL para %s: %s", file_path.name, exc)
 
     # ------------------------------------------------------------------
     # Inicialización de Módulos Auxiliares
