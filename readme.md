@@ -24,7 +24,7 @@ Sistema avanzado de detección de malware mediante aprendizaje profundo y explic
 
 - Licencia privada de investigación.  
 - Proyecto en desarrollo como primer producto oficial de **SHADOW-NET**.  
-- Autores: **Ivan Velasco (IVAINX_18)** y **Santiago Cubillos (VANkLEis)**.  
+- Autores: **Ivan Velasco (IVAINX_21)** y **Santiago Cubillos (VANkLEis)**.  
 - Este software **no es open‑source**.  
 - Uso permitido únicamente para fines académicos e investigativos; no se permite distribución, sublicenciamiento ni uso comercial sin autorización expresa y escrita de los autores.
 
