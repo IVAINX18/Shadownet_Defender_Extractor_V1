@@ -103,42 +103,42 @@
 
 ## P2 — Tests y Observabilidad
 
-- [ ] 14. Crear infraestructura de tests
-  - [ ] 14.1 Crear tests/__init__.py, tests/conftest.py con fixtures base (tmp_path, mock_engine, TestClient)
-  - [ ] 14.2 Crear subdirectorios tests/unit/, tests/integration/, tests/security/, tests/properties/
-  - [ ] 14.3 Crear tests/fixtures/ con sample_pe.exe (PE benigno mínimo para tests)
+- [x] 14. Crear infraestructura de tests
+  - [x] 14.1 Crear tests/conftest.py con fixtures base (tmp_path, mock_engine, sample_pe_file)
+  - [x] 14.2 Crear subdirectorios tests/unit/, tests/integration/, tests/security/, tests/properties/
+  - [x] 14.3 Crear tests/fixtures/sample_pe.exe (PE mínimo válido de 1024 bytes)
   - Requirement: 9
 
-- [ ] 15. Tests unitarios: extractor y engine
-  - [ ] 15.1 tests/unit/test_extractor.py: vector 2381 dimensiones, NonPEFileError en no-PE, NonPEFileError en vacío, RAW_FALLBACK no-cero
-  - [ ] 15.2 tests/unit/test_engine.py: YARA match → MALWARE, ONNX falla → UNKNOWN/SUSPICIOUS, no-PE .exe → SUSPICIOUS, elevación behavioral DANGEROUS/SUSPICIOUS, fase falla → pipeline continúa
+- [x] 15. Tests unitarios: extractor y engine
+  - [x] 15.1 tests/unit/test_extractor.py: vector 2381 dimensiones, NonPEFileError en no-PE, NonPEFileError en vacío, RAW_FALLBACK no-cero
+  - [x] 15.2 tests/unit/test_engine.py: YARA match → MALWARE, ONNX falla → UNKNOWN/SUSPICIOUS, no-PE .exe → SUSPICIOUS, elevación behavioral DANGEROUS/SUSPICIOUS, fase falla → pipeline continúa
   - Requirement: 9
 
-- [ ] 16. Tests unitarios: quarantine y remediation
-  - [ ] 16.1 tests/unit/test_quarantine.py: quarantine mueve archivo, SHA-256 en meta, symlink rechazado, path traversal rechazado, restore verifica SHA-256, directorio 700
-  - [ ] 16.2 tests/unit/test_remediation.py: PID < 10 rechazado, exe_path mismatch rechazado, PermissionError no propagado
+- [x] 16. Tests unitarios: quarantine y remediation
+  - [x] 16.1 tests/unit/test_quarantine.py: quarantine mueve archivo, SHA-256 en meta, symlink rechazado, path traversal rechazado, restore verifica SHA-256, directorio 700
+  - [x] 16.2 tests/unit/test_remediation.py: PID < 10 rechazado, exe_path mismatch rechazado, PermissionError no propagado
   - Requirement: 9
 
-- [ ] 17. Tests de integración y serialización
-  - [ ] 17.1 tests/integration/test_pipeline_e2e.py: accuracy sobre data/test_set/ (X_test.npy, y_test.npy)
-  - [ ] 17.2 tests/integration/test_supabase_client.py: telemetría completa, incidents en DANGEROUS, fallback offline, idempotencia sha256
-  - [ ] 17.3 tests/unit/test_scan_result_serde.py: round-trip serialización ScanResult
-  - [ ] 17.4 tests/unit/test_settings.py: defaults presentes, secretos enmascarados en log_config
+- [x] 17. Tests de integración y serialización
+  - [x] 17.1 tests/integration/test_pipeline_e2e.py: accuracy sobre data/test_set/ (X_test.npy, y_test.npy)
+  - [x] 17.2 tests/integration/test_supabase_client.py: telemetría completa, incidents en DANGEROUS, fallback offline, idempotencia sha256
+  - [x] 17.3 tests/unit/test_scan_result_serde.py: round-trip serialización ScanResult
+  - [x] 17.4 tests/unit/test_settings.py: defaults presentes, secretos enmascarados en log_config
   - Requirement: 9
 
-- [ ] 18. Tests de seguridad y propiedades
-  - [ ] 18.1 tests/security/test_backend_security.py: path traversal sanitizado, archivo > MAX_UPLOAD_BYTES → 413, sin JWT → 401, JWT expirado → 401, doble extensión → 400, rate limit → 429, cleanup en excepción
-  - [ ] 18.2 tests/properties/test_pipeline_properties.py: Properties 1, 2, 22, 23, 24, 25, 26, 27, 28, 29 con Hypothesis
-  - [ ] 18.3 tests/properties/test_quarantine_properties.py: Properties 5, 6, 7, 8
-  - [ ] 18.4 tests/properties/test_n8n_properties.py: Properties 16, 17, 18
-  - [ ] 18.5 tests/properties/test_serialization_properties.py: Property 30
+- [x] 18. Tests de seguridad y propiedades
+  - [x] 18.1 tests/security/test_backend_security.py: path traversal sanitizado, archivo > MAX_UPLOAD_BYTES → 413, sin JWT → 401, JWT expirado → 401, doble extensión → 400, rate limit → 429, cleanup en excepción
+  - [x] 18.2 tests/properties/test_pipeline_properties.py: Properties 1, 2, 22, 23, 24, 25, 26, 27, 28, 29 con Hypothesis
+  - [x] 18.3 tests/properties/test_quarantine_properties.py: Properties 5, 6, 7, 8
+  - [x] 18.4 tests/properties/test_n8n_properties.py: Properties 16, 17, 18
+  - [x] 18.5 tests/properties/test_serialization_properties.py: Property 30
   - Requirement: 9
 
-- [ ] 19. Health endpoint extendido en backend/app/main.py o backend/app/api/routes/health.py
-  - [ ] 19.1 Implementar _check_components(): onnx_model, yara_scanner, supabase, n8n, psutil, offline_queue_size
-  - [ ] 19.2 Implementar _compute_pipeline_mode(): full / degraded / minimal
-  - [ ] 19.3 Retornar HTTP 503 si componente crítico (onnx_model o yara_scanner) está degradado
-  - [ ] 19.4 Eliminar autenticación JWT del endpoint GET /health
+- [x] 19. Health endpoint extendido en backend/app/api/routes/health.py
+  - [x] 19.1 Implementar _check_components(): onnx_model, yara_scanner, supabase, n8n, psutil, offline_queue_size
+  - [x] 19.2 Implementar _compute_pipeline_mode(): full / degraded / minimal
+  - [x] 19.3 Retornar HTTP 503 si componente crítico (onnx_model o yara_scanner) está degradado
+  - [x] 19.4 Eliminar autenticación JWT del endpoint GET /health
   - Requirement: 11
 
 ## P3 — Despliegue
