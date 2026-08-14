@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "file_name": "test.exe",
+    "result": "malicious",
+    "operational_status": "DANGEROUS",
+    "sha256": "unique_hash_test",
+    "detection_phases": [
+      "YARA",
+      "ML_STATIC"
+    ],
+    "behavioral_analysis": {
+      "pid": 123,
+      "risk_score": 0.8
+    },
+    "offline": true,
+    "queued_at": "2026-08-14T19:59:44.360492+00:00"
+  }
+]

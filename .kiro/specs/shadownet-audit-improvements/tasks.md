@@ -71,34 +71,34 @@
 
 ## P1 — Integraciones
 
-- [ ] 10. Extender backend/app/integrations/supabase_client.py con telemetría completa
-  - [ ] 10.1 Implementar _safe_json(obj) para serialización segura de NaN/Inf
-  - [ ] 10.2 Ampliar record en save_scan() con 16 campos nuevos (operational_status, sha256, overlay_analysis, yara_matches, il_behavioral, dotnet_analysis, detection_phases, was_unpacked, is_dotnet, obfuscator_detected, obfuscator_name, injection_detected, persistence_detected, networking_detected, credential_theft_detected, behavioral_analysis)
-  - [ ] 10.3 Implementar idempotencia por sha256 + ventana 60s
-  - [ ] 10.4 Implementar save_incident() para DANGEROUS → tabla incidents
-  - [ ] 10.5 Fallback a offline_service si Supabase falla (sin propagar excepción)
+- [x] 10. Extender backend/app/integrations/supabase_client.py con telemetría completa
+  - [x] 10.1 Implementar _safe_json(obj) para serialización segura de NaN/Inf
+  - [x] 10.2 Ampliar record en save_scan() con 16 campos nuevos (operational_status, sha256, overlay_analysis, yara_matches, il_behavioral, dotnet_analysis, detection_phases, was_unpacked, is_dotnet, obfuscator_detected, obfuscator_name, injection_detected, persistence_detected, networking_detected, credential_theft_detected, behavioral_analysis)
+  - [x] 10.3 Implementar idempotencia por sha256 + ventana 60s
+  - [x] 10.4 Implementar save_incident() para DANGEROUS → tabla incidents
+  - [x] 10.5 Fallback a offline_service si Supabase falla (sin propagar excepción)
   - Requirement: 4
 
-- [ ] 11. Crear script SQL de migración docs/supabase_migration.sql
-  - [ ] 11.1 ALTER TABLE scan_results con las 16 columnas nuevas
-  - [ ] 11.2 CREATE TABLE incidents con índices
-  - [ ] 11.3 Índices en scan_results (sha256, operational_status)
+- [x] 11. Crear script SQL de migración docs/supabase_migration.sql
+  - [x] 11.1 ALTER TABLE scan_results con las 16 columnas nuevas
+  - [x] 11.2 CREATE TABLE incidents con índices
+  - [x] 11.3 Índices en scan_results (sha256, operational_status)
   - Requirement: 4
 
-- [ ] 12. Mejorar core/integrations/n8n_client.py
-  - [ ] 12.1 Cambiar condición de disparo: result=="malicious" OR operational_status=="DANGEROUS"
-  - [ ] 12.2 Extender payload con operational_status, risk_score, risk_level, detection_phases, top_family, injection_detected, persistence_detected
-  - [ ] 12.3 Implementar retry exponencial (1s, 2s) en HTTP >= 500 (máx 2 reintentos)
-  - [ ] 12.4 Sanitizar payload con _safe_json antes de enviar
+- [x] 12. Mejorar core/integrations/n8n_client.py
+  - [x] 12.1 Cambiar condición de disparo: result=="malicious" OR operational_status=="DANGEROUS"
+  - [x] 12.2 Extender payload con operational_status, risk_score, risk_level, detection_phases, top_family, injection_detected, persistence_detected
+  - [x] 12.3 Implementar retry exponencial (1s, 2s) en HTTP >= 500 (máx 2 reintentos)
+  - [x] 12.4 Sanitizar payload con _safe_json antes de enviar
   - Requirement: 5
 
-- [ ] 13. Mejorar backend/app/services/realtime_service.py
-  - [ ] 13.1 Ordenar procesos por CPU y seleccionar top-20 para análisis behavioral
-  - [ ] 13.2 Implementar _enrich_with_behavioral() invocando BehavioralShield.analyze_process(pid)
-  - [ ] 13.3 Añadir behavioral_risk_score, behavioral_is_suspicious, suspicious_actions, risk_reason a cada proceso
-  - [ ] 13.4 Diferenciación risk_reason: "behavioral" vs "performance"
-  - [ ] 13.5 Timeout global de 10s con concurrent.futures
-  - [ ] 13.6 Procesos con AccessDenied → risk_level="unknown", access_denied=True
+- [x] 13. Mejorar backend/app/services/realtime_service.py
+  - [x] 13.1 Ordenar procesos por CPU y seleccionar top-20 para análisis behavioral
+  - [x] 13.2 Implementar _enrich_with_behavioral() invocando BehavioralShield.analyze_process(pid)
+  - [x] 13.3 Añadir behavioral_risk_score, behavioral_is_suspicious, suspicious_actions, risk_reason a cada proceso
+  - [x] 13.4 Diferenciación risk_reason: "behavioral" vs "performance"
+  - [x] 13.5 Timeout global de 10s con concurrent.futures
+  - [x] 13.6 Procesos con AccessDenied → risk_level="unknown", access_denied=True
   - Requirement: 6
 
 ## P2 — Tests y Observabilidad
