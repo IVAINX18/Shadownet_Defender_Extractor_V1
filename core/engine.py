@@ -175,20 +175,32 @@ class ShadowNetEngine:
         # Se ejecuta siempre, independientemente del resultado ML.
         # Usa el archivo ORIGINAL (no el desempacado) para detectar
         # overlays cifrados que UPX no puede desempacar.
-        self._run_overlay_phase(file_path, result)
+        try:
+            self._run_overlay_phase(file_path, result)
+        except Exception as _exc:
+            logger.error("Error en fase overlay para %s: %s", file_path.name, _exc)
+            result["details"]["overlay_phase_error"] = True
 
         # ── FASE 5: Análisis .NET / CLR (Mejoras 1-8) ────────────────
         # Se ejecuta siempre que el archivo sea PE válido.
         # Detecta CLR header, ofuscadores, assemblies embebidos, IL sospechoso.
         # Pasa el dotnet_report al risk engine para ajustar pesos (Mejora 2).
-        self._run_dotnet_phase(file_path, result)
+        try:
+            self._run_dotnet_phase(file_path, result)
+        except Exception as _exc:
+            logger.error("Error en fase dotnet para %s: %s", file_path.name, _exc)
+            result["details"]["dotnet_phase_error"] = True
 
         # ── FASE 6: IL Behavioral Analysis ────────────────────────────
         # Se ejecuta solo si el archivo es .NET (detectado en Fase 5).
         # Analiza semánticamente el código IL para identificar RATs,
         # Loaders, Stealers, Worms, Downloaders y Droppers.
         # Eleva el operational_status si dotnet_threat_score ≥ umbral.
-        self._run_il_phase(file_path, result)
+        try:
+            self._run_il_phase(file_path, result)
+        except Exception as _exc:
+            logger.error("Error en fase IL para %s: %s", file_path.name, _exc)
+            result["details"]["il_phase_error"] = True
 
         # ── Limpieza del archivo desempacado temporal ─────────────────
         if result["was_unpacked"] and analysis_path != file_path:
@@ -327,8 +339,36 @@ class ShadowNetEngine:
             if hasattr(self.extractor, "last_diagnostics") and self.extractor.last_diagnostics:
                 result["details"].update(self.extractor.last_diagnostics)
 
+            # 2.3 — Detectar modo RAW_FALLBACK del extractor
+            if hasattr(self.extractor, "last_diagnostics") and self.extractor.last_diagnostics:
+                _diag = self.extractor.last_diagnostics
+                if _diag.get("raw_fallback") or (
+                    isinstance(_diag.get("diagnostics"), dict)
+                    and _diag["diagnostics"].get("raw_fallback")
+                ):
+                    if "diagnostics" not in result["details"]:
+                        result["details"]["diagnostics"] = {}
+                    result["details"]["diagnostics"]["extraction_mode"] = "RAW_FALLBACK"
+                    result["confidence"] = "Low"
+                    logger.info(
+                        "Extractor en modo RAW_FALLBACK para %s → confidence=Low",
+                        analysis_path.name,
+                    )
+
             if self.model:
-                score = self.model.predict(features)
+                try:
+                    score = self.model.predict(features)
+                except Exception as onnx_exc:
+                    # 2.1 — Fallo ONNX → UNKNOWN / SUSPICIOUS
+                    logger.error(
+                        "Error ONNX en inferencia de %s: %s", analysis_path.name, onnx_exc
+                    )
+                    result["label"] = "UNKNOWN"
+                    result["score"] = -1.0
+                    result["operational_status"] = "SUSPICIOUS"
+                    result["details"]["ml_phase_error"] = True
+                    return
+
                 result["score"] = round(score, 4)
 
                 # Labeling
@@ -355,9 +395,21 @@ class ShadowNetEngine:
             result["label"] = "NOT_PE"
             result["error"] = "File is not a valid PE executable"
             logger.warning("Archivo no-PE omitido: %s", analysis_path)
+            # 2.2 — Si el archivo tiene extensión ejecutable, elevar a SUSPICIOUS
+            if analysis_path.suffix.lower() in (".exe", ".dll", ".sys"):
+                result["operational_status"] = "SUSPICIOUS"
+                logger.warning(
+                    "NonPEFileError en archivo con extensión ejecutable (%s) → SUSPICIOUS",
+                    analysis_path.suffix,
+                )
 
         except Exception as exc:
+            # 2.1 — Fallo de ONNX → UNKNOWN / SUSPICIOUS
             logger.error("Fallo en fase ML para %s: %s", analysis_path, exc)
+            result["label"] = "UNKNOWN"
+            result["score"] = -1.0
+            result["operational_status"] = "SUSPICIOUS"
+            result["details"]["ml_phase_error"] = True
             result["error"] = str(exc)
 
     def _run_overlay_phase(self, file_path: Path, result: Dict[str, Any]) -> None:
