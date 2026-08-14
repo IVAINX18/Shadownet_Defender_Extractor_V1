@@ -44,13 +44,15 @@ class AnalysisType(str, Enum):
     """
     Tipo de análisis ejecutado.
 
-    - pe: Archivo PE analizado por el motor ML (features + ONNX)
-    - non_pe: Archivo no PE — no fue analizado por el modelo ML
-    - realtime: Análisis de procesos en ejecución
+    - pe         : Archivo PE analizado por el motor ML (features + ONNX)
+    - non_pe     : Archivo no PE — no fue analizado por el modelo ML
+    - realtime   : Análisis de procesos en ejecución
+    - yara       : Detectado por firma YARA (sin necesidad de inferencia ML)
     """
     PE = "pe"
     NON_PE = "non_pe"
     REALTIME = "realtime"
+    YARA = "yara"
 
 
 # ---------------------------------------------------------------------------
@@ -110,6 +112,115 @@ class ScanResult(BaseModel):
     user_email: Optional[str] = Field(
         default=None,
         description="Email del usuario autenticado (inyectado por el backend)",
+    )
+    # ── Campos del Pipeline Híbrido ─────────────────────────────────────────
+    yara_matches: List[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="Reglas YARA que coincidieron con el archivo (vacío si ninguna)",
+    )
+    was_unpacked: bool = Field(
+        default=False,
+        description="True si el archivo fue desempacado (UPX) antes del análisis",
+    )
+    detection_phases: List[str] = Field(
+        default_factory=list,
+        description="Fases del pipeline de detección ejecutadas: YARA, UPX_DETECT, UPX_UNPACK, ML_STATIC",
+    )
+    # ── Telemetría .NET extendida (Mejora 8) ────────────────────────────────
+    is_dotnet: bool = Field(
+        default=False,
+        description="True si el archivo es un ensamblado .NET/CLR",
+    )
+    clr_version: Optional[str] = Field(
+        default=None,
+        description="Versión del CLR runtime (ej: 'v4.0.30319')",
+    )
+    assembly_name: Optional[str] = Field(
+        default=None,
+        description="Nombre del ensamblado .NET",
+    )
+    obfuscator_detected: bool = Field(
+        default=False,
+        description="True si se detectó un ofuscador .NET conocido",
+    )
+    obfuscator_name: Optional[str] = Field(
+        default=None,
+        description="Nombre del ofuscador detectado (ej: 'ConfuserEx')",
+    )
+    embedded_assemblies_count: int = Field(
+        default=0,
+        description="Número de ensamblados embebidos en recursos .NET",
+    )
+    reflection_usage: bool = Field(
+        default=False,
+        description="True si se detectó uso de Reflection en el IL",
+    )
+    dynamic_loading_detected: bool = Field(
+        default=False,
+        description="True si se detectó carga dinámica de assemblies (LoadFrom/LoadFile)",
+    )
+    dotnet_risk_score: int = Field(
+        default=0,
+        description="Score de riesgo específico para .NET [0-999]",
+    )
+    dotnet_risk_level: str = Field(
+        default="LOW",
+        description="Nivel de riesgo .NET: LOW | MEDIUM | HIGH | CRITICAL",
+    )
+    # ── Telemetría IL Behavioral (M16) ──────────────────────────────────────
+    dotnet_threat_score: int = Field(
+        default=0,
+        description="Score de amenaza IL 0-100 (M14)",
+    )
+    dotnet_threat_level: str = Field(
+        default="LOW",
+        description="Nivel de amenaza IL: LOW | MEDIUM | HIGH | CRITICAL",
+    )
+    injection_detected: bool = Field(
+        default=False,
+        description="True si se detectaron APIs de inyección de código",
+    )
+    persistence_detected: bool = Field(
+        default=False,
+        description="True si se detectaron mecanismos de persistencia",
+    )
+    networking_detected: bool = Field(
+        default=False,
+        description="True si se detectaron APIs de red",
+    )
+    credential_theft_detected: bool = Field(
+        default=False,
+        description="True si se detectaron indicadores de robo de credenciales",
+    )
+    worm_behavior_detected: bool = Field(
+        default=False,
+        description="True si se detectaron indicadores de propagación (worm)",
+    )
+    rat_detected: bool = Field(
+        default=False,
+        description="True si se detectaron indicadores de RAT",
+    )
+    stealer_detected: bool = Field(
+        default=False,
+        description="True si se detectaron indicadores de stealer",
+    )
+    top_family: Optional[str] = Field(
+        default=None,
+        description="Familia de malware más probable según scoring semántico",
+    )
+    family_likelihoods: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Porcentaje de similitud con cada familia conocida (M13)",
+    )
+    # ── SHA-256 del archivo analizado ───────────────────────────────────────
+    sha256: Optional[str] = Field(
+        default=None,
+        description="SHA-256 del archivo calculado antes del análisis",
+    )
+    # ── Análisis de comportamiento dinámico (Fase 7 / BehavioralShield) ─────
+    behavioral_analysis: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="BehaviorReport serializado o null si el proceso no estaba activo",
     )
 
 

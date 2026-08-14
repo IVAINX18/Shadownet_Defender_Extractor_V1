@@ -71,7 +71,17 @@ def _normalize_ollama_base_url(value: str | None) -> str:
     if text.startswith("="):
         text = text[1:].strip()
 
-    return text or default_url
+    text = text or default_url
+
+    # Si el usuario define solo host:puerto, agrego /v1 automáticamente
+    # para apuntar al endpoint OpenAI-compatible de Ollama.
+    lower = text.lower()
+    if lower.startswith("http://") or lower.startswith("https://"):
+        trimmed = text.rstrip("/")
+        if not trimmed.lower().endswith("/v1"):
+            text = f"{trimmed}/v1"
+
+    return text
 
 
 @dataclass

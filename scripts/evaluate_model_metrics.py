@@ -13,7 +13,7 @@ import joblib
 
 from tests._mock_model import MockModel
 
-# 📚 MockModel se importa de tests/_mock_model.py
+# * MockModel se importa de tests/_mock_model.py
 # para evitar duplicación con test_robustness.py y explain_global_model.py
 
 def evaluate_model():

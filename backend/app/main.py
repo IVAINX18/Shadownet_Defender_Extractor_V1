@@ -45,6 +45,8 @@ except ImportError:
 from backend.app.api.routes.scan import router as scan_router
 from backend.app.api.routes.analysis import router as analysis_router
 from backend.app.api.routes.health import router as health_router
+from backend.app.api.routes.quarantine import router as quarantine_router
+from backend.app.api.routes.remediation import router as remediation_router
 
 # ---------------------------------------------------------------------------
 # Creo la aplicación FastAPI
@@ -83,6 +85,8 @@ app.add_middleware(
 app.include_router(scan_router)
 app.include_router(analysis_router)
 app.include_router(health_router)
+app.include_router(quarantine_router)
+app.include_router(remediation_router)
 
 
 from fastapi import Request

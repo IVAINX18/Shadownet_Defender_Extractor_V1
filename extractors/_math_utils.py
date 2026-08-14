@@ -88,3 +88,27 @@ def hash_feature_sha256(feature: str, dim: int) -> int:
 
     # Proyectar al rango [0, dim-1] con módulo
     return hash_value % dim
+
+
+def get_distributed_sample(data: bytes, limit: int = 10 * 1024 * 1024) -> bytes:
+    """
+    Muestrea 1/3 del inicio, 1/3 del centro y 1/3 del final
+    de los bytes de entrada si el tamaño excede el límite.
+
+    Evita la evasión por file bloating y el padding con ceros al
+    inicio, medio o final de archivos gigantes.
+    """
+    size = len(data)
+    if size <= limit:
+        return data
+
+    chunk_size = limit // 3
+    start_chunk = data[:chunk_size]
+
+    mid_start = (size // 2) - (chunk_size // 2)
+    mid_chunk = data[mid_start : mid_start + chunk_size]
+
+    end_chunk = data[-chunk_size:]
+
+    return start_chunk + mid_chunk + end_chunk
+

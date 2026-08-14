@@ -11,6 +11,7 @@ Orquesto el flujo completo de escaneo:
 
 from __future__ import annotations
 
+import hashlib
 import sys
 import time
 from datetime import datetime, timezone
@@ -64,22 +65,53 @@ def classify_tripartite(score: float) -> Tuple[ScanResultLabel, RiskLevel]:
     Aplica la clasificación tripartita basada en el score del modelo ML.
 
     Reglas (definidas por el usuario):
+      - score < 0   → suspicious / medium  (score negativo = error de análisis)
       - score < 0.4  → benign  / low
       - 0.4 ≤ score ≤ 0.7 → suspicious / medium
       - score > 0.7  → malicious / high
 
     Args:
         score: Probabilidad de malware [0.0 - 1.0] del modelo ONNX.
+               Un valor -1.0 indica fallo del modelo.
 
     Returns:
         Tupla (ScanResultLabel, RiskLevel) con la clasificación.
     """
+    # 3.1 — Score negativo indica fallo de análisis → siempre SUSPICIOUS/MEDIUM
+    if score < 0:
+        return ScanResultLabel.SUSPICIOUS, RiskLevel.MEDIUM
+
     if score < 0.4:
         return ScanResultLabel.BENIGN, RiskLevel.LOW
     elif score <= 0.7:
         return ScanResultLabel.SUSPICIOUS, RiskLevel.MEDIUM
     else:
         return ScanResultLabel.MALICIOUS, RiskLevel.HIGH
+
+
+# ---------------------------------------------------------------------------
+# SHA-256 — Calculado en chunks para evitar OOM en archivos grandes
+# ---------------------------------------------------------------------------
+
+def _compute_sha256(file_path: Path) -> str:
+    """
+    Calcula el SHA-256 del archivo en chunks de 64 KB.
+
+    Args:
+        file_path: Ruta al archivo.
+
+    Returns:
+        Cadena hexadecimal del hash SHA-256.
+    """
+    sha256 = hashlib.sha256()
+    chunk_size = 64 * 1024  # 64 KB
+    with open(file_path, "rb") as fh:
+        while True:
+            chunk = fh.read(chunk_size)
+            if not chunk:
+                break
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 
 # ---------------------------------------------------------------------------
@@ -117,21 +149,50 @@ def scan_single_file(
     engine = get_engine()
     start_time = time.time()
 
+    # 3.3 — Calcula SHA-256 ANTES de ejecutar el engine
+    file_sha256: Optional[str] = None
+    try:
+        file_sha256 = _compute_sha256(file_path)
+        logger.debug("SHA-256 de %s: %s", file_path.name, file_sha256)
+    except Exception as exc:
+        logger.warning("No se pudo calcular SHA-256 de %s: %s", file_path.name, exc)
+
     # Ejecuto el motor ML existente — no lo recreo, solo lo uso
     raw_result = engine.scan_file(file_path)
     elapsed = time.time() - start_time
 
-    # Determino si el archivo es PE o no a partir del resultado del motor
-    engine_label = raw_result.get("label", "")
-    is_not_pe = engine_label == "NOT_PE"
+    # Extraer metadatos del pipeline híbrido
+    yara_matches    = raw_result.get("yara_matches", [])
+    was_unpacked    = raw_result.get("was_unpacked", False)
+    detection_phases = raw_result.get("detection_phases", [])
 
-    if is_not_pe:
+    # Determino el flujo de clasificación según lo que detectó el engine
+    engine_label = raw_result.get("label", "")
+    is_not_pe   = engine_label == "NOT_PE"
+    is_yara_hit = bool(yara_matches)  # YARA detectó una firma conocida
+    is_unknown  = engine_label == "UNKNOWN"
+
+    if is_yara_hit:
+        # YARA confirmó malware por firma determinista — máxima confianza
+        result_label  = ScanResultLabel.MALICIOUS
+        risk_level    = RiskLevel.HIGH
+        confidence    = 1.0
+        analysis_type = AnalysisType.YARA
+
+        logger.warning(
+            "YARA: Malware confirmado en %s | reglas=%s | time=%.3fs",
+            file_path.name,
+            [m.get("rule") for m in yara_matches],
+            elapsed,
+        )
+
+    elif is_not_pe:
         # Archivo NO PE — no fue analizado por el modelo ML.
         # NO lo trato como "benign" porque no puedo confirmar que sea seguro.
         # Lo clasifico como "suspicious / medium" para que el usuario investigue.
-        result_label = ScanResultLabel.SUSPICIOUS
-        risk_level = RiskLevel.MEDIUM
-        confidence = 0.0
+        result_label  = ScanResultLabel.SUSPICIOUS
+        risk_level    = RiskLevel.MEDIUM
+        confidence    = 0.0
         analysis_type = AnalysisType.NON_PE
 
         logger.info(
@@ -140,6 +201,21 @@ def scan_single_file(
             file_path.name,
             elapsed,
         )
+
+    elif is_unknown:
+        # 3.2 — Engine retornó UNKNOWN (fallo de análisis en archivo PE)
+        # Tratar como PE fallido: suspicious/medium con analysis_type=PE
+        result_label  = ScanResultLabel.SUSPICIOUS
+        risk_level    = RiskLevel.MEDIUM
+        confidence    = 0.0
+        analysis_type = AnalysisType.PE
+
+        logger.warning(
+            "Engine UNKNOWN para %s | análisis PE falló | result=suspicious | time=%.3fs",
+            file_path.name,
+            elapsed,
+        )
+
     else:
         # Archivo PE válido — uso el score del modelo ML
         score = float(raw_result.get("score", 0.0))
@@ -147,16 +223,17 @@ def scan_single_file(
             score = 0.0
 
         result_label, risk_level = classify_tripartite(score)
-        confidence = round(score, 4)
+        confidence    = round(score, 4)
         analysis_type = AnalysisType.PE
 
         logger.info(
             "Archivo PE analizado: %s | type=pe | result=%s | risk=%s | "
-            "score=%.4f | inference_time=%.3fs",
+            "score=%.4f | unpacked=%s | inference_time=%.3fs",
             file_path.name,
             result_label.value,
             risk_level.value,
             score,
+            was_unpacked,
             elapsed,
         )
 
@@ -165,12 +242,15 @@ def scan_single_file(
     features: List[str] = []
     if isinstance(details, dict):
         # Combino imports y secciones sospechosas como features relevantes
-        suspicious_imports = details.get("suspicious_imports", [])
+        suspicious_imports  = details.get("suspicious_imports", [])
         suspicious_sections = details.get("suspicious_sections", [])
+        threat_names        = details.get("threat_names", [])  # Nombres YARA
         if isinstance(suspicious_imports, list):
             features.extend([str(f) for f in suspicious_imports[:10]])
         if isinstance(suspicious_sections, list):
             features.extend([str(s) for s in suspicious_sections[:10]])
+        if isinstance(threat_names, list):
+            features.extend([f"YARA:{n}" for n in threat_names[:5]])
 
     # Construyo ScanResult estandarizado según el PRD
     scan_result = ScanResult(
@@ -184,6 +264,37 @@ def scan_single_file(
         explanation=None,  # Se llena después si se solicita LLM
         risk_level=risk_level,
         analysis_type=analysis_type,
+        # Campos del pipeline híbrido
+        yara_matches=yara_matches,
+        was_unpacked=was_unpacked,
+        detection_phases=detection_phases,
+        # Telemetría .NET extendida (Mejora 8)
+        is_dotnet=raw_result.get("is_dotnet", False),
+        clr_version=raw_result.get("clr_version") or None,
+        assembly_name=raw_result.get("assembly_name") or None,
+        obfuscator_detected=raw_result.get("obfuscator_detected", False),
+        obfuscator_name=raw_result.get("obfuscator_name") or None,
+        embedded_assemblies_count=raw_result.get("embedded_assemblies_count", 0),
+        reflection_usage=raw_result.get("reflection_usage", False),
+        dynamic_loading_detected=raw_result.get("dynamic_loading_detected", False),
+        dotnet_risk_score=raw_result.get("dotnet_risk_score", 0),
+        dotnet_risk_level=raw_result.get("dotnet_risk_level", "LOW"),
+        # Telemetría IL Behavioral (M16)
+        dotnet_threat_score=raw_result.get("dotnet_threat_score", 0),
+        dotnet_threat_level=raw_result.get("dotnet_threat_level", "LOW"),
+        injection_detected=raw_result.get("injection_detected", False),
+        persistence_detected=raw_result.get("persistence_detected", False),
+        networking_detected=raw_result.get("networking_detected", False),
+        credential_theft_detected=raw_result.get("credential_theft_detected", False),
+        worm_behavior_detected=raw_result.get("worm_behavior_detected", False),
+        rat_detected=raw_result.get("rat_detected", False),
+        stealer_detected=raw_result.get("stealer_detected", False),
+        top_family=raw_result.get("top_family") or None,
+        family_likelihoods=raw_result.get("family_likelihoods", {}),
+        # SHA-256 calculado antes del engine
+        sha256=file_sha256,
+        # BehavioralShield (Fase 7)
+        behavioral_analysis=raw_result.get("behavioral_analysis"),
     )
 
     return scan_result

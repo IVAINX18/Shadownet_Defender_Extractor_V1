@@ -1,7 +1,10 @@
 from .base import FeatureBlock
-from ._math_utils import calculate_shannon_entropy
+from ._math_utils import calculate_shannon_entropy, get_distributed_sample
 import pefile
 import numpy as np
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ByteEntropy(FeatureBlock):
     """
@@ -12,12 +15,27 @@ class ByteEntropy(FeatureBlock):
     varying complexity sections.
     
     Compatible with EMBER/SOREL (256 features).
+
+    * NOTA DE SEGURIDAD — Límite anti-bloating:
+        El malware real usa la técnica "file bloating" para añadir megabytes de
+        datos nulos al final del archivo. Sin un límite, un archivo de 500 MB
+        generaría >500,000 ventanas y el análisis tardaría minutos.
+
+        MAX_ANALYSIS_BYTES limita el análisis a los primeros N bytes del archivo.
+        Las primeras secciones PE (código, imports, recursos) siempre están al
+        inicio del archivo, por lo que este límite no degrada la calidad de la
+        extracción de features para malware legítimo.
     """
     
     # Standard parameters based on EMBER 2.0
     WINDOW_SIZE = 2048  # Window size in bytes
     STEP_SIZE = 1024    # Stride (50% overlap)
     NUM_BINS = 256      # Number of bins for the histogram
+
+    # Anti-bloating: máximo de bytes a analizar.
+    # Los primeros 10 MB contienen todos los headers, código y datos relevantes.
+    # El relleno (padding de zeros/overlay) añadido por bloating queda excluido.
+    MAX_ANALYSIS_BYTES = 10 * 1024 * 1024  # 10 MB
     
     @property
     def name(self) -> str:
@@ -48,6 +66,17 @@ class ByteEntropy(FeatureBlock):
         # Validate we have data
         if raw_data is None or len(raw_data) == 0:
             return entropy_histogram
+
+        # Anti-bloating: muestreo distribuido si excede MAX_ANALYSIS_BYTES.
+        original_size = len(raw_data)
+        if original_size > self.MAX_ANALYSIS_BYTES:
+            logger.debug(
+                "ByteEntropy: archivo grande (%d bytes), analizando con muestreo "
+                "distribuido de %d bytes para evitar evasión y bloating.",
+                original_size,
+                self.MAX_ANALYSIS_BYTES,
+            )
+            raw_data = get_distributed_sample(raw_data, self.MAX_ANALYSIS_BYTES)
         
         # List to store entropy values of each window
         entropy_values = []
