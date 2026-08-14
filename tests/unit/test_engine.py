@@ -200,10 +200,10 @@ class TestEngineBehavioralElevation:
 
 
 class TestEnginePhaseFaultTolerance:
-    """Fase falla → pipeline continúa."""
+    """Fase falla → pipeline continúa sin propagar la excepción."""
 
     def test_phase_failure_continues(self, tmp_path):
-        """Si una fase lanza excepción, las fases posteriores deben ejecutarse."""
+        """Si la fase overlay falla, el resultado debe igual tener el campo 'label'."""
         test_file = tmp_path / "test.exe"
         test_file.write_bytes(b"MZ" + b"\x00" * 200)
 
@@ -211,30 +211,47 @@ class TestEnginePhaseFaultTolerance:
             from core.engine import ShadowNetEngine
             engine = ShadowNetEngine.__new__(ShadowNetEngine)
 
-            # Setup mínimo
             engine._yara_scanner = None
             engine._unpacker = None
             engine._behavioral_shield = None
+            engine._il_analyzer = MagicMock()
+            engine._il_analyzer.analyze.return_value = MagicMock(
+                threat_score=0,
+                threat_level="LOW",
+                injection_detected=False,
+                persistence_detected=False,
+                networking_detected=False,
+                credential_theft_detected=False,
+                worm_behavior_detected=False,
+                rat_detected=False,
+                stealer_detected=False,
+                top_family=None,
+                family_likelihoods={},
+                suspicious_apis=[],
+            )
+
             engine.extractor = MagicMock()
             engine.extractor.extract.return_value = [0.0] * 2381
             engine.extractor.last_diagnostics = {}
             engine.model = MagicMock()
             engine.model.predict.return_value = 0.2
 
-            # Mock overlay phase que falla
+            # Fase overlay falla
             engine._overlay_analyzer = MagicMock()
             engine._overlay_analyzer.analyze.side_effect = RuntimeError("overlay error")
             engine._risk_engine = MagicMock()
+            engine._risk_engine.evaluate.return_value = MagicMock(
+                risk_level="LOW", risk_score=0.1
+            )
 
-            # Mock dotnet phase que falla
             engine._dotnet_analyzer = MagicMock()
             engine._dotnet_analyzer.analyze.side_effect = RuntimeError("dotnet error")
 
-            engine._il_analyzer = MagicMock()
-
+            # El pipeline no debe propagar la excepción
             result = engine._scan_file_internal(test_file)
 
-            # El pipeline debe completarse sin propagación de errores
+            # El resultado debe ser un dict con campo 'label'
+            assert isinstance(result, dict)
             assert "label" in result
             assert result.get("details", {}).get("overlay_phase_error") is True
             assert result.get("details", {}).get("dotnet_phase_error") is True

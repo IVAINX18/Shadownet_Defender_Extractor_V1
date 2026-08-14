@@ -1171,3 +1171,69 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-06-24 15:22:22,327 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
 2026-08-14 14:44:55,868 - core.remediation - INFO - Remediación solicitada: pid=1 reason=test scan_id=test-scan expected_exe=None
 2026-08-14 14:44:55,882 - core.remediation - WARNING - PID protegido rechazado: pid=1 — PID 1 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:24:24,307 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-08-14 15:24:24,466 - core.engine - INFO - Extrayendo features de: test.exe
+2026-08-14 15:24:24,467 - core.engine - ERROR - Error ONNX en inferencia de test.exe: ONNX session error
+2026-08-14 15:24:24,469 - core.engine - INFO - Extrayendo features de: fake.exe
+2026-08-14 15:24:24,469 - core.engine - WARNING - Archivo no-PE omitido: /tmp/pytest-of-ivainx18/pytest-0/test_non_pe_exe_suspicious0/fake.exe
+2026-08-14 15:24:24,470 - core.engine - WARNING - NonPEFileError en archivo con extensión ejecutable (.exe) → SUSPICIOUS
+2026-08-14 15:24:24,472 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-08-14 15:24:24,474 - core.engine - INFO - BehavioralShield: riesgo=0.35 → SUSPICIOUS | pid=1234 | file=test.exe
+2026-08-14 15:24:24,477 - core.engine - INFO - Extrayendo features de: test.exe
+2026-08-14 15:24:24,478 - core.engine - ERROR - Error en fase de overlay/heurística para test.exe: overlay error
+2026-08-14 15:24:24,478 - core.engine - ERROR - Error en fase .NET para test.exe: dotnet error
+2026-08-14 15:24:24,479 - core.engine - INFO - Escaneo completo: test.exe | label=BENIGN | score=0.2000 | operational=UNKNOWN | risk=LOW(0) | phases=['ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS'] | time=2ms
+2026-08-14 15:24:24,558 - core.remediation - INFO - Remediación solicitada: pid=0 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:24:24,559 - core.remediation - WARNING - PID protegido rechazado: pid=0 — PID 0 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:24:24,560 - core.remediation - INFO - Remediación solicitada: pid=1 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:24:24,561 - core.remediation - WARNING - PID protegido rechazado: pid=1 — PID 1 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:24:24,562 - core.remediation - INFO - Remediación solicitada: pid=2 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:24:24,564 - core.remediation - WARNING - PID protegido rechazado: pid=2 — PID 2 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:24:24,565 - core.remediation - INFO - Remediación solicitada: pid=5 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:24:24,566 - core.remediation - WARNING - PID protegido rechazado: pid=5 — PID 5 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:24:24,567 - core.remediation - INFO - Remediación solicitada: pid=9 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:24:24,568 - core.remediation - WARNING - PID protegido rechazado: pid=9 — PID 9 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:24:24,569 - core.remediation - INFO - Remediación solicitada: pid=12345 reason=test scan_id=test-scan-002 expected_exe=/opt/malware/evil.exe
+2026-08-14 15:24:24,572 - core.remediation - WARNING - Exe mismatch rechazado: pid=12345 expected=/opt/malware/evil.exe actual=/usr/bin/python3
+2026-08-14 15:24:24,573 - core.remediation - INFO - Remediación solicitada: pid=99999 reason=test scan_id=test-scan-003 expected_exe=None
+2026-08-14 15:24:24,574 - core.remediation - ERROR - Permiso denegado al enviar SIGTERM a pid=99999: Operation not permitted
+2026-08-14 15:24:27,053 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-08-14 15:24:27,054 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-08-14 15:24:27,536 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-08-14 15:24:33,000 - models.inference - INFO - Model and scaler loaded successfully.
+2026-08-14 15:24:33,002 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-08-14 15:24:33,211 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-08-14 15:24:33,214 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
+2026-08-14 15:26:24,606 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-08-14 15:26:24,637 - core.engine - INFO - Extrayendo features de: test.exe
+2026-08-14 15:26:24,637 - core.engine - ERROR - Error ONNX en inferencia de test.exe: ONNX session error
+2026-08-14 15:26:24,641 - core.engine - INFO - Extrayendo features de: fake.exe
+2026-08-14 15:26:24,642 - core.engine - WARNING - Archivo no-PE omitido: /tmp/pytest-of-ivainx18/pytest-1/test_non_pe_exe_suspicious0/fake.exe
+2026-08-14 15:26:24,643 - core.engine - WARNING - NonPEFileError en archivo con extensión ejecutable (.exe) → SUSPICIOUS
+2026-08-14 15:26:24,645 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-08-14 15:26:24,647 - core.engine - INFO - BehavioralShield: riesgo=0.35 → SUSPICIOUS | pid=1234 | file=test.exe
+2026-08-14 15:26:24,649 - core.engine - INFO - Extrayendo features de: test.exe
+2026-08-14 15:26:24,650 - core.engine - ERROR - Error en fase de overlay/heurística para test.exe: overlay error
+2026-08-14 15:26:24,651 - core.engine - ERROR - Error en fase .NET para test.exe: dotnet error
+2026-08-14 15:26:24,651 - core.engine - INFO - Escaneo completo: test.exe | label=BENIGN | score=0.2000 | operational=UNKNOWN | risk=LOW(0) | phases=['ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS'] | time=2ms
+2026-08-14 15:26:24,718 - core.remediation - INFO - Remediación solicitada: pid=0 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:26:24,719 - core.remediation - WARNING - PID protegido rechazado: pid=0 — PID 0 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:26:24,720 - core.remediation - INFO - Remediación solicitada: pid=1 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:26:24,721 - core.remediation - WARNING - PID protegido rechazado: pid=1 — PID 1 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:26:24,722 - core.remediation - INFO - Remediación solicitada: pid=2 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:26:24,723 - core.remediation - WARNING - PID protegido rechazado: pid=2 — PID 2 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:26:24,724 - core.remediation - INFO - Remediación solicitada: pid=5 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:26:24,725 - core.remediation - WARNING - PID protegido rechazado: pid=5 — PID 5 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:26:24,726 - core.remediation - INFO - Remediación solicitada: pid=9 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-14 15:26:24,726 - core.remediation - WARNING - PID protegido rechazado: pid=9 — PID 9 es un proceso protegido del SO (PID < 10)
+2026-08-14 15:26:24,728 - core.remediation - INFO - Remediación solicitada: pid=12345 reason=test scan_id=test-scan-002 expected_exe=/opt/malware/evil.exe
+2026-08-14 15:26:24,728 - core.remediation - WARNING - Exe mismatch rechazado: pid=12345 expected=/opt/malware/evil.exe actual=/usr/bin/python3
+2026-08-14 15:26:24,730 - core.remediation - INFO - Remediación solicitada: pid=99999 reason=test scan_id=test-scan-003 expected_exe=None
+2026-08-14 15:26:24,731 - core.remediation - ERROR - Permiso denegado al enviar SIGTERM a pid=99999: Operation not permitted
+2026-08-14 15:26:26,126 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-08-14 15:26:26,126 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-08-14 15:26:26,135 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-08-14 15:26:26,950 - models.inference - INFO - Model and scaler loaded successfully.
+2026-08-14 15:26:26,950 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-08-14 15:26:26,983 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-08-14 15:26:26,985 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
