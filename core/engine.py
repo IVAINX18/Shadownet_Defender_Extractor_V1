@@ -88,6 +88,14 @@ class ShadowNetEngine:
         # ── Módulo 8: IL Behavioral Analyzer (Mejoras IL 1-18) ───────
         self._il_analyzer = ILBehavioralAnalyzer()
 
+        # ── Módulo 9: BehavioralShield (Fase 7) ──────────────────────
+        try:
+            from core.dynamic.process_monitor import BehavioralShield
+            self._behavioral_shield = BehavioralShield()
+        except Exception as exc:
+            logger.warning("BehavioralShield no disponible: %s", exc)
+            self._behavioral_shield = None
+
     # ------------------------------------------------------------------
     # API Pública
     # ------------------------------------------------------------------
@@ -106,7 +114,67 @@ class ShadowNetEngine:
                 - yara_matches : Lista de reglas YARA que coincidieron
                 - was_unpacked : Bool — si el archivo fue desempacado
         """
+        import concurrent.futures
+        from configs.settings import ANALYSIS_TIMEOUT_SECONDS
+
         file_path = Path(file_path)
+
+        # ── WATCHDOG de 60s (2.5) ─────────────────────────────────────
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(self._scan_file_internal, file_path)
+            try:
+                return future.result(timeout=ANALYSIS_TIMEOUT_SECONDS)
+            except concurrent.futures.TimeoutError:
+                logger.error(
+                    "Análisis de %s superó el timeout de %ds → SUSPICIOUS",
+                    file_path.name,
+                    ANALYSIS_TIMEOUT_SECONDS,
+                )
+                return {
+                    "file": str(file_path),
+                    "status": "timeout",
+                    "score": -1.0,
+                    "label": "UNKNOWN",
+                    "confidence": "Low",
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "details": {"reason": "analysis_timeout"},
+                    "yara_matches": [],
+                    "was_unpacked": False,
+                    "detection_phases": [],
+                    "operational_status": "SUSPICIOUS",
+                    "risk_level": "MEDIUM",
+                    "risk_score": 0,
+                    "overlay_analysis": {},
+                    "heuristic_assessment": {},
+                    "is_dotnet": False,
+                    "clr_version": "",
+                    "assembly_name": "",
+                    "obfuscator_detected": False,
+                    "obfuscator_name": "",
+                    "embedded_assemblies_count": 0,
+                    "reflection_usage": False,
+                    "dynamic_loading_detected": False,
+                    "dotnet_risk_score": 0,
+                    "dotnet_risk_level": "LOW",
+                    "dotnet_analysis": {},
+                    "il_behavioral": {},
+                    "dotnet_threat_score": 0,
+                    "dotnet_threat_level": "LOW",
+                    "family_likelihoods": {},
+                    "top_family": "",
+                    "injection_detected": False,
+                    "persistence_detected": False,
+                    "networking_detected": False,
+                    "credential_theft_detected": False,
+                    "worm_behavior_detected": False,
+                    "rat_detected": False,
+                    "stealer_detected": False,
+                    "behavioral_analysis": None,
+                    "scan_time_ms": ANALYSIS_TIMEOUT_SECONDS * 1000,
+                }
+
+    def _scan_file_internal(self, file_path: Path) -> Dict[str, Any]:
+        """Pipeline interno de escaneo (ejecutado con watchdog en scan_file)."""
         start_time = time.time()
 
         result: Dict[str, Any] = {
@@ -151,6 +219,8 @@ class ShadowNetEngine:
             "worm_behavior_detected": False,
             "rat_detected": False,
             "stealer_detected": False,
+            # ── BehavioralShield (Fase 7) ─────────────────────────────
+            "behavioral_analysis": None,
         }
 
         if not file_path.exists():
@@ -201,6 +271,9 @@ class ShadowNetEngine:
         except Exception as _exc:
             logger.error("Error en fase IL para %s: %s", file_path.name, _exc)
             result["details"]["il_phase_error"] = True
+
+        # ── FASE 7: BehavioralShield ──────────────────────────────────
+        self._run_behavioral_phase(file_path, result)
 
         # ── Limpieza del archivo desempacado temporal ─────────────────
         if result["was_unpacked"] and analysis_path != file_path:
@@ -727,6 +800,83 @@ class ShadowNetEngine:
     # ------------------------------------------------------------------
     # Inicialización de Módulos Auxiliares
     # ------------------------------------------------------------------
+
+    def _resolve_pid(self, file_path: Path) -> Optional[int]:
+        """Busca el PID del proceso activo que ejecuta file_path."""
+        try:
+            import psutil
+            normalized = str(file_path.resolve()).lower()
+            for proc in psutil.process_iter(["pid", "exe"]):
+                try:
+                    exe = proc.info.get("exe") or ""
+                    if exe and str(Path(exe).resolve()).lower() == normalized:
+                        return proc.info["pid"]
+                except (psutil.AccessDenied, psutil.NoSuchProcess):
+                    continue
+        except Exception:
+            pass
+        return None
+
+    def _run_behavioral_phase(self, file_path: Path, result: Dict[str, Any]) -> None:
+        """
+        Fase 7 — BehavioralShield: análisis de comportamiento dinámico.
+        Timeout: BEHAVIORAL_SHIELD_TIMEOUT_SECONDS (default 2s).
+        """
+        from configs.settings import BEHAVIORAL_SHIELD_TIMEOUT_SECONDS
+        import concurrent.futures
+
+        result["behavioral_analysis"] = None
+        if self._behavioral_shield is None or result.get("label") == "NOT_PE":
+            return
+
+        pid = self._resolve_pid(file_path)
+        if pid is None:
+            logger.debug("BehavioralShield: proceso no activo para %s", file_path.name)
+            return
+
+        result["detection_phases"].append("BEHAVIORAL")
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(self._behavioral_shield.analyze_process, pid)
+                report = future.result(timeout=BEHAVIORAL_SHIELD_TIMEOUT_SECONDS)
+
+            result["behavioral_analysis"] = {
+                "pid": report.pid,
+                "process_name": getattr(report, "process_name", ""),
+                "risk_score": report.risk_score,
+                "is_suspicious": report.is_suspicious,
+                "suspicious_actions": [
+                    {
+                        "description": getattr(a, "description", str(a)),
+                        "severity": getattr(a, "severity", ""),
+                        "ioc_type": getattr(a, "ioc_type", ""),
+                    }
+                    for a in getattr(report, "suspicious_actions", [])
+                ],
+                "scan_time_ms": getattr(report, "scan_time_ms", 0),
+            }
+
+            current_status = result.get("operational_status", "CLEAN")
+            if report.risk_score >= 0.5 and current_status in ("CLEAN", "SUSPICIOUS"):
+                result["operational_status"] = "DANGEROUS"
+                logger.warning(
+                    "BehavioralShield: riesgo=%.2f → DANGEROUS | pid=%d | file=%s",
+                    report.risk_score, pid, file_path.name,
+                )
+            elif report.risk_score >= 0.3 and current_status == "CLEAN":
+                result["operational_status"] = "SUSPICIOUS"
+                logger.info(
+                    "BehavioralShield: riesgo=%.2f → SUSPICIOUS | pid=%d | file=%s",
+                    report.risk_score, pid, file_path.name,
+                )
+
+        except concurrent.futures.TimeoutError:
+            logger.warning(
+                "BehavioralShield timeout (%.1fs) para %s",
+                BEHAVIORAL_SHIELD_TIMEOUT_SECONDS, file_path.name,
+            )
+        except Exception as exc:
+            logger.error("Error en fase Behavioral para %s: %s", file_path.name, exc)
 
     def _load_model(self) -> None:
         """Carga el modelo ONNX. No lanza excepción para permitir inicio parcial."""

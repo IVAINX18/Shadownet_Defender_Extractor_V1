@@ -212,6 +212,16 @@ class ScanResult(BaseModel):
         default_factory=dict,
         description="Porcentaje de similitud con cada familia conocida (M13)",
     )
+    # ── SHA-256 del archivo analizado ───────────────────────────────────────
+    sha256: Optional[str] = Field(
+        default=None,
+        description="SHA-256 del archivo calculado antes del análisis",
+    )
+    # ── Análisis de comportamiento dinámico (Fase 7 / BehavioralShield) ─────
+    behavioral_analysis: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="BehaviorReport serializado o null si el proceso no estaba activo",
+    )
 
 
 class ScanResponse(BaseModel):

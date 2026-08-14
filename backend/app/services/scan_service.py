@@ -11,6 +11,7 @@ Orquesto el flujo completo de escaneo:
 
 from __future__ import annotations
 
+import hashlib
 import sys
 import time
 from datetime import datetime, timezone
@@ -64,22 +65,53 @@ def classify_tripartite(score: float) -> Tuple[ScanResultLabel, RiskLevel]:
     Aplica la clasificación tripartita basada en el score del modelo ML.
 
     Reglas (definidas por el usuario):
+      - score < 0   → suspicious / medium  (score negativo = error de análisis)
       - score < 0.4  → benign  / low
       - 0.4 ≤ score ≤ 0.7 → suspicious / medium
       - score > 0.7  → malicious / high
 
     Args:
         score: Probabilidad de malware [0.0 - 1.0] del modelo ONNX.
+               Un valor -1.0 indica fallo del modelo.
 
     Returns:
         Tupla (ScanResultLabel, RiskLevel) con la clasificación.
     """
+    # 3.1 — Score negativo indica fallo de análisis → siempre SUSPICIOUS/MEDIUM
+    if score < 0:
+        return ScanResultLabel.SUSPICIOUS, RiskLevel.MEDIUM
+
     if score < 0.4:
         return ScanResultLabel.BENIGN, RiskLevel.LOW
     elif score <= 0.7:
         return ScanResultLabel.SUSPICIOUS, RiskLevel.MEDIUM
     else:
         return ScanResultLabel.MALICIOUS, RiskLevel.HIGH
+
+
+# ---------------------------------------------------------------------------
+# SHA-256 — Calculado en chunks para evitar OOM en archivos grandes
+# ---------------------------------------------------------------------------
+
+def _compute_sha256(file_path: Path) -> str:
+    """
+    Calcula el SHA-256 del archivo en chunks de 64 KB.
+
+    Args:
+        file_path: Ruta al archivo.
+
+    Returns:
+        Cadena hexadecimal del hash SHA-256.
+    """
+    sha256 = hashlib.sha256()
+    chunk_size = 64 * 1024  # 64 KB
+    with open(file_path, "rb") as fh:
+        while True:
+            chunk = fh.read(chunk_size)
+            if not chunk:
+                break
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 
 # ---------------------------------------------------------------------------
@@ -117,6 +149,14 @@ def scan_single_file(
     engine = get_engine()
     start_time = time.time()
 
+    # 3.3 — Calcula SHA-256 ANTES de ejecutar el engine
+    file_sha256: Optional[str] = None
+    try:
+        file_sha256 = _compute_sha256(file_path)
+        logger.debug("SHA-256 de %s: %s", file_path.name, file_sha256)
+    except Exception as exc:
+        logger.warning("No se pudo calcular SHA-256 de %s: %s", file_path.name, exc)
+
     # Ejecuto el motor ML existente — no lo recreo, solo lo uso
     raw_result = engine.scan_file(file_path)
     elapsed = time.time() - start_time
@@ -130,6 +170,7 @@ def scan_single_file(
     engine_label = raw_result.get("label", "")
     is_not_pe   = engine_label == "NOT_PE"
     is_yara_hit = bool(yara_matches)  # YARA detectó una firma conocida
+    is_unknown  = engine_label == "UNKNOWN"
 
     if is_yara_hit:
         # YARA confirmó malware por firma determinista — máxima confianza
@@ -160,6 +201,21 @@ def scan_single_file(
             file_path.name,
             elapsed,
         )
+
+    elif is_unknown:
+        # 3.2 — Engine retornó UNKNOWN (fallo de análisis en archivo PE)
+        # Tratar como PE fallido: suspicious/medium con analysis_type=PE
+        result_label  = ScanResultLabel.SUSPICIOUS
+        risk_level    = RiskLevel.MEDIUM
+        confidence    = 0.0
+        analysis_type = AnalysisType.PE
+
+        logger.warning(
+            "Engine UNKNOWN para %s | análisis PE falló | result=suspicious | time=%.3fs",
+            file_path.name,
+            elapsed,
+        )
+
     else:
         # Archivo PE válido — uso el score del modelo ML
         score = float(raw_result.get("score", 0.0))
@@ -235,6 +291,10 @@ def scan_single_file(
         stealer_detected=raw_result.get("stealer_detected", False),
         top_family=raw_result.get("top_family") or None,
         family_likelihoods=raw_result.get("family_likelihoods", {}),
+        # SHA-256 calculado antes del engine
+        sha256=file_sha256,
+        # BehavioralShield (Fase 7)
+        behavioral_analysis=raw_result.get("behavioral_analysis"),
     )
 
     return scan_result
