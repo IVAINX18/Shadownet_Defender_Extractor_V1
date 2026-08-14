@@ -1169,3 +1169,5 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-06-24 15:22:20,953 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
 2026-06-24 15:22:22,327 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
 2026-06-24 15:22:22,327 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-08-14 14:44:55,868 - core.remediation - INFO - Remediación solicitada: pid=1 reason=test scan_id=test-scan expected_exe=None
+2026-08-14 14:44:55,882 - core.remediation - WARNING - PID protegido rechazado: pid=1 — PID 1 es un proceso protegido del SO (PID < 10)

@@ -2,71 +2,71 @@
 
 ## P0 — Núcleo de Seguridad (Implementar primero)
 
-- [ ] 1. Extender configs/settings.py con nuevas variables de entorno
-  - [ ] 1.1 Agregar QUARANTINE_DIR, ANALYSIS_TIMEOUT_SECONDS, BEHAVIORAL_SHIELD_TIMEOUT_SECONDS, MAX_UPLOAD_MB, RATE_LIMIT_SCANS_PER_MINUTE, SUPABASE_INCIDENTS_TABLE
-  - [ ] 1.2 Implementar validate_paths(logger) para MODEL_PATH y SCALER_PATH
-  - [ ] 1.3 Implementar log_config(logger) con enmascarado de secretos
+- [x] 1. Extender configs/settings.py con nuevas variables de entorno
+  - [x] 1.1 Agregar QUARANTINE_DIR, ANALYSIS_TIMEOUT_SECONDS, BEHAVIORAL_SHIELD_TIMEOUT_SECONDS, MAX_UPLOAD_MB, RATE_LIMIT_SCANS_PER_MINUTE, SUPABASE_INCIDENTS_TABLE
+  - [x] 1.2 Implementar validate_paths(logger) para MODEL_PATH y SCALER_PATH
+  - [x] 1.3 Implementar log_config(logger) con enmascarado de secretos
   - Requirement: 10
 
-- [ ] 2. Robustecer core/engine.py contra fallos de capas críticas
-  - [ ] 2.1 Capturar excepción de ONNX → label=UNKNOWN, score=-1.0, operational_status=SUSPICIOUS
-  - [ ] 2.2 NonPEFileError en .exe/.dll/.sys → operational_status=SUSPICIOUS (no NOT_PE)
-  - [ ] 2.3 RAW_FALLBACK → registrar extraction_mode en details.diagnostics y confidence=Low
-  - [ ] 2.4 Envolver cada fase en try/except que agrega {phase}_error=True a details
-  - [ ] 2.5 Implementar watchdog de timeout de 60s con concurrent.futures
+- [x] 2. Robustecer core/engine.py contra fallos de capas críticas
+  - [x] 2.1 Capturar excepción de ONNX → label=UNKNOWN, score=-1.0, operational_status=SUSPICIOUS
+  - [x] 2.2 NonPEFileError en .exe/.dll/.sys → operational_status=SUSPICIOUS (no NOT_PE)
+  - [x] 2.3 RAW_FALLBACK → registrar extraction_mode en details.diagnostics y confidence=Low
+  - [x] 2.4 Envolver cada fase en try/except que agrega {phase}_error=True a details
+  - [x] 2.5 Implementar watchdog de timeout de 60s con concurrent.futures
   - Requirement: 7
 
-- [ ] 3. Modificar backend/app/services/scan_service.py para clasificar UNKNOWN como suspicious
-  - [ ] 3.1 En classify_tripartite(): score < 0 → forzar (SUSPICIOUS, MEDIUM)
-  - [ ] 3.2 En scan_single_file(): label == "UNKNOWN" → ScanResultLabel.SUSPICIOUS
-  - [ ] 3.3 Calcular SHA-256 del archivo en disco antes de pasarlo al Engine (chunks 64KB)
+- [x] 3. Modificar backend/app/services/scan_service.py para clasificar UNKNOWN como suspicious
+  - [x] 3.1 En classify_tripartite(): score < 0 → forzar (SUSPICIOUS, MEDIUM)
+  - [x] 3.2 En scan_single_file(): label == "UNKNOWN" → ScanResultLabel.SUSPICIOUS
+  - [x] 3.3 Calcular SHA-256 del archivo en disco antes de pasarlo al Engine (chunks 64KB)
   - Requirement: 7, 8
 
-- [ ] 4. Integrar BehavioralShield en pipeline (Fase 7) en core/engine.py
-  - [ ] 4.1 Agregar _behavioral_shield = BehavioralShield() en ShadowNetEngine.__init__
-  - [ ] 4.2 Implementar _resolve_pid(file_path) → Optional[int] via psutil.process_iter
-  - [ ] 4.3 Implementar _run_behavioral_phase(file_path, result) con timeout de 2s
-  - [ ] 4.4 Lógica de elevación: risk_score >= 0.5 → DANGEROUS, >= 0.3 → SUSPICIOUS
-  - [ ] 4.5 Llamar _run_behavioral_phase() al final de scan_file() después de Fase 6 (IL)
-  - [ ] 4.6 Agregar campo behavioral_analysis: Optional[Dict] al ScanResult DTO en backend/app/schemas/dto.py
+- [x] 4. Integrar BehavioralShield en pipeline (Fase 7) en core/engine.py
+  - [x] 4.1 Agregar _behavioral_shield = BehavioralShield() en ShadowNetEngine.__init__
+  - [x] 4.2 Implementar _resolve_pid(file_path) → Optional[int] via psutil.process_iter
+  - [x] 4.3 Implementar _run_behavioral_phase(file_path, result) con timeout de 2s
+  - [x] 4.4 Lógica de elevación: risk_score >= 0.5 → DANGEROUS, >= 0.3 → SUSPICIOUS
+  - [x] 4.5 Llamar _run_behavioral_phase() al final de scan_file() después de Fase 6 (IL)
+  - [x] 4.6 Agregar campo behavioral_analysis: Optional[Dict] al ScanResult DTO en backend/app/schemas/dto.py
   - Requirement: 1
 
-- [ ] 5. Crear módulo core/quarantine/manager.py (QuarantineManager)
-  - [ ] 5.1 Crear core/quarantine/__init__.py con re-export de QuarantineManager
-  - [ ] 5.2 Implementar QuarantineResult y RestoreResult dataclasses
-  - [ ] 5.3 Implementar quarantine_file(): SHA-256 antes de mover, renombrar a {SHA256[:8]}_{ts}.quar, crear .meta.json, chmod a-x
-  - [ ] 5.4 Validaciones de seguridad: rechazar symlinks (SYMLINK_REJECTED) y path traversal (PATH_TRAVERSAL_REJECTED)
-  - [ ] 5.5 Crear QUARANTINE_DIR con permisos 700 si no existe
-  - [ ] 5.6 Implementar restore_file() con verificación de integridad SHA-256
-  - [ ] 5.7 Implementar list_quarantined()
-  - [ ] 5.8 Logging completo de toda operación
+- [x] 5. Crear módulo core/quarantine/manager.py (QuarantineManager)
+  - [x] 5.1 Crear core/quarantine/__init__.py con re-export de QuarantineManager
+  - [x] 5.2 Implementar QuarantineResult y RestoreResult dataclasses
+  - [x] 5.3 Implementar quarantine_file(): SHA-256 antes de mover, renombrar a {SHA256[:8]}_{ts}.quar, crear .meta.json, chmod a-x
+  - [x] 5.4 Validaciones de seguridad: rechazar symlinks (SYMLINK_REJECTED) y path traversal (PATH_TRAVERSAL_REJECTED)
+  - [x] 5.5 Crear QUARANTINE_DIR con permisos 700 si no existe
+  - [x] 5.6 Implementar restore_file() con verificación de integridad SHA-256
+  - [x] 5.7 Implementar list_quarantined()
+  - [x] 5.8 Logging completo de toda operación
   - Requirement: 2
 
-- [ ] 6. Crear ruta API backend/app/api/routes/quarantine.py
-  - [ ] 6.1 Implementar POST /quarantine/file con autenticación JWT (QuarantineRequest DTO)
-  - [ ] 6.2 Registrar router en backend/app/main.py
+- [x] 6. Crear ruta API backend/app/api/routes/quarantine.py
+  - [x] 6.1 Implementar POST /quarantine/file con autenticación JWT (QuarantineRequest DTO)
+  - [x] 6.2 Registrar router en backend/app/main.py
   - Requirement: 2
 
-- [ ] 7. Crear módulo core/remediation/engine.py (RemediationEngine)
-  - [ ] 7.1 Crear core/remediation/__init__.py con re-export de RemediationEngine
-  - [ ] 7.2 Implementar TerminationResult dataclass
-  - [ ] 7.3 Implementar terminate_process(pid, reason, scan_id, expected_exe): verificar exe_path, rechazar PID < 10 (PROTECTED_PROCESS_REJECTED), SIGTERM con timeout 3s, escalar a SIGKILL
-  - [ ] 7.4 Capturar PermissionError y psutil.AccessDenied sin propagar
-  - [ ] 7.5 Logging completo: PID, exe_path, método, timestamp, scan_id, resultado
+- [x] 7. Crear módulo core/remediation/engine.py (RemediationEngine)
+  - [x] 7.1 Crear core/remediation/__init__.py con re-export de RemediationEngine
+  - [x] 7.2 Implementar TerminationResult dataclass
+  - [x] 7.3 Implementar terminate_process(pid, reason, scan_id, expected_exe): verificar exe_path, rechazar PID < 10 (PROTECTED_PROCESS_REJECTED), SIGTERM con timeout 3s, escalar a SIGKILL
+  - [x] 7.4 Capturar PermissionError y psutil.AccessDenied sin propagar
+  - [x] 7.5 Logging completo: PID, exe_path, método, timestamp, scan_id, resultado
   - Requirement: 3
 
-- [ ] 8. Crear ruta API backend/app/api/routes/remediation.py
-  - [ ] 8.1 Implementar POST /remediation/terminate con autenticación JWT obligatoria (TerminateRequest DTO)
-  - [ ] 8.2 Registrar router en backend/app/main.py
+- [x] 8. Crear ruta API backend/app/api/routes/remediation.py
+  - [x] 8.1 Implementar POST /remediation/terminate con autenticación JWT obligatoria (TerminateRequest DTO)
+  - [x] 8.2 Registrar router en backend/app/main.py
   - Requirement: 3
 
-- [ ] 9. Hardening de backend/app/api/routes/scan.py
-  - [ ] 9.1 Validar extensiones dobles sospechosas → HTTP 400 antes de guardar en disco
-  - [ ] 9.2 Implementar lectura en streaming con límite MAX_UPLOAD_BYTES
-  - [ ] 9.3 Sanitizar nombre de archivo (caracteres de control ASCII < 0x20, RLO/LRO Unicode)
-  - [ ] 9.4 Implementar rate limiting por user_id con sliding window de 60s → HTTP 429
-  - [ ] 9.5 Limpieza de archivos temporales antiguos si shadownet_uploads contiene > 100 archivos
-  - [ ] 9.6 Garantizar eliminación del archivo temporal en bloque finally
+- [x] 9. Hardening de backend/app/api/routes/scan.py
+  - [x] 9.1 Validar extensiones dobles sospechosas → HTTP 400 antes de guardar en disco
+  - [x] 9.2 Implementar lectura en streaming con límite MAX_UPLOAD_BYTES
+  - [x] 9.3 Sanitizar nombre de archivo (caracteres de control ASCII < 0x20, RLO/LRO Unicode)
+  - [x] 9.4 Implementar rate limiting por user_id con sliding window de 60s → HTTP 429
+  - [x] 9.5 Limpieza de archivos temporales antiguos si shadownet_uploads contiene > 100 archivos
+  - [x] 9.6 Garantizar eliminación del archivo temporal en bloque finally
   - Requirement: 8
 
 ## P1 — Integraciones
