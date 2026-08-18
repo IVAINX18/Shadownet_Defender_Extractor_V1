@@ -143,13 +143,13 @@
 
 ## P3 — Despliegue
 
-- [ ] 20. Crear scripts de despliegue
-  - [ ] 20.1 Crear deploy/shadownet.service (systemd unit: Restart=on-failure, EnvironmentFile, ExecStartPre para verificar modelo)
-  - [ ] 20.2 Crear deploy/install_linux.sh (Python >= 3.10, no-root check, usuario shadownet, pip install, systemctl enable+start)
-  - [ ] 20.3 Crear deploy/install_windows.ps1 (Python >= 3.10, pip install, NSSM service registration)
+- [x] 20. Crear scripts de despliegue
+  - [x] 20.1 Crear deploy/shadownet.service (systemd unit: Restart=on-failure, EnvironmentFile, ExecStartPre para verificar modelo)
+  - [x] 20.2 Crear deploy/install_linux.sh (Python >= 3.10, no-root check, usuario shadownet, pip install, systemctl enable+start)
+  - [x] 20.3 Crear deploy/install_windows.ps1 (Python >= 3.10, pip install, NSSM service registration)
   - Requirement: 12
 
-- [ ] 21. Checkpoint final de validación
-  - [ ] 21.1 Ejecutar pytest --tb=short y verificar que todos los tests pasan
-  - [ ] 21.2 Verificar que getDiagnostics no reporta errores en archivos modificados
-  - [ ] 21.3 Verificar que GET /health responde correctamente sin JWT
+- [x] 21. Checkpoint final de validación
+  - [x] 21.1 pytest --tb=short: 73 passed, 4 skipped, 0 failed
+  - [x] 21.2 getDiagnostics: 0 errores en 21 archivos modificados
+  - [x] 21.3 GET /health sin JWT → HTTP 200, pipeline_mode=full, 6 componentes reportados
