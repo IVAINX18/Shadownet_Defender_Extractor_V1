@@ -1362,3 +1362,102 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-08-14 15:33:46,295 - core.engine - INFO - Escaneo completo: 1786739625292-evil_00.exe | label=MALWARE | score=1.0000 | operational=DANGEROUS | risk=LOW(20) | phases=['YARA', 'ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS'] | time=248ms
 2026-08-14 15:33:46,297 - backend.scan_service - INFO - Archivo PE analizado: 1786739625292-evil_00.exe | type=pe | result=malicious | risk=high | score=1.0000 | unpacked=False | inference_time=0.250s
 2026-08-14 15:33:46,301 - backend.routes.scan - WARNING - Nombre de archivo con caracteres de control rechazado: 'invoice\u202e.exe'
+2026-08-18 09:28:33,710 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-08-18 09:28:33,765 - core.engine - INFO - Extrayendo features de: test.exe
+2026-08-18 09:28:33,766 - core.engine - ERROR - Error ONNX en inferencia de test.exe: ONNX session error
+2026-08-18 09:28:33,767 - core.engine - INFO - Extrayendo features de: fake.exe
+2026-08-18 09:28:33,768 - core.engine - WARNING - Archivo no-PE omitido: /tmp/pytest-of-ivainx18/pytest-0/test_non_pe_exe_suspicious0/fake.exe
+2026-08-18 09:28:33,768 - core.engine - WARNING - NonPEFileError en archivo con extensión ejecutable (.exe) → SUSPICIOUS
+2026-08-18 09:28:33,771 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-08-18 09:28:33,773 - core.engine - INFO - BehavioralShield: riesgo=0.35 → SUSPICIOUS | pid=1234 | file=test.exe
+2026-08-18 09:28:33,775 - core.engine - ERROR - Error en fase overlay para test.exe: overlay crashed
+2026-08-18 09:28:33,776 - core.engine - ERROR - Error en fase dotnet para test.exe: dotnet crashed
+2026-08-18 09:28:33,776 - core.engine - INFO - Escaneo completo: test.exe | label=Unknown | score=-1.0000 | operational=UNKNOWN | risk=LOW(0) | phases=[] | time=1ms
+2026-08-18 09:28:33,785 - core.remediation - INFO - Remediación solicitada: pid=0 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:28:33,786 - core.remediation - WARNING - PID protegido rechazado: pid=0 — PID 0 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:28:33,787 - core.remediation - INFO - Remediación solicitada: pid=1 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:28:33,787 - core.remediation - WARNING - PID protegido rechazado: pid=1 — PID 1 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:28:33,789 - core.remediation - INFO - Remediación solicitada: pid=2 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:28:33,789 - core.remediation - WARNING - PID protegido rechazado: pid=2 — PID 2 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:28:33,790 - core.remediation - INFO - Remediación solicitada: pid=5 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:28:33,791 - core.remediation - WARNING - PID protegido rechazado: pid=5 — PID 5 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:28:33,792 - core.remediation - INFO - Remediación solicitada: pid=9 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:28:33,792 - core.remediation - WARNING - PID protegido rechazado: pid=9 — PID 9 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:28:33,794 - core.remediation - INFO - Remediación solicitada: pid=12345 reason=test scan_id=test-scan-002 expected_exe=/opt/malware/evil.exe
+2026-08-18 09:28:33,796 - core.remediation - WARNING - Exe mismatch rechazado: pid=12345 expected=/opt/malware/evil.exe actual=/usr/bin/python3
+2026-08-18 09:28:33,798 - core.remediation - INFO - Remediación solicitada: pid=99999 reason=test scan_id=test-scan-003 expected_exe=None
+2026-08-18 09:28:33,799 - core.remediation - ERROR - Permiso denegado al enviar SIGTERM a pid=99999: Operation not permitted
+2026-08-18 09:28:34,214 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: report.pdf.exe
+2026-08-18 09:28:34,218 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: image.jpg.dll
+2026-08-18 09:28:34,221 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: document.docx.bat
+2026-08-18 09:28:34,223 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: archive.zip.ps1
+2026-08-18 09:28:34,226 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: photo.png.scr
+2026-08-18 09:28:35,019 - backend.routes.scan - WARNING - Rate limit excedido para user=rl-user-1787063314.9722385 (máx 20/min)
+2026-08-18 09:28:35,031 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-08-18 09:28:35,032 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-08-18 09:28:35,372 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-08-18 09:28:40,410 - models.inference - INFO - Model and scaler loaded successfully.
+2026-08-18 09:28:40,411 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-08-18 09:28:40,551 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-08-18 09:28:40,553 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
+2026-08-18 09:28:40,638 - core.engine - INFO - Extrayendo features de: 1787063315031-evil_00.exe
+2026-08-18 09:28:40,699 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/shadownet_uploads/1787063315031-evil_00.exe ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-08-18 09:28:40,756 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/shadownet_uploads/1787063315031-evil_00.exe. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-08-18 09:28:40,812 - extractors.extractor - INFO - Extracción completada: 1787063315031-evil_00.exe | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=173.3ms
+2026-08-18 09:28:40,845 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=DANGEROUS is_dotnet=False | triggers=1
+2026-08-18 09:28:40,923 - core.engine - INFO - Escaneo completo: 1787063315031-evil_00.exe | label=MALWARE | score=1.0000 | operational=DANGEROUS | risk=LOW(20) | phases=['YARA', 'ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS'] | time=342ms
+2026-08-18 09:28:40,924 - backend.scan_service - INFO - Archivo PE analizado: 1787063315031-evil_00.exe | type=pe | result=malicious | risk=high | score=1.0000 | unpacked=False | inference_time=0.344s
+2026-08-18 09:28:40,963 - backend.routes.scan - WARNING - Nombre de archivo con caracteres de control rechazado: 'invoice\u202e.exe'
+2026-08-18 09:31:28,196 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-08-18 09:31:28,202 - core.engine - INFO - Extrayendo features de: test.exe
+2026-08-18 09:31:28,203 - core.engine - ERROR - Error ONNX en inferencia de test.exe: ONNX session error
+2026-08-18 09:31:28,206 - core.engine - INFO - Extrayendo features de: fake.exe
+2026-08-18 09:31:28,207 - core.engine - WARNING - Archivo no-PE omitido: /tmp/pytest-of-ivainx18/pytest-1/test_non_pe_exe_suspicious0/fake.exe
+2026-08-18 09:31:28,207 - core.engine - WARNING - NonPEFileError en archivo con extensión ejecutable (.exe) → SUSPICIOUS
+2026-08-18 09:31:28,210 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-08-18 09:31:28,212 - core.engine - INFO - BehavioralShield: riesgo=0.35 → SUSPICIOUS | pid=1234 | file=test.exe
+2026-08-18 09:31:28,215 - core.engine - ERROR - Error en fase overlay para test.exe: overlay crashed
+2026-08-18 09:31:28,215 - core.engine - ERROR - Error en fase dotnet para test.exe: dotnet crashed
+2026-08-18 09:31:28,216 - core.engine - INFO - Escaneo completo: test.exe | label=Unknown | score=-1.0000 | operational=UNKNOWN | risk=LOW(0) | phases=[] | time=1ms
+2026-08-18 09:31:28,225 - core.remediation - INFO - Remediación solicitada: pid=0 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:31:28,226 - core.remediation - WARNING - PID protegido rechazado: pid=0 — PID 0 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:31:28,227 - core.remediation - INFO - Remediación solicitada: pid=1 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:31:28,228 - core.remediation - WARNING - PID protegido rechazado: pid=1 — PID 1 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:31:28,229 - core.remediation - INFO - Remediación solicitada: pid=2 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:31:28,230 - core.remediation - WARNING - PID protegido rechazado: pid=2 — PID 2 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:31:28,231 - core.remediation - INFO - Remediación solicitada: pid=5 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:31:28,232 - core.remediation - WARNING - PID protegido rechazado: pid=5 — PID 5 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:31:28,233 - core.remediation - INFO - Remediación solicitada: pid=9 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-18 09:31:28,233 - core.remediation - WARNING - PID protegido rechazado: pid=9 — PID 9 es un proceso protegido del SO (PID < 10)
+2026-08-18 09:31:28,235 - core.remediation - INFO - Remediación solicitada: pid=12345 reason=test scan_id=test-scan-002 expected_exe=/opt/malware/evil.exe
+2026-08-18 09:31:28,236 - core.remediation - WARNING - Exe mismatch rechazado: pid=12345 expected=/opt/malware/evil.exe actual=/usr/bin/python3
+2026-08-18 09:31:28,237 - core.remediation - INFO - Remediación solicitada: pid=99999 reason=test scan_id=test-scan-003 expected_exe=None
+2026-08-18 09:31:28,238 - core.remediation - ERROR - Permiso denegado al enviar SIGTERM a pid=99999: Operation not permitted
+2026-08-18 09:31:28,326 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: report.pdf.exe
+2026-08-18 09:31:28,329 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: image.jpg.dll
+2026-08-18 09:31:28,332 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: document.docx.bat
+2026-08-18 09:31:28,334 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: archive.zip.ps1
+2026-08-18 09:31:28,338 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: photo.png.scr
+2026-08-18 09:31:29,045 - backend.routes.scan - WARNING - Rate limit excedido para user=rl-user-1787063488.999224 (máx 20/min)
+2026-08-18 09:31:29,058 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-08-18 09:31:29,059 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-08-18 09:31:29,065 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-08-18 09:31:29,714 - models.inference - INFO - Model and scaler loaded successfully.
+2026-08-18 09:31:29,715 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-08-18 09:31:29,742 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-08-18 09:31:29,743 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.
+2026-08-18 09:31:29,802 - core.engine - INFO - Extrayendo features de: 1787063489058-evil_00.exe
+2026-08-18 09:31:29,861 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/shadownet_uploads/1787063489058-evil_00.exe ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-08-18 09:31:29,917 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/shadownet_uploads/1787063489058-evil_00.exe. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-08-18 09:31:29,918 - extractors.extractor - INFO - Extracción completada: 1787063489058-evil_00.exe | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=115.5ms
+2026-08-18 09:31:29,919 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=DANGEROUS is_dotnet=False | triggers=1
+2026-08-18 09:31:29,993 - core.engine - INFO - Escaneo completo: 1787063489058-evil_00.exe | label=MALWARE | score=1.0000 | operational=DANGEROUS | risk=LOW(20) | phases=['YARA', 'ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS'] | time=247ms
+2026-08-18 09:31:29,994 - backend.scan_service - INFO - Archivo PE analizado: 1787063489058-evil_00.exe | type=pe | result=malicious | risk=high | score=1.0000 | unpacked=False | inference_time=0.249s
+2026-08-18 09:31:29,998 - backend.routes.scan - WARNING - Nombre de archivo con caracteres de control rechazado: 'invoice\u202e.exe'
+2026-08-18 09:31:43,749 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-08-18 09:31:43,753 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-08-18 09:31:43,764 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-08-18 09:31:44,450 - models.inference - INFO - Model and scaler loaded successfully.
+2026-08-18 09:31:44,451 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-08-18 09:31:44,480 - security.yara_scanner - INFO - YARA: 4/4 archivo(s) de reglas cargados exitosamente.
+2026-08-18 09:31:44,482 - core.engine - INFO - YARA scanner activo con 4 archivo(s) de reglas.

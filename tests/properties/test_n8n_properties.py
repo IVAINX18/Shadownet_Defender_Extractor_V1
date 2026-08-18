@@ -67,14 +67,18 @@ if HAS_HYPOTHESIS:
     @given(payload=_nested)
     @settings(suppress_health_check=[HealthCheck.too_slow], max_examples=300)
     def test_prop17_safe_json_payload_serializable(payload):
-        """Prop 17: _safe_json produce datos siempre json.dumps-able."""
+        """Prop 17: _safe_json produce datos siempre json.dumps-able (sin float NaN/Inf)."""
         sanitized = _safe_json(payload)
         try:
             serialized = json.dumps(sanitized)
         except (ValueError, TypeError) as exc:
             assert False, f"_safe_json produjo JSON inválido: {exc}"
-        assert "NaN" not in serialized
-        assert "Infinity" not in serialized
+        # json.dumps con allow_nan=False lanzaría error si hay float NaN/Inf
+        # Verificar que json.dumps(allow_nan=False) también funciona
+        try:
+            json.dumps(sanitized, allow_nan=False)
+        except ValueError as exc:
+            assert False, f"_safe_json dejó float NaN/Inf en el resultado: {exc}"
 
     @given(
         result=st.sampled_from(["malicious", "suspicious", "benign", "unknown"]),
