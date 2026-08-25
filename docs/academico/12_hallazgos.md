@@ -43,6 +43,10 @@ AUC-ROC sin scaler, etiquetas invertidas = 1.00 (sintético perfectamente separa
 
 **Relevancia científica**: Revela una deuda técnica importante: el proyecto carece de un conjunto de evaluación real y representativo para el modelo ML.
 
+**Actualización 2026-08-25**: Se recuperaron los outputs ejecutados del entrenamiento original en `Model_Collab/ShadowNet Defender - v3.0.ipynb`. Las métricas del modelo **sobre su distribución híbrida de evaluación** (accuracy=0.9815, F1=0.9845, FPR≈1.88%, FNR≈1.80%) sí existen y están documentadas en `07_metricas_y_resultados.md`.
+
+**Actualización 2026-08-25 (auditoría del scaler)**: La inspección directa de `models/scaler.pkl` descarta corrupción (0 inf, 0 NaN en `mean_`/`scale_`); el overflow del notebook afectó solo a los logs agregados. La incompatibilidad es desajuste de dominio entre el test set sintético [0,1] y las distribuciones crudas de SOREL-20M, no un defecto del artefacto. Ver L-05a en `13_limitaciones.md`.
+
 ---
 
 ## H-03 — Falso positivo YARA en software legítimo (Sysinternals)

@@ -11,7 +11,21 @@
 
 El único conjunto de datos de evaluación disponible (`data/test_set/`) es sintético y no compatible con el scaler de producción. No es posible calcular métricas estadísticas reales del modelo (accuracy, FPR, FNR) sobre datos de campo.
 
-**Impacto**: El sistema no puede reportar rendimiento verificable del modelo ML.
+**Impacto**: El sistema no puede reportar rendimiento verificable del modelo ML sobre datos de campo. *Nota 2026-08-25*: las métricas del entrenamiento original (accuracy=0.9815, F1=0.9845, FPR≈1.88%, FNR≈1.80%) fueron recuperadas de `Model_Collab/ShadowNet Defender - v3.0.ipynb` y documentadas en `07_metricas_y_resultados.md`; son válidas únicamente para la distribución híbrida de evaluación del propio entrenamiento.
+
+---
+
+### L-05a — Auditoría del scaler de producción (2026-08-25): NO corrupto
+
+Auditoría directa de `models/scaler.pkl` (StandardScaler, joblib, sklearn 1.7.0):
+
+- **Sin corrupción**: `mean_` y `scale_` contienen 0 valores inf y 0 NaN. El `RuntimeWarning: overflow` del notebook afectó únicamente al cálculo *agregado* para impresión de logs (`X_train.mean()` sobre 3.57M×2381 en float32), no a las estadísticas por columna almacenadas.
+- **Distribuciones extremas pero legítimas**: 149 columnas (6.3%) tienen media o std extrema (p. ej. col 3: mean≈6.0e7, std≈4.3e8; col 687: std≈1.1e16), consistentes con features crudas de tamaño/offsets de SOREL-20M sin normalización previa.
+- **Archivos**: el scaler de Colab y el de producción son funcionalmente idénticos (mismos parámetros; diff de bytes solo por serialización).
+
+**Diagnóstico corregido**: la incompatibilidad documentada en H-02/L-05 no es corrupción del scaler sino **desajuste de dominio**: `data/test_set/X_test.npy` (rango [0,1]) proviene de una distribución radicalmente distinta a la de entrenamiento. Sobre ese test set, el escalado produce |z|>100 en 198 columnas — comportamiento esperado ante datos fuera de dominio, no evidencia de artefacto dañado.
+
+**Impacto**: El scaler es válido para su dominio de entrenamiento. La limitación se reduce a: falta de conjunto de evaluación representativo del dominio de entrenamiento y de campo. No es reparable sin datos, pero tampoco lo requiere: el modelo en producción usa el scaler con el que fue entrenado.
 
 ---
 
@@ -43,7 +57,7 @@ El modelo neuronal es una caja negra. No está implementada ninguna técnica de 
 
 El `scaler.pkl` fue ajustado sobre datos con distribuciones incompatibles con el test set disponible. El pipeline de producción usa el scaler, pero su validación formal es imposible sin el conjunto de entrenamiento original.
 
-**Impacto**: Potencial degradación de rendimiento del modelo si el scaler no está correctamente ajustado para el dominio de datos reales.
+**Impacto**: Potencial degradación de rendimiento del modelo si el scaler no está correctamente ajustado para el dominio de datos reales. Ver L-05a para la causa raíz (overflow numérico).
 
 ---
 

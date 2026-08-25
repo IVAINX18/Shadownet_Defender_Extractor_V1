@@ -12,7 +12,7 @@
 |---------|------------|----------------------|-------------|
 | `data/test_set/X_test.npy` (1000 muestras) | ✅ | ❌ | Sintético, incompatible con scaler de producción |
 | `samples/` (archivos PE) | ✅ | Parcial | Sin ground truth externo verificado |
-| SOREL-20M (datos de entrenamiento) | ❌ | — | No incluido en repositorio |
+| SOREL-20M (datos de entrenamiento) | ❌ | — | No incluido en repositorio (muestra de 5M no conservada; ver notebook en `Model_Collab/`) |
 | Datos de campo reales | ❌ | — | No disponibles |
 
 ---
@@ -32,6 +32,62 @@ Al aplicar el scaler del pipeline de producción sobre el test set, el modelo pr
 Al omitir el scaler (features directamente al modelo ONNX), el modelo produce scores separables pero con AUC=0.0 con etiquetas convencionales y AUC=1.0 con etiquetas invertidas. Esto confirma que el test set es **sintético con etiquetas opuestas a la convención del modelo** y **perfectamente separable** — no representativo de datos reales.
 
 **Conclusión**: Las métricas de ML sobre `data/test_set/` no son válidas para reportar en un artículo científico.
+
+---
+
+## Métricas de entrenamiento — RECUPERADAS del notebook original (2026-08-25)
+
+> **Fuente**: `Model_Collab/ShadowNet Defender - v3.0.ipynb`, notebook con
+> outputs ejecutados del entrenamiento original (julio 2025). Los artefactos
+> resultantes (`best_model.pth`, `scaler.pkl`) son los mismos desplegados en
+> producción (`models/best_model.onnx`, `models/scaler.pkl`). Estas métricas
+> **sí corresponden al modelo en producción**, a diferencia de las métricas
+> declaradas en documentación (sección siguiente), que nunca fueron reproducidas.
+
+### Configuración del entrenamiento
+
+| Parámetro | Valor |
+|-----------|-------|
+| Dataset híbrido | 100K registros originales + 5,000,000 muestra SOREL-20M = 5,100,000 |
+| Características | 2,381 (dataset original rellenado con padding de ceros: 33 → 2381) |
+| Distribución de clases | 59.7% malware / 40.3% benigno |
+| División | 70/15/15 estratificado (Train 3,572,040 · Val 762,960 · Test 765,000) |
+| Arquitectura | MLP 2381 → 512 → 256 → 128 → 1 (BatchNorm + ReLU + Dropout 0.3/0.2/0.1) |
+| Parámetros | 1,385,729 |
+| Pérdida / Optimizador | BCELoss · Adam (lr=0.001, weight_decay=1e-5) |
+| Scheduler | ReduceLROnPlateau (patience=3, factor=0.5) |
+| Early stopping | patience=5; detenido en epoch 14; mejor val loss = 0.0523 (epoch 9) |
+| Dispositivo | CPU |
+
+### Métricas sobre el conjunto de test (765,000 muestras)
+
+| Métrica | Valor |
+|---------|-------|
+| Accuracy | 0.9815 (98.15%) |
+| Precision | 0.9870 (98.70%) |
+| Recall (TPR) | 0.9820 (98.20%) |
+| F1-Score | 0.9845 (98.45%) |
+| Specificity (TNR) | 0.9808 (98.08%) |
+
+**Matriz de confusión**:
+
+| | Pred. Malware | Pred. Benigno |
+|---|---|---|
+| **Real Malware** | TP = 448,132 | FN = 8,204 |
+| **Real Benigno** | FP = 5,918 | TN = 302,746 |
+
+**Derivadas**: FPR ≈ 1.88% · FNR ≈ 1.80%
+
+### Alcance y validez de estas métricas
+
+Estas métricas son válidas y verificables, pero deben interpretarse con sus límites:
+
+1. **Distribución evaluada**: el test set proviene del mismo split aleatorio del dataset híbrido de entrenamiento. No mide generalización a dominios nuevos (familias emergentes, packers no vistos, software legítimo moderno).
+2. **Padding artificial**: las 100K muestras del dataset original fueron rellenadas con 2,348 columnas de ceros para igualar la dimensionalidad de SOREL. El modelo puede explotar este patrón como atajo discriminativo.
+3. **Overflow numérico — solo en logs (corregido 2026-08-25)**: los logs del notebook registran `RuntimeWarning: overflow` con media pre-scaling ≈ 5.02e9 y **std = inf**. La auditoría posterior de `models/scaler.pkl` confirmó que las estadísticas **por columna almacenadas están intactas** (0 inf, 0 NaN); el overflow afectó únicamente al cálculo agregado para impresión. Ver L-05a en `13_limitaciones.md`.
+4. **Val loss inestable** durante el entrenamiento (oscilaciones 0.05 → 0.83 entre epochs consecutivos): consistente con batch size grande + BatchNorm.
+
+**Conclusión**: Las métricas pueden reportarse en el artículo como *"rendimiento del modelo sobre su distribución de evaluación híbrida (SOREL-20M + dataset sintético balanceado)"*, citando el notebook como evidencia reproducible. No sustituyen la necesidad de un corpus de evaluación de campo (ver experimentos faltantes).
 
 ---
 
