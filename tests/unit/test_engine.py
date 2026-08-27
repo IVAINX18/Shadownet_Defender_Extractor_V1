@@ -41,12 +41,15 @@ class TestEngineYARA:
             mock_scan.matches = [MagicMock(rule_name="Trojan_Test", category="trojan", tags=[])]
             mock_scan.scan_time_ms = 1.0
             mock_yara.scan.return_value = mock_scan
+            # No whitelisteado: el match debe producir MALWARE
+            mock_yara.is_whitelisted.return_value = False
             engine._yara_scanner = mock_yara
             engine._behavioral_shield = None
 
             result = {}
             result["detection_phases"] = []
             result["yara_matches"] = []
+            result["details"] = {}
             yara_result = engine._run_yara_phase(test_file, result)
 
             assert yara_result is not None
@@ -197,6 +200,32 @@ class TestEngineBehavioralElevation:
             engine._run_behavioral_phase(test_file, result)
 
             assert result["operational_status"] == "SUSPICIOUS"
+
+
+def test_yara_match_never_unknown(tmp_path):
+    """T-03: YARA early-exit nunca produce operational_status=UNKNOWN."""
+    test_file = tmp_path / "malware.exe"
+    test_file.write_bytes(b"MZ" + b"\x00" * 200)
+    with patch("core.engine.ShadowNetEngine.__init__", return_value=None):
+        from core.engine import ShadowNetEngine
+        engine = ShadowNetEngine.__new__(ShadowNetEngine)
+        mock_yara = MagicMock()
+        mock_yara.is_available = True
+        mock_scan = MagicMock()
+        mock_scan.has_matches = True
+        mock_scan.threat_names = ["Trojan.Test"]
+        mock_scan.categories = ["trojan"]
+        mock_scan.matches = [MagicMock(rule_name="Trojan_Test", category="trojan", tags=[])]
+        mock_scan.scan_time_ms = 1.0
+        mock_yara.scan.return_value = mock_scan
+        mock_yara.is_whitelisted.return_value = False
+        engine._yara_scanner = mock_yara
+        engine._behavioral_shield = None
+        result = {"detection_phases": [], "yara_matches": [], "details": {}, "operational_status": "SUSPICIOUS"}
+        yara_result = engine._run_yara_phase(test_file, result)
+        assert yara_result is not None
+        assert yara_result["operational_status"] != "UNKNOWN"
+        assert yara_result["operational_status"] == "DANGEROUS"
 
 
 class TestEnginePhaseFaultTolerance:

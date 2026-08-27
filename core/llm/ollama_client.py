@@ -128,9 +128,22 @@ class OllamaClient:
     def __init__(self, config: OllamaClientConfig | None = None):
         self.config = config or OllamaClientConfig()
 
+        # Validacion de seguridad: en produccion, Ollama no puede apuntar a localhost.
+        # Si el operador configura OLLAMA_BASE_URL=localhost en ENVIRONMENT=prod,
+        # significa que el servicio LLM no esta disponible en el entorno de produccion,
+        # lo que es un error de configuracion que debe fallar explicitamente.
+        if os.getenv("ENVIRONMENT", "dev").lower() == "prod":
+            base_url_lower = self.config.base_url.lower()
+            if "127.0.0.1" in base_url_lower or "localhost" in base_url_lower:
+                raise RuntimeError(
+                    "OLLAMA_BASE_URL apunta a localhost en produccion. "
+                    "En ENVIRONMENT=prod, Ollama debe estar accesible via URL externa. "
+                    "Usa OLLAMA_BASE_URL con un endpoint HTTPS (ej: Cloudflare Tunnel)."
+                )
+
         # ─────────────────────────────────────────────────────────────────────
         # Crear cliente OpenAI apuntando a Ollama
-        # api_key="ollama" es un valor dummy — Ollama no requiere autenticación
+        # api_key="ollama" es un valor dummy — Ollama no requiere autenticacion
         # ─────────────────────────────────────────────────────────────────────
         self._client = OpenAI(
             base_url=self.config.base_url,

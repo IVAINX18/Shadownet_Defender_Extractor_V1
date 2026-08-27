@@ -35,19 +35,24 @@ if HAS_HYPOTHESIS:
 
     @given(
         result=st.sampled_from(["benign", "unknown", "", "clean", "safe"]),
-        op_status=st.sampled_from(["CLEAN", "SUSPICIOUS", "UNKNOWN", "", "safe"]),
+        op_status=st.sampled_from(["CLEAN", "UNKNOWN", "", "safe"]),
         filename=st.text(max_size=50),
         score=st.floats(min_value=0.0, max_value=1.0, allow_nan=False),
     )
     def test_prop16_non_alert_always_skip(result, op_status, filename, score):
-        """Prop 16: result no-malicious y op_status no-DANGEROUS → siempre False."""
-        r = send_scan_result({
-            "result": result,
-            "operational_status": op_status,
-            "file_name": filename,
-            "confidence": score,
-        })
+        """Prop 16 (T-01 renamed non_critical_always_skip): non-malicious + non-critical → False."""
+        with patch.dict(os.environ, {"N8N_ALERT_ON_STATUS": "DANGEROUS,SUSPICIOUS"}, clear=False):
+            # Force re-evaluation with patched env (helpers read os.getenv each call)
+            r = send_scan_result({
+                "result": result,
+                "operational_status": op_status,
+                "file_name": filename,
+                "confidence": score,
+            })
         assert r is False
+
+    # Alias para compatibilidad con tasks.md — mismo comportamiento
+    test_non_critical_always_skip = test_prop16_non_alert_always_skip
 
     _primitive = st.one_of(
         st.none(), st.booleans(),
@@ -67,14 +72,18 @@ if HAS_HYPOTHESIS:
     @given(payload=_nested)
     @settings(suppress_health_check=[HealthCheck.too_slow], max_examples=300)
     def test_prop17_safe_json_payload_serializable(payload):
-        """Prop 17: _safe_json produce datos siempre json.dumps-able."""
+        """Prop 17: _safe_json produce datos siempre json.dumps-able (sin float NaN/Inf)."""
         sanitized = _safe_json(payload)
         try:
             serialized = json.dumps(sanitized)
         except (ValueError, TypeError) as exc:
             assert False, f"_safe_json produjo JSON inválido: {exc}"
-        assert "NaN" not in serialized
-        assert "Infinity" not in serialized
+        # json.dumps con allow_nan=False lanzaría error si hay float NaN/Inf
+        # Verificar que json.dumps(allow_nan=False) también funciona
+        try:
+            json.dumps(sanitized, allow_nan=False)
+        except ValueError as exc:
+            assert False, f"_safe_json dejó float NaN/Inf en el resultado: {exc}"
 
     @given(
         result=st.sampled_from(["malicious", "suspicious", "benign", "unknown"]),

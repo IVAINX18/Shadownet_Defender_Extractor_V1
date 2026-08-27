@@ -47,6 +47,7 @@ from backend.app.api.routes.analysis import router as analysis_router
 from backend.app.api.routes.health import router as health_router
 from backend.app.api.routes.quarantine import router as quarantine_router
 from backend.app.api.routes.remediation import router as remediation_router
+from backend.app.api.routes.explain import router as explain_router
 
 # ---------------------------------------------------------------------------
 # Creo la aplicación FastAPI
@@ -87,6 +88,7 @@ app.include_router(analysis_router)
 app.include_router(health_router)
 app.include_router(quarantine_router)
 app.include_router(remediation_router)
+app.include_router(explain_router)
 
 
 from fastapi import Request

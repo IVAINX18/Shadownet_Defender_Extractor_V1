@@ -2,3 +2,5 @@
 # Perfil opcional para entrenamiento/experimentos de ML pesado.
 torch
 pandas
+# SHAP — KernelExplainer para XAI sobre ONNX Runtime (T-12)
+shap>=0.44.0

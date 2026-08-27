@@ -27,6 +27,7 @@ Patrón Facade (Fachada):
 """
 from __future__ import annotations
 
+import hashlib
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -100,28 +101,35 @@ class ShadowNetEngine:
     # API Pública
     # ------------------------------------------------------------------
 
-    def scan_file(self, file_path: Union[str, Path]) -> Dict[str, Any]:
+    def scan_file(
+        self,
+        file_path: Union[str, Path],
+        *,
+        enable_behavioral: bool = False,
+    ) -> Dict[str, Any]:
         """
-        Escanea un archivo usando el pipeline híbrido completo.
+        Escanea un archivo usando el pipeline hibrido completo.
+
+        Args:
+            file_path:         Ruta al archivo a analizar.
+            enable_behavioral: Si True, ejecuta la Fase 8 (BehavioralShield).
+                               Por defecto False para preservar comportamiento V3
+                               y no introducir dependencias de psutil en CI.
 
         Returns:
-            Diccionario con:
-                - label     : "MALWARE" | "BENIGN" | "NOT_PE"
-                - score     : Float [0.0, 1.0]
-                - status    : "detected" | "clean" | "not_supported"
-                - confidence: "High" | "Medium" | "Low"
-                - details   : Diccionario con información adicional
-                - yara_matches : Lista de reglas YARA que coincidieron
-                - was_unpacked : Bool — si el archivo fue desempacado
+            Diccionario con label, score, status, confidence, details,
+            yara_matches, was_unpacked, operational_status, behavioral_analysis, etc.
         """
         import concurrent.futures
         from configs.settings import ANALYSIS_TIMEOUT_SECONDS
 
         file_path = Path(file_path)
 
-        # ── WATCHDOG de 60s (2.5) ─────────────────────────────────────
+        # Watchdog global: el pipeline completo no puede superar ANALYSIS_TIMEOUT_SECONDS
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(self._scan_file_internal, file_path)
+            future = executor.submit(
+                self._scan_file_internal, file_path, enable_behavioral
+            )
             try:
                 return future.result(timeout=ANALYSIS_TIMEOUT_SECONDS)
             except concurrent.futures.TimeoutError:
@@ -173,8 +181,16 @@ class ShadowNetEngine:
                     "scan_time_ms": ANALYSIS_TIMEOUT_SECONDS * 1000,
                 }
 
-    def _scan_file_internal(self, file_path: Path) -> Dict[str, Any]:
-        """Pipeline interno de escaneo (ejecutado con watchdog en scan_file)."""
+    def _scan_file_internal(
+        self, file_path: Path, enable_behavioral: bool = False
+    ) -> Dict[str, Any]:
+        """Pipeline interno de escaneo (ejecutado con watchdog en scan_file).
+
+        Args:
+            file_path:         Ruta al archivo.
+            enable_behavioral: Si True, ejecuta Fase 8 BehavioralShield.
+                               Si False (default), behavioral_analysis=None.
+        """
         start_time = time.time()
 
         result: Dict[str, Any] = {
@@ -189,7 +205,7 @@ class ShadowNetEngine:
             "was_unpacked": False,
             "detection_phases": [],
             # Campos nuevos — compatibles con SOREL-20M (no tocan el vector)
-            "operational_status": "UNKNOWN",   # CLEAN / SUSPICIOUS / DANGEROUS
+            "operational_status": "SUSPICIOUS",  # T-03: nunca UNKNOWN
             "risk_level": "LOW",
             "risk_score": 0,
             "overlay_analysis": {},
@@ -272,8 +288,12 @@ class ShadowNetEngine:
             logger.error("Error en fase IL para %s: %s", file_path.name, _exc)
             result["details"]["il_phase_error"] = True
 
-        # ── FASE 7: BehavioralShield ──────────────────────────────────
-        self._run_behavioral_phase(file_path, result)
+        # Fase 8: BehavioralShield (opt-in via enable_behavioral)
+        # Solo se ejecuta si el flag esta activo para no impactar el pipeline
+        # por defecto y no introducir dependencias de psutil en CI.
+        if enable_behavioral:
+            self._run_behavioral_phase(file_path, result)
+        # Si el flag esta inactivo, behavioral_analysis permanece None (ya en el dict)
 
         # ── Limpieza del archivo desempacado temporal ─────────────────
         if result["was_unpacked"] and analysis_path != file_path:
@@ -328,6 +348,43 @@ class ShadowNetEngine:
                 threat_names = yara_scan.threat_names
                 categories = yara_scan.categories
 
+                # Calcular SHA-256 para verificar contra whitelist de software legitimo
+                try:
+                    sha256 = hashlib.sha256(file_path.read_bytes()).hexdigest()
+                except Exception:
+                    sha256 = ""
+
+                # Si el archivo esta en whitelist, degradar a SUSPICIOUS en lugar de DANGEROUS
+                if sha256 and self._yara_scanner.is_whitelisted(sha256, yara_scan.matches):
+                    logger.info(
+                        "YARA whitelist: %s degradado de DANGEROUS a SUSPICIOUS "
+                        "(reglas: %s | sha256: %s...)",
+                        file_path.name,
+                        threat_names,
+                        sha256[:16],
+                    )
+                    # No retornar early: continuar el pipeline con status SUSPICIOUS
+                    # para que el resto de las fases también analicen el archivo.
+                    result["yara_matches"] = [
+                        {
+                            "rule": m.rule_name,
+                            "category": m.category,
+                            "tags": m.tags,
+                        }
+                        for m in yara_scan.matches
+                    ]
+                    result["operational_status"] = "SUSPICIOUS"
+                    result["risk_level"] = "MEDIUM"
+                    result["heuristic_assessment"] = {
+                        "whitelist_hit": True,
+                        "whitelisted": True,
+                    }
+                    result["details"]["whitelist_hit"] = True
+                    result["details"]["threat_names"] = threat_names
+                    result["detection_phases"].append("YARA_WHITELISTED")
+                    # Continuar con fases ML/overlay para analisis completo
+                    return None
+
                 logger.warning(
                     "YARA: Amenaza confirmada en %s — Reglas: %s | Categorías: %s",
                     file_path.name,
@@ -335,13 +392,14 @@ class ShadowNetEngine:
                     categories,
                 )
 
-                # Construir resultado de MALWARE con score máximo
+                # Construir resultado de MALWARE con score máximo — T-03: DANGEROUS
                 yara_result = dict(result)
                 yara_result.update({
                     "status": "detected",
                     "label": "MALWARE",
                     "score": 1.0,
                     "confidence": "High",
+                    "operational_status": "DANGEROUS",
                     "detection_phases": ["YARA"],
                     "yara_matches": [
                         {
@@ -406,7 +464,22 @@ class ShadowNetEngine:
             logger.info("Extrayendo features de: %s", analysis_path.name)
             result["detection_phases"].append("ML_STATIC")
 
-            features = self.extractor.extract(str(analysis_path))
+            # T-04: envolver extract() con timeout configurable
+            import concurrent.futures as _cf
+            from configs.settings import EXTRACTOR_TIMEOUT_SECONDS
+            with _cf.ThreadPoolExecutor(max_workers=1) as _executor:
+                _future = _executor.submit(self.extractor.extract, str(analysis_path))
+                try:
+                    features = _future.result(timeout=EXTRACTOR_TIMEOUT_SECONDS)
+                except _cf.TimeoutError:
+                    logger.warning(
+                        "Extractor timeout (%ds) para %s → SUSPICIOUS",
+                        EXTRACTOR_TIMEOUT_SECONDS, analysis_path.name,
+                    )
+                    result["operational_status"] = "SUSPICIOUS"
+                    result["details"]["degradation_reason"] = "extractor_timeout"
+                    result["label"] = "SUSPICIOUS"
+                    return
             
             # Integrar diagnósticos de auditoría y packing en los detalles del resultado (Mejora 6)
             if hasattr(self.extractor, "last_diagnostics") and self.extractor.last_diagnostics:

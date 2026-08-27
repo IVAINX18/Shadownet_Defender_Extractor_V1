@@ -102,10 +102,10 @@ async def get_current_user(request: Request) -> Dict[str, Any]:
         raise HTTPException(status_code=401, detail="Token vacío.")
 
     if not SUPABASE_URL and not SUPABASE_JWT_SECRET:
-        logger.error("Ni SUPABASE_URL ni SUPABASE_JWT_SECRET configurados")
+        logger.warning("Supabase no configurado — modo fail-secure (401)")
         raise HTTPException(
-            status_code=500,
-            detail="Configuración de autenticación incompleta en el servidor.",
+            status_code=401,
+            detail="Autenticación no disponible. Configura SUPABASE_URL o SUPABASE_JWT_SECRET.",
         )
 
     try:
@@ -121,8 +121,12 @@ async def get_current_user(request: Request) -> Dict[str, Any]:
     except pyjwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expirado. Inicia sesión nuevamente.")
     except pyjwt.InvalidTokenError as exc:
-        logger.warning("JWT inválido: %s", exc)
+        logger.warning("JWT inválido: %s", type(exc).__name__)
         raise HTTPException(status_code=401, detail="Token inválido.")
+    except Exception as exc:
+        # Capturar cualquier excepción no anticipada (e.g., error de red en JWKS)
+        logger.error("Error inesperado en validación JWT: %s", type(exc).__name__)
+        raise HTTPException(status_code=401, detail="Error de autenticación.")
 
     user_id = payload.get("sub")
     email = payload.get("email")

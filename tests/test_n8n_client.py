@@ -28,13 +28,16 @@ class _FakeResponse:
 # ---------------------------------------------------------------------------
 
 def test_send_scan_result_skips_benign():
-    """No envía nada si result != malicious."""
+    """No envía si result=benign + operational_status=CLEAN; SÍ envía si DANGEROUS."""
+    # CLEAN → skip
+    assert send_scan_result({"result": "benign", "operational_status": "CLEAN", "file_name": "test.exe"}) is False
+    # Sin operational_status también skip (compat)
     assert send_scan_result({"result": "benign", "file_name": "test.exe"}) is False
 
 
 def test_send_scan_result_skips_suspicious():
-    """No envía nada si result == suspicious."""
-    assert send_scan_result({"result": "suspicious", "file_name": "test.exe"}) is False
+    """No envía nada si result == suspicious y operational_status no crítico."""
+    assert send_scan_result({"result": "suspicious", "operational_status": "CLEAN", "file_name": "test.exe"}) is False
 
 
 def test_send_scan_result_skips_empty():
@@ -76,6 +79,30 @@ def test_send_scan_result_sends_malicious(mock_config_cls, mock_urlopen):
     assert payload["file_name"] == "malware.exe"
     assert payload["score"] == 0.95
     assert "system_info" in payload
+
+
+@patch("core.integrations.n8n_client.request.urlopen")
+@patch("core.integrations.n8n_client.N8NIntegrationConfig")
+def test_send_scan_result_sends_dangerous_benign_label(mock_config_cls, mock_urlopen):
+    """T-01: operational_status=DANGEROUS + result=benign → SÍ envía con event dangerous_detected."""
+    cfg = MagicMock()
+    cfg.enabled = True
+    cfg.selected_webhook.return_value = "https://example.com/webhook"
+    cfg.timeout_seconds = 5
+    mock_config_cls.return_value = cfg
+    mock_urlopen.return_value = _FakeResponse()
+
+    result = send_scan_result({
+        "result": "benign",
+        "operational_status": "DANGEROUS",
+        "file_name": "dropper.exe",
+    })
+    assert result is True
+    mock_urlopen.assert_called_once()
+    req = mock_urlopen.call_args[0][0]
+    payload = json.loads(req.data.decode("utf-8"))
+    assert payload["event"] == "dangerous_detected"
+    assert payload["operational_status"] == "DANGEROUS"
 
 
 # ---------------------------------------------------------------------------

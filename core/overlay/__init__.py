@@ -108,9 +108,20 @@ class OverlayReport:
     overlay_string_count: int = 0
     overlay_suspicious_strings: List[str] = field(default_factory=list)
 
-    # Protección contra falsos positivos
+    # Proteccion contra falsos positivos
     is_known_installer: bool = False
     installer_type: Optional[str] = None
+
+    # Deteccion de instaladores falsos — T-07
+    # Un instalador con overlay_ratio > 0.93 que presenta magic bytes de NSIS/InnoSetup
+    # es sospechoso de usar la firma del instalador para evadir el descuento de riesgo.
+    installer_spoof_suspected: bool = False
+
+    # Entropia por bloques del overlay — T-06
+    # Campos aditivos que complementan overlay_entropy global sin reemplazarlo.
+    max_block_entropy: float = 0.0
+    high_entropy_block_ratio: float = 0.0  # Fraccion de bloques con entropia > 7.2
+    block_count: int = 0
 
     # Resultados YARA (rellenos externamente por el engine)
     overlay_yara_hits: List[str] = field(default_factory=list)
@@ -124,6 +135,10 @@ class OverlayReport:
             "overlay_ratio": round(self.overlay_ratio, 4),
             "overlay_entropy": round(self.overlay_entropy, 4),
             "global_entropy": round(self.global_entropy, 4),
+            # Entropia por bloques (T-06)
+            "max_block_entropy": round(self.max_block_entropy, 4),
+            "high_entropy_block_ratio": round(self.high_entropy_block_ratio, 4),
+            "block_count": self.block_count,
             "embedded_pe_detected": self.embedded_pe_detected,
             "embedded_pe_count": self.embedded_pe_count,
             "embedded_pe_offsets": self.embedded_pe_offsets,
@@ -133,6 +148,8 @@ class OverlayReport:
             "overlay_suspicious_strings": self.overlay_suspicious_strings[:10],
             "is_known_installer": self.is_known_installer,
             "installer_type": self.installer_type,
+            # Proteccion contra instaladores falsos (T-07)
+            "installer_spoof_suspected": self.installer_spoof_suspected,
             "overlay_yara_hits": self.overlay_yara_hits,
             "embedded_pe_yara_hits": self.embedded_pe_yara_hits,
         }
@@ -172,6 +189,9 @@ class OverlayAnalyzer:
         # Calcular offset del overlay
         overlay_offset = self._find_overlay_offset(raw_data, pe)
         if overlay_offset <= 0 or overlay_offset >= total_size:
+            # Sin overlay: resolver legitimidad del instalador con ratio=0.0
+            # para que instaladores sin datos extra sean marcados como legitimos.
+            self._resolve_installer_legitimacy(raw_data, report)
             return report
 
         overlay_data = raw_data[overlay_offset:]
@@ -179,16 +199,30 @@ class OverlayAnalyzer:
 
         # Overlays < 512 bytes no son significativos
         if overlay_size < 512:
+            self._resolve_installer_legitimacy(raw_data, report)
             return report
+
 
         report.overlay_present = True
         report.overlay_offset = overlay_offset
         report.overlay_size = overlay_size
         report.overlay_ratio = overlay_size / total_size
 
+        # Resolver si el instalador detectado es legitimo o es un spoof (T-07)
+        # Solo se puede hacer aqui porque overlay_ratio ya esta calculado.
+        self._resolve_installer_legitimacy(raw_data, report)
+
         # Entropía del overlay
         analysis_slice = overlay_data[:_MAX_OVERLAY_ANALYSIS]
         report.overlay_entropy = self._entropy(analysis_slice)
+
+        # Entropia por bloques del overlay — T-06
+        # Se calcula sobre el overlay completo (no solo el slice de 5MB) para
+        # detectar segmentacion cifrada aunque el inicio sea de baja entropia.
+        max_be, high_ratio, block_count = self._compute_block_entropy(overlay_data)
+        report.max_block_entropy = max_be
+        report.high_entropy_block_ratio = high_ratio
+        report.block_count = block_count
 
         # Buscar PEs embebidos
         self._find_embedded_pes(overlay_data, report)
@@ -332,21 +366,124 @@ class OverlayAnalyzer:
                     break
 
     def _detect_installer(self, raw_data: bytes, report: OverlayReport) -> None:
-        """Detecta instaladores legítimos para reducir falsos positivos."""
+        """
+        Detecta instaladores legitimos para reducir falsos positivos (T-07 endurecido).
+
+        Un instalador con overlay_ratio > 0.93 que contiene magic bytes de NSIS/InnoSetup
+        es tratado como posible instalador falso (InstallerSpoof). En ese caso:
+          - is_known_installer = False (sin descuento)
+          - installer_spoof_suspected = True (indicador de alerta)
+
+        Solo se concede el descuento de instalador cuando:
+          - overlay_ratio < 0.90 (o aun no calculado en esta fase, comprobado post-analisis)
+          - installer_type in ("NSIS", "InnoSetup", ...) con ratio razonable
+        """
         search_zone = raw_data[:min(len(raw_data), 10_000_000)]
         for sig, installer_type in _INSTALLER_SIGNATURES.items():
             if sig in search_zone and installer_type is not None:
-                report.is_known_installer = True
                 report.installer_type = installer_type
-                logger.info("Instalador legítimo detectado: %s (FP protection activa)", installer_type)
+                # La verificacion de overlay_ratio se hara en analyze() una vez conocido el ratio.
+                # Aqui solo marcamos el tipo; la decision de is_known_installer se toma despues.
+                logger.info("Firma de instalador detectada: %s", installer_type)
                 return
+
+    def _resolve_installer_legitimacy(self, raw_data: bytes, report: OverlayReport) -> None:
+        """
+        Decide si un instalador detectado es legitimo o un spoof (T-07).
+
+        Se llama despues de que overlay_ratio ya fue calculado, lo que permite
+        detectar binarios que incluyen magic bytes de NSIS/InnoSetup como evasion.
+
+        Reglas:
+          - overlay_ratio == 0.0: sin overlay, el archivo ES el instalador → legitimo
+          - overlay_ratio > 0.93 con tipo NSIS/InnoSetup  => installer_spoof_suspected
+          - overlay_ratio <= 0.90 con tipo conocido        => is_known_installer = True
+          - 0.90 < overlay_ratio <= 0.93                  => zona gris, sin descuento
+
+        Los tipos que NO son NSIS/InnoSetup (ZIP, CAB, RAR, etc.) se tratan como
+        legitimos independientemente del overlay_ratio.
+        """
+        if report.installer_type is None:
+            return
+
+        # Sin overlay real: el archivo entero es el instalador → siempre legitimo
+        if report.overlay_ratio == 0.0:
+            report.is_known_installer = True
+            logger.info(
+                "Instalador sin overlay: %s → is_known_installer=True",
+                report.installer_type,
+            )
+            return
+
+        spoofable_types = ("NSIS", "InnoSetup")
+
+        if report.installer_type in spoofable_types and report.overlay_ratio > 0.93:
+            report.is_known_installer = False
+            report.installer_spoof_suspected = True
+            logger.warning(
+                "Installer spoof sospechado: tipo=%s overlay=%.1f%% "
+                "(> 93%% para instalador NSIS/InnoSetup es anomalo)",
+                report.installer_type,
+                report.overlay_ratio * 100,
+            )
+        elif report.overlay_ratio <= 0.90:
+            report.is_known_installer = True
+            logger.info(
+                "Instalador legitimo confirmado: %s (overlay=%.1f%%, FP protection activa)",
+                report.installer_type,
+                report.overlay_ratio * 100,
+            )
+        else:
+            # Zona gris (0.90 < ratio <= 0.93): no conceder descuento
+            report.is_known_installer = False
+            logger.info(
+                "Instalador en zona gris: %s overlay=%.1f%% (sin descuento aplicado)",
+                report.installer_type,
+                report.overlay_ratio * 100,
+            )
+
+
+    @staticmethod
+    def _compute_block_entropy(
+        overlay: bytes, block_size: int = 64 * 1024
+    ) -> tuple:
+        """
+        Calcula entropia Shannon por bloques de block_size bytes (default: 64 KB).
+
+        Retorna (max_block_entropy, high_entropy_block_ratio, block_count).
+
+        Detecta overlays segmentados donde bloques de alta y baja entropia se
+        alternan, haciendo que la entropia promedio quede por debajo del umbral
+        de deteccion (< 7.2) aunque el contenido cifrado este presente.
+
+        Un overlay < block_size se trata como un solo bloque sin error.
+
+        Args:
+            overlay:    Bytes del overlay completo.
+            block_size: Tamano de bloque en bytes (default 65536 = 64 KB).
+
+        Returns:
+            Tupla (max_block_entropy, high_entropy_block_ratio, block_count).
+        """
+        if not overlay:
+            return 0.0, 0.0, 0
+
+        blocks = [overlay[i: i + block_size] for i in range(0, len(overlay), block_size)]
+        entropies = [OverlayAnalyzer._entropy(b) for b in blocks]
+
+        max_entropy = max(entropies) if entropies else 0.0
+        high_entropy_count = sum(1 for e in entropies if e > 7.2)
+        ratio = high_entropy_count / len(entropies) if entropies else 0.0
+
+        return max_entropy, ratio, len(blocks)
 
     @staticmethod
     def _entropy(data: bytes) -> float:
-        """Entropía de Shannon de una secuencia de bytes."""
+        """Entropia de Shannon de una secuencia de bytes."""
         if not data:
             return 0.0
         counts = np.bincount(np.frombuffer(data, dtype=np.uint8), minlength=256)
         probs = counts / len(data)
         probs = probs[probs > 0]
         return float(-np.sum(probs * np.log2(probs)))
+

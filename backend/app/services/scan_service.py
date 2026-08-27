@@ -122,22 +122,25 @@ def scan_single_file(
     file_path: Path,
     *,
     scan_type: ScanType = ScanType.SINGLE,
+    enable_behavioral: bool = False,
 ) -> ScanResult:
     """
     Ejecuta el escaneo completo de un archivo individual.
 
     Flujo:
       1. Llamo a ShadowNetEngine.scan_file() (extrae features + inferencia ONNX)
-      2. Si es NOT_PE → clasifico como suspicious (archivo no analizable ≠ seguro)
+      2. Si es NOT_PE → clasifico como suspicious (archivo no analizable != seguro)
       3. Si es PE válido → clasificación tripartita sobre el score ML
       4. Construyo ScanResult estandarizado
 
     Args:
-        file_path: Ruta absoluta al archivo a escanear.
-        scan_type: Tipo de escaneo (single, multiple, realtime).
+        file_path:         Ruta absoluta al archivo a escanear.
+        scan_type:         Tipo de escaneo (single, multiple, realtime).
+        enable_behavioral: Si True, activa BehavioralShield (Fase 8).
+                           Por defecto False para preservar comportamiento V3.
 
     Returns:
-        ScanResult con todos los campos del PRD sección 19.1.
+        ScanResult con todos los campos del PRD seccion 19.1.
 
     Raises:
         FileNotFoundError: Si el archivo no existe.
@@ -149,7 +152,7 @@ def scan_single_file(
     engine = get_engine()
     start_time = time.time()
 
-    # 3.3 — Calcula SHA-256 ANTES de ejecutar el engine
+    # Calcula SHA-256 ANTES de ejecutar el engine
     file_sha256: Optional[str] = None
     try:
         file_sha256 = _compute_sha256(file_path)
@@ -157,9 +160,10 @@ def scan_single_file(
     except Exception as exc:
         logger.warning("No se pudo calcular SHA-256 de %s: %s", file_path.name, exc)
 
-    # Ejecuto el motor ML existente — no lo recreo, solo lo uso
-    raw_result = engine.scan_file(file_path)
+    # Ejecuto el motor ML existente pasando el flag behavioral
+    raw_result = engine.scan_file(file_path, enable_behavioral=enable_behavioral)
     elapsed = time.time() - start_time
+
 
     # Extraer metadatos del pipeline híbrido
     yara_matches    = raw_result.get("yara_matches", [])
@@ -402,8 +406,8 @@ def scan_and_explain(
             logger.warning("Error guardando en Supabase: %s — encolando offline", exc)
             _queue_offline(result_dict)
 
-    # Paso 5: Alerta N8N solo si malicious
-    _notify_n8n_if_malicious(scan_result)
+    # Paso 5: Alerta N8N delegada a send_scan_result (operational_status-aware)
+    _notify_n8n(scan_result)
 
     return scan_result
 
@@ -417,17 +421,16 @@ def _queue_offline(result_dict: dict) -> None:
         logger.error("Error encolando resultado offline: %s", exc)
 
 
-def _notify_n8n_if_malicious(scan_result: ScanResult) -> None:
-    """Envía alerta a N8N solo si el resultado es malicious."""
-    # Uso .value para comparar de forma segura con el string
-    # ya que use_enum_values=True puede cambiar el tipo a str
-    result_val = scan_result.result
-    if isinstance(result_val, ScanResultLabel):
-        result_val = result_val.value
-    if result_val != "malicious":
-        return
+def _notify_n8n(scan_result: ScanResult) -> None:
+    """Envía alerta a N8N delegando la lógica de filtrado a send_scan_result."""
     try:
         from core.integrations.n8n_client import send_scan_result
         send_scan_result(scan_result.model_dump())
     except Exception as exc:
         logger.warning("Error enviando alerta N8N: %s", exc)
+
+
+# Compatibilidad retroactiva — alias del nombre anterior
+def _notify_n8n_if_malicious(scan_result: ScanResult) -> None:
+    """Alias legacy — delega a _notify_n8n."""
+    return _notify_n8n(scan_result)

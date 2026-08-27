@@ -64,15 +64,15 @@ if HAS_HYPOTHESIS:
         assert result == ScanResultLabel.SUSPICIOUS
         assert result != ScanResultLabel.BENIGN
 
-    @given(score=st.floats(min_value=0.5, max_value=1.0, allow_nan=False, allow_infinity=False))
+    @given(score=st.floats(min_value=0.71, max_value=1.0, allow_nan=False, allow_infinity=False))
     def test_prop23_high_score_malicious(score):
-        """Prop 23: score >= 0.5 → MALICIOUS."""
+        """Prop 23: score > 0.7 → MALICIOUS."""
         result, _ = classify_tripartite(score)
         assert result == ScanResultLabel.MALICIOUS, f"score={score} → {result}"
 
-    @given(score=st.floats(min_value=0.0, max_value=0.4999, allow_nan=False, allow_infinity=False))
+    @given(score=st.floats(min_value=0.0, max_value=0.3999, allow_nan=False, allow_infinity=False))
     def test_prop24_low_score_benign(score):
-        """Prop 24: 0 <= score < 0.5 → BENIGN."""
+        """Prop 24: 0 <= score < 0.4 → BENIGN."""
         result, _ = classify_tripartite(score)
         assert result == ScanResultLabel.BENIGN, f"score={score} → {result}"
 
