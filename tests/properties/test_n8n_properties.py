@@ -35,19 +35,24 @@ if HAS_HYPOTHESIS:
 
     @given(
         result=st.sampled_from(["benign", "unknown", "", "clean", "safe"]),
-        op_status=st.sampled_from(["CLEAN", "SUSPICIOUS", "UNKNOWN", "", "safe"]),
+        op_status=st.sampled_from(["CLEAN", "UNKNOWN", "", "safe"]),
         filename=st.text(max_size=50),
         score=st.floats(min_value=0.0, max_value=1.0, allow_nan=False),
     )
     def test_prop16_non_alert_always_skip(result, op_status, filename, score):
-        """Prop 16: result no-malicious y op_status no-DANGEROUS → siempre False."""
-        r = send_scan_result({
-            "result": result,
-            "operational_status": op_status,
-            "file_name": filename,
-            "confidence": score,
-        })
+        """Prop 16 (T-01 renamed non_critical_always_skip): non-malicious + non-critical → False."""
+        with patch.dict(os.environ, {"N8N_ALERT_ON_STATUS": "DANGEROUS,SUSPICIOUS"}, clear=False):
+            # Force re-evaluation with patched env (helpers read os.getenv each call)
+            r = send_scan_result({
+                "result": result,
+                "operational_status": op_status,
+                "file_name": filename,
+                "confidence": score,
+            })
         assert r is False
+
+    # Alias para compatibilidad con tasks.md — mismo comportamiento
+    test_non_critical_always_skip = test_prop16_non_alert_always_skip
 
     _primitive = st.one_of(
         st.none(), st.booleans(),

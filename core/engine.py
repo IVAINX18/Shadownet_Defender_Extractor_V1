@@ -189,7 +189,7 @@ class ShadowNetEngine:
             "was_unpacked": False,
             "detection_phases": [],
             # Campos nuevos — compatibles con SOREL-20M (no tocan el vector)
-            "operational_status": "UNKNOWN",   # CLEAN / SUSPICIOUS / DANGEROUS
+            "operational_status": "SUSPICIOUS",  # T-03: nunca UNKNOWN
             "risk_level": "LOW",
             "risk_score": 0,
             "overlay_analysis": {},
@@ -335,13 +335,14 @@ class ShadowNetEngine:
                     categories,
                 )
 
-                # Construir resultado de MALWARE con score máximo
+                # Construir resultado de MALWARE con score máximo — T-03: DANGEROUS
                 yara_result = dict(result)
                 yara_result.update({
                     "status": "detected",
                     "label": "MALWARE",
                     "score": 1.0,
                     "confidence": "High",
+                    "operational_status": "DANGEROUS",
                     "detection_phases": ["YARA"],
                     "yara_matches": [
                         {
@@ -406,7 +407,22 @@ class ShadowNetEngine:
             logger.info("Extrayendo features de: %s", analysis_path.name)
             result["detection_phases"].append("ML_STATIC")
 
-            features = self.extractor.extract(str(analysis_path))
+            # T-04: envolver extract() con timeout configurable
+            import concurrent.futures as _cf
+            from configs.settings import EXTRACTOR_TIMEOUT_SECONDS
+            with _cf.ThreadPoolExecutor(max_workers=1) as _executor:
+                _future = _executor.submit(self.extractor.extract, str(analysis_path))
+                try:
+                    features = _future.result(timeout=EXTRACTOR_TIMEOUT_SECONDS)
+                except _cf.TimeoutError:
+                    logger.warning(
+                        "Extractor timeout (%ds) para %s → SUSPICIOUS",
+                        EXTRACTOR_TIMEOUT_SECONDS, analysis_path.name,
+                    )
+                    result["operational_status"] = "SUSPICIOUS"
+                    result["details"]["degradation_reason"] = "extractor_timeout"
+                    result["label"] = "SUSPICIOUS"
+                    return
             
             # Integrar diagnósticos de auditoría y packing en los detalles del resultado (Mejora 6)
             if hasattr(self.extractor, "last_diagnostics") and self.extractor.last_diagnostics:

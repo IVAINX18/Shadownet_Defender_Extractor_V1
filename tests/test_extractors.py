@@ -97,3 +97,39 @@ def test_packer_detection(tmp_path):
     assert diag["packer_indicators"]["packer_detected"] is True
     assert "upx_signature_in_bytes" in diag["packer_indicators"]["packer_reasons"]
 
+
+def test_extractor_timeout_fallback(tmp_path, monkeypatch):
+    """T-04: extractor timeout → operational_status=SUSPICIOUS + degradation_reason."""
+    import time
+    from unittest.mock import MagicMock, patch
+    test_file = tmp_path / "slow.exe"
+    test_file.write_bytes(b"MZ" + b"\x00" * 200)
+    monkeypatch.setenv("EXTRACTOR_TIMEOUT_SECONDS", "1")
+    # Reimport to pick env — patch directly
+    with patch("core.engine.ShadowNetEngine.__init__", return_value=None):
+        from core.engine import ShadowNetEngine
+        engine = ShadowNetEngine.__new__(ShadowNetEngine)
+        # extractor que duerme más que el timeout
+        def slow_extract(path):
+            time.sleep(3)
+            return [0.0] * 2381
+        engine.extractor = MagicMock()
+        engine.extractor.extract = slow_extract
+        engine.extractor.last_diagnostics = {}
+        engine.model = MagicMock()
+        result = {
+            "detection_phases": [],
+            "details": {},
+            "label": "Unknown",
+            "score": -1.0,
+            "operational_status": "SUSPICIOUS",
+            "confidence": "Low",
+            "status": "error",
+        }
+        # Forzar timeout corto via monkeypatch de la constante
+        import configs.settings as _settings
+        monkeypatch.setattr(_settings, "EXTRACTOR_TIMEOUT_SECONDS", 1, raising=False)
+        engine._run_ml_phase(test_file, result)
+        assert result["operational_status"] == "SUSPICIOUS"
+        assert result["details"].get("degradation_reason") == "extractor_timeout"
+

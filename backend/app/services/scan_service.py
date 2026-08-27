@@ -402,8 +402,8 @@ def scan_and_explain(
             logger.warning("Error guardando en Supabase: %s — encolando offline", exc)
             _queue_offline(result_dict)
 
-    # Paso 5: Alerta N8N solo si malicious
-    _notify_n8n_if_malicious(scan_result)
+    # Paso 5: Alerta N8N delegada a send_scan_result (operational_status-aware)
+    _notify_n8n(scan_result)
 
     return scan_result
 
@@ -417,17 +417,16 @@ def _queue_offline(result_dict: dict) -> None:
         logger.error("Error encolando resultado offline: %s", exc)
 
 
-def _notify_n8n_if_malicious(scan_result: ScanResult) -> None:
-    """Envía alerta a N8N solo si el resultado es malicious."""
-    # Uso .value para comparar de forma segura con el string
-    # ya que use_enum_values=True puede cambiar el tipo a str
-    result_val = scan_result.result
-    if isinstance(result_val, ScanResultLabel):
-        result_val = result_val.value
-    if result_val != "malicious":
-        return
+def _notify_n8n(scan_result: ScanResult) -> None:
+    """Envía alerta a N8N delegando la lógica de filtrado a send_scan_result."""
     try:
         from core.integrations.n8n_client import send_scan_result
         send_scan_result(scan_result.model_dump())
     except Exception as exc:
         logger.warning("Error enviando alerta N8N: %s", exc)
+
+
+# Compatibilidad retroactiva — alias del nombre anterior
+def _notify_n8n_if_malicious(scan_result: ScanResult) -> None:
+    """Alias legacy — delega a _notify_n8n."""
+    return _notify_n8n(scan_result)

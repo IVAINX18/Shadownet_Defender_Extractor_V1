@@ -49,6 +49,18 @@ PRODUCTION_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_PROD", _DEFAULT_PROD_URL)
 _MAX_RETRIES = 2
 _BACKOFF_BASE_SECONDS = 1  # 1s, 2s (exponencial)
 
+# T-01: parametrización por env — lista de statuses que disparan alerta
+_ALERT_ON_STATUS_DEFAULT = "DANGEROUS,SUSPICIOUS"
+
+
+def _get_alert_statuses() -> frozenset[str]:
+    raw = os.getenv("N8N_ALERT_ON_STATUS", _ALERT_ON_STATUS_DEFAULT)
+    return frozenset(s.strip().upper() for s in raw.split(",") if s.strip())
+
+
+def _get_alert_label_only() -> bool:
+    return _to_bool(os.getenv("N8N_ALERT_ON_LABEL_ONLY"), default=False)
+
 
 # ---------------------------------------------------------------------------
 # Helpers internos
@@ -243,10 +255,14 @@ def send_scan_result(scan_result: Dict[str, Any]) -> bool:
     Returns:
         True si se envió exitosamente, False en cualquier otro caso.
     """
-    # 12.1 — Condición de disparo ampliada
+    # T-01: condición parametrizada por env
     result_val = str(scan_result.get("result", "")).strip().lower()
     op_status = str(scan_result.get("operational_status", "")).strip().upper()
-    should_alert = (result_val == "malicious") or (op_status == "DANGEROUS")
+    label_only = _get_alert_label_only()
+    if label_only:
+        should_alert = (result_val == "malicious")
+    else:
+        should_alert = (result_val == "malicious") or (op_status in _get_alert_statuses())
 
     if not should_alert:
         logger.debug(
