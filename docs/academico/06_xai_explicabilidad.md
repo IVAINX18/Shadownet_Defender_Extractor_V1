@@ -1,17 +1,18 @@
 # XAI — Explicabilidad del Sistema
 
 > Fuente: `core/dotnet/il_analyzer.py`, `core/llm/`, `core/heuristics/`,
-> `tests/test_il_analyzer.py`, `tests/test_explanation_service.py`.
-> Auditado 2026-08-18.
+> `core/explain/shap_explainer.py`, `backend/app/api/routes/explain.py`.
+> Auditado 2026-08-18. Actualizado F3 2026-08-27.
 
 ---
 
 ## Motivación
 
-Un sistema de detección de malware que produce solo un score numérico no es directamente accionable para un analista de seguridad. ShadowNet Defender implementa dos niveles de explicabilidad:
+Un sistema de deteccion de malware que produce solo un score numerico no es directamente accionable para un analista de seguridad. ShadowNet Defender implementa tres niveles de explicabilidad:
 
 1. **XAI Forense** (basado en evidencias deterministas): tokens CLR, strings sospechosos, overlay metrics, YARA rules.
-2. **XAI Narrativo** (basado en LLM): Ollama convierte las evidencias forenses en una explicación en lenguaje natural.
+2. **XAI Narrativo** (basado en LLM): Ollama convierte las evidencias forenses en una explicacion en lenguaje natural, con validacion de coherencia (F2 T-10).
+3. **XAI SHAP** (F3 T-12): KernelExplainer sobre ONNX Runtime expone las top-20 features del vector de 2381 dimensiones que mas contribuyeron al score ML.
 
 ---
 
@@ -192,12 +193,108 @@ Esta justificación es reproducible, determinista y auditable.
 
 ---
 
+## Nivel 3: XAI SHAP — KernelExplainer sobre ONNX (F3 T-12)
+
+### Que es SHAP KernelExplainer
+
+SHAP (SHapley Additive exPlanations) es un framework de teoria de juegos cooperativos que atribuye a cada feature su contribucion marginal al score del modelo. `KernelExplainer` es el metodo de SHAP compatible con cualquier funcion de prediccion (incluido ONNX Runtime), sin necesidad de PyTorch.
+
+### Arquitectura
+
+```
+GET /explain/shap?file_path=/ruta/al/archivo.exe&top_k=20
+        │
+        ▼
+_validate_file_path()          # Rechaza path traversal y archivos inexistentes
+        │
+        ▼
+PEFeatureExtractor.extract()   # Vector 2381 dims (mismo que en inferencia ONNX)
+        │
+        ▼
+ShapExplainer.explain()        # core/explain/shap_explainer.py
+    scaler.transform()         # StandardScaler (mismo que en inferencia)
+    KernelExplainer(background=100 muestras, predict_fn=onnx_session)
+    shap_values(nsamples=100)  # Timeout de 30s con ThreadPoolExecutor
+        │
+        ▼
+{top_features, base_value, model_score}
+```
+
+### Dependencias
+
+- `onnxruntime` (ya en `base.in`)
+- `numpy` (ya en `base.in`)
+- `joblib` (ya en `base.in`)
+- `shap>=0.44.0` (en `ml.in` — NO en `base.in` para no contaminar prod)
+
+**Invariante**: `torch` no debe estar en `requirements/base.in`. El test `test_shap_no_torch_in_base` verifica este invariante en CI.
+
+### Ejemplo de respuesta
+
+```json
+{
+  "top_features": [
+    {"feature_idx": 0,    "feature_name": "byte_histogram_0",  "shap_value":  0.0842},
+    {"feature_idx": 1024, "feature_name": "imports_256",        "shap_value": -0.0317},
+    {"feature_idx": 512,  "feature_name": "section_0",          "shap_value":  0.0291}
+  ],
+  "base_value": 0.1234,
+  "model_score": 0.9187
+}
+```
+
+- `shap_value > 0`: la feature empuja el score hacia MALWARE.
+- `shap_value < 0`: la feature empuja el score hacia BENIGN.
+- `base_value`: expected value del modelo sobre el background (probabilidad base).
+- `model_score`: score ONNX del archivo analizado.
+
+### Limitaciones del Nivel 3 SHAP
+
+1. **No-determinismo**: KernelExplainer con `nsamples=100` produce resultados ligeramente distintos entre ejecuciones por el muestreo Monte Carlo. Las contribuciones absolutas son estables; las relativas pueden variar en features con SHAP cercano a 0.
+
+2. **Latencia**: con `nsamples=100`, la inferencia tarda entre 10-25s en CPU para el vector de 2381 dims. El endpoint tiene un timeout de 30s; si se supera, retorna `{"error": "shap_timeout", "top_features": []}`.
+
+3. **Background sintetico**: si `data/test_set/X_test.npy` no esta disponible, se usa un background sintetico (ceros + gaussiano seed=42). Las contribuciones SHAP son validas pero relativas al background sintetico, no a la distribucion real de entrenamiento.
+
+4. **Nombres de features aproximados**: los nombres de features (`byte_histogram_0`, `imports_256`, etc.) son generados por posicion y reflejan los grupos del extractor SOREL-20M, pero no los nombres internos del entrenamiento original.
+
+---
+
+## Por que el sistema puede justificar tecnicamente una deteccion
+
+A diferencia de un modelo ML opaco (caja negra) que produce solo un score, ShadowNet Defender puede justificar cualquier deteccion con al menos uno de los siguientes elementos:
+
+1. **Si YARA activo**: nombre de la regla + categoria (trojan/spyware/worm/ransomware)
+2. **Si ML activo**: score numerico + umbral utilizado (0.5 engine / tripartito backend)
+3. **Si Overlay activo**: overlay_ratio, overlay_entropy, embedded_pe_count, indicadores especificos
+4. **Si DotNet activo**: obfuscator_name, dotnet_risk_score, factores de riesgo
+5. **Si IL Behavioral activo**: lista de evidencias forenses con source, value, location, confidence
+6. **Si Risk Engine activo**: lista completa de `triggered_indicators` con valores y umbrales
+7. **Si SHAP disponible**: top-20 features por contribucion absoluta al score ONNX
+
+El campo `heuristic_assessment.justification` en el `ScanResult` contiene una cadena de texto generada programaticamente con todos los indicadores activados.
+
+**Ejemplo real** (sample1.exe, 2026-08-18):
+```
+"Risk CRITICAL (score=105). Triggered 6 indicator(s):
+overlay_ratio=98.7% > 80% |
+overlay_ratio=98.7% > 93% (critico) |
+overlay_entropy=7.9987 > 7.2 (cifrado/comprimido) |
+overlay_entropy=7.9987 > 7.8 (maxima aleatoriedad) |
+global_entropy=7.9861 > 7.5 |
+packer_indicators=True"
+```
+
+Esta justificacion es reproducible, determinista y auditable.
+
+---
+
 ## Limitaciones del XAI implementado
 
-1. **IL Behavioral solo aplica a .NET**: el análisis de tokens CLR no aplica a binarios nativos (C, C++, Delphi). Para binarios nativos, la capa XAI forense se limita a strings extraídos y análisis de imports.
+1. **IL Behavioral solo aplica a .NET**: el analisis de tokens CLR no aplica a binarios nativos (C, C++, Delphi). Para binarios nativos, la capa XAI forense se limita a strings extraidos y analisis de imports.
 
-2. **Sin SHAP ni LIME**: el modelo ML no tiene interpretabilidad de features individuales implementada. No es posible determinar qué features del vector de 2381 dimensiones contribuyeron más al score.
+2. **SHAP disponible desde F3**: el Nivel 3 SHAP requiere `shap>=0.44.0` en `requirements/ml.in` y el endpoint `GET /explain/shap`. En instalaciones con solo `base.in` (prod sin ML), el endpoint retorna `error="shap_not_installed"`.
 
-3. **Ollama requiere servidor local**: la explicación narrativa requiere un servidor Ollama corriendo. Si no está disponible, la explicación forense (nivel 1) sigue siendo accesible pero sin traducción a lenguaje natural.
+3. **Ollama requiere servidor local**: la explicacion narrativa requiere un servidor Ollama corriendo. Si no esta disponible, la explicacion forense (nivel 1) sigue siendo accesible pero sin traduccion a lenguaje natural.
 
-4. **Confidence levels son estáticos**: los niveles de confianza son asignados por categoría de indicador en el código, no calculados dinámicamente según el contexto del binario analizado.
+4. **Confidence levels son estaticos**: los niveles de confianza son asignados por categoria de indicador en el codigo, no calculados dinamicamente segun el contexto del binario analizado.
