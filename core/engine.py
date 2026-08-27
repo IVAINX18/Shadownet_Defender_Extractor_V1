@@ -27,6 +27,7 @@ Patrón Facade (Fachada):
 """
 from __future__ import annotations
 
+import hashlib
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
@@ -327,6 +328,43 @@ class ShadowNetEngine:
             if yara_scan.has_matches:
                 threat_names = yara_scan.threat_names
                 categories = yara_scan.categories
+
+                # Calcular SHA-256 para verificar contra whitelist de software legitimo
+                try:
+                    sha256 = hashlib.sha256(file_path.read_bytes()).hexdigest()
+                except Exception:
+                    sha256 = ""
+
+                # Si el archivo esta en whitelist, degradar a SUSPICIOUS en lugar de DANGEROUS
+                if sha256 and self._yara_scanner.is_whitelisted(sha256, yara_scan.matches):
+                    logger.info(
+                        "YARA whitelist: %s degradado de DANGEROUS a SUSPICIOUS "
+                        "(reglas: %s | sha256: %s...)",
+                        file_path.name,
+                        threat_names,
+                        sha256[:16],
+                    )
+                    # No retornar early: continuar el pipeline con status SUSPICIOUS
+                    # para que el resto de las fases también analicen el archivo.
+                    result["yara_matches"] = [
+                        {
+                            "rule": m.rule_name,
+                            "category": m.category,
+                            "tags": m.tags,
+                        }
+                        for m in yara_scan.matches
+                    ]
+                    result["operational_status"] = "SUSPICIOUS"
+                    result["risk_level"] = "MEDIUM"
+                    result["heuristic_assessment"] = {
+                        "whitelist_hit": True,
+                        "whitelisted": True,
+                    }
+                    result["details"]["whitelist_hit"] = True
+                    result["details"]["threat_names"] = threat_names
+                    result["detection_phases"].append("YARA_WHITELISTED")
+                    # Continuar con fases ML/overlay para analisis completo
+                    return None
 
                 logger.warning(
                     "YARA: Amenaza confirmada en %s — Reglas: %s | Categorías: %s",

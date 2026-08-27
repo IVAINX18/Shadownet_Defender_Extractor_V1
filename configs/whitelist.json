@@ -1,0 +1,12 @@
+{
+  "_comment": "Whitelist de software legítimo conocido. Formato de sha256: hexadecimal lowercase de 64 chars. Las yara_exclusions solo aplican cuando el sha256 del archivo tambien coincide O cuando la regla se considera generica para todo software de la compania indicada.",
+  "sha256": [],
+  "yara_exclusions": [
+    {
+      "rule": "Keylogger_Generic",
+      "company": "Microsoft",
+      "signer": "Microsoft Corporation",
+      "reason": "Process Explorer (procexp64.exe) activa esta regla por sus capacidades de monitoreo de teclado legitimas"
+    }
+  ]
+}

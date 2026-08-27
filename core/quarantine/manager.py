@@ -53,6 +53,55 @@ def _compute_sha256(file_path: Path) -> str:
     return sha256.hexdigest()
 
 
+def _compute_sha256_bytes(data: bytes) -> str:
+    """Calcula SHA-256 de un buffer en memoria."""
+    return hashlib.sha256(data).hexdigest()
+
+
+def _get_or_create_key() -> Optional[bytes]:
+    """
+    Obtiene la clave de cifrado de cuarentena.
+
+    Orden de busqueda:
+      1. Variable de entorno QUARANTINE_KEY (debe ser una clave Fernet valida en base64).
+      2. Archivo ~/.shadownet/.quarantine.key con permisos 600.
+      3. Si no existe, genera una clave nueva y la persiste con permisos 600.
+
+    Retorna None si cryptography no esta instalada, para que el sistema
+    funcione en modo de fallback sin cifrado.
+    """
+    try:
+        from cryptography.fernet import Fernet
+    except ImportError:
+        logger.warning(
+            "'cryptography' no instalada — cuarentena funcionara sin cifrado. "
+            "Instalar con: pip install cryptography"
+        )
+        return None
+
+    # 1. Clave desde variable de entorno
+    env_key = os.getenv("QUARANTINE_KEY", "").strip()
+    if env_key:
+        return env_key.encode()
+
+    # 2. Clave persistida en disco
+    key_path = Path.home() / ".shadownet" / ".quarantine.key"
+    if key_path.exists():
+        return key_path.read_bytes().strip()
+
+    # 3. Generar y persistir clave nueva con permisos restrictivos
+    key = Fernet.generate_key()
+    try:
+        key_path.parent.mkdir(parents=True, exist_ok=True)
+        key_path.write_bytes(key)
+        key_path.chmod(0o600)
+        logger.info("Clave de cuarentena generada y almacenada: %s (permisos 600)", key_path)
+    except Exception as exc:
+        logger.warning("No se pudo persistir la clave de cuarentena: %s", exc)
+
+    return key
+
+
 def _remove_exec_permission(file_path: Path) -> None:
     """Elimina permisos de ejecución del archivo de forma multiplataforma."""
     if platform.system() == "Windows":
@@ -157,7 +206,7 @@ class QuarantineManager:
                 error="FILE_NOT_FOUND",
             )
 
-        # ── Calcular SHA-256 ANTES de mover ───────────────────────────
+        # Calcular SHA-256 ANTES de mover para preservar el hash del original
         try:
             sha256 = _compute_sha256(file_path)
         except Exception as exc:
@@ -172,35 +221,75 @@ class QuarantineManager:
 
         self._ensure_quarantine_dir()
 
-        # ── Generar nombre de cuarentena ──────────────────────────────
+        # Generar nombre de cuarentena basado en el hash y timestamp
         timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S")
         base_name = f"{sha256[:8]}_{timestamp}"
         quar_path = self.quarantine_dir / f"{base_name}.quar"
         meta_path = self.quarantine_dir / f"{base_name}.meta.json"
 
-        # ── Mover archivo ─────────────────────────────────────────────
+        # Leer bytes del archivo original y cifrar si hay clave disponible
         try:
-            shutil.move(str(file_path), str(quar_path))
+            plaintext = file_path.read_bytes()
         except Exception as exc:
-            logger.error("Error moviendo %s a cuarentena: %s", file_path, exc)
+            logger.error("Error leyendo %s para cuarentena: %s", file_path, exc)
             return QuarantineResult(
                 success=False,
                 quarantine_path=None,
                 sha256=sha256,
                 meta_path=None,
-                error=f"MOVE_ERROR: {exc}",
+                error=f"READ_ERROR: {exc}",
             )
 
-        # ── Eliminar permisos de ejecución ────────────────────────────
-        _remove_exec_permission(quar_path)
+        key = _get_or_create_key()
+        encrypted = False
+        key_id = ""
 
-        # ── Crear archivo de metadatos ────────────────────────────────
+        if key is not None:
+            try:
+                from cryptography.fernet import Fernet
+                data_to_write = Fernet(key).encrypt(plaintext)
+                encrypted = True
+                # Identificador de clave (no expone la clave, solo un ID corto)
+                key_id = hashlib.sha256(key).hexdigest()[:16]
+            except Exception as exc:
+                logger.warning(
+                    "Error cifrando para cuarentena, fallback sin cifrado: %s", exc
+                )
+                data_to_write = plaintext
+        else:
+            data_to_write = plaintext
+
+        # Escribir el archivo de cuarentena y eliminar el original
+        try:
+            quar_path.write_bytes(data_to_write)
+            file_path.unlink()
+        except Exception as exc:
+            logger.error("Error escribiendo cuarentena para %s: %s", file_path, exc)
+            quar_path.unlink(missing_ok=True)
+            return QuarantineResult(
+                success=False,
+                quarantine_path=None,
+                sha256=sha256,
+                meta_path=None,
+                error=f"WRITE_ERROR: {exc}",
+            )
+
+        # Eliminar permisos de ejecucion y aplicar permisos 600
+        _remove_exec_permission(quar_path)
+        try:
+            quar_path.chmod(0o600)
+        except Exception as exc:
+            logger.debug("No se pudo aplicar chmod 600 al .quar: %s", exc)
+
+        # Crear archivo de metadatos con campos de cifrado
         meta = {
             "original_path": str(file_path),
             "sha256": sha256,
-            "file_size": quar_path.stat().st_size,
+            "file_size": len(plaintext),
             "quarantine_path": str(quar_path),
             "quarantine_timestamp": datetime.now(timezone.utc).isoformat(),
+            "encrypted": encrypted,
+            "key_id": key_id,
             "scan_result": {
                 "result": scan_result.get("result", ""),
                 "risk_level": scan_result.get("risk_level", ""),
@@ -215,10 +304,11 @@ class QuarantineManager:
             logger.warning("No se pudo escribir metadatos de cuarentena: %s", exc)
 
         logger.info(
-            "Archivo cuarentenado: original=%s | sha256=%s | dest=%s | actor=%s",
+            "Archivo cuarentenado: original=%s | sha256=%s | dest=%s | encrypted=%s | actor=%s",
             file_path,
             sha256,
             quar_path,
+            encrypted,
             actor,
         )
 
@@ -230,21 +320,27 @@ class QuarantineManager:
             error=None,
         )
 
+
     def restore_file(
         self,
         quarantine_path: Path,
         destination: Path,
     ) -> RestoreResult:
         """
-        Restaura un archivo desde cuarentena al destino indicado,
-        verificando la integridad SHA-256.
+        Restaura un archivo desde cuarentena al destino indicado.
+
+        Si el archivo fue cifrado en cuarentena (encrypted=true en meta.json),
+        lo descifra usando la clave disponible. Si la clave no esta disponible,
+        retorna error DECRYPTION_FAILED en lugar de restaurar datos cifrados.
+
+        Verifica integridad SHA-256 del plaintext tras el descifrado.
 
         Args:
             quarantine_path: Ruta al archivo .quar en cuarentena.
             destination: Ruta de destino donde restaurar el archivo.
 
         Returns:
-            RestoreResult con el estado e integridad de la restauración.
+            RestoreResult con el estado e integridad de la restauracion.
         """
         quarantine_path = Path(quarantine_path)
         destination = Path(destination)
@@ -257,25 +353,80 @@ class QuarantineManager:
                 error="QUARANTINE_FILE_NOT_FOUND",
             )
 
-        # ── Leer SHA-256 esperado del .meta.json ──────────────────────
-        meta_path = quarantine_path.with_suffix("").with_suffix(".meta.json")
-        # Handle double extension: abc12345_20240101T000000.quar → abc12345_20240101T000000.meta.json
+        # Leer SHA-256 esperado y estado de cifrado del .meta.json
         stem = quarantine_path.stem  # abc12345_20240101T000000
         meta_path = quarantine_path.parent / f"{stem}.meta.json"
         expected_sha256: Optional[str] = None
+        meta_encrypted = False
         if meta_path.exists():
             try:
                 meta = json.loads(meta_path.read_text(encoding="utf-8"))
                 expected_sha256 = meta.get("sha256")
+                meta_encrypted = meta.get("encrypted", False)
             except Exception as exc:
                 logger.warning("No se pudo leer metadatos de cuarentena: %s", exc)
 
-        # ── Mover el archivo al destino ───────────────────────────────
+        # Leer los bytes del archivo de cuarentena (puede estar cifrado)
+        try:
+            data = quarantine_path.read_bytes()
+        except Exception as exc:
+            logger.error("Error leyendo .quar %s: %s", quarantine_path.name, exc)
+            return RestoreResult(
+                success=False,
+                destination=None,
+                integrity_ok=False,
+                error=f"READ_ERROR: {exc}",
+            )
+
+        # Descifrar si el archivo fue cifrado durante la cuarentena
+        if meta_encrypted:
+            key = _get_or_create_key()
+            if key is None:
+                logger.error(
+                    "No se puede descifrar %s: clave no disponible",
+                    quarantine_path.name,
+                )
+                return RestoreResult(
+                    success=False,
+                    destination=None,
+                    integrity_ok=False,
+                    error="DECRYPTION_FAILED",
+                )
+            try:
+                from cryptography.fernet import Fernet
+                data = Fernet(key).decrypt(data)
+            except Exception as exc:
+                logger.error(
+                    "Error descifrando %s: %s (clave incorrecta o archivo corrupto)",
+                    quarantine_path.name,
+                    exc,
+                )
+                return RestoreResult(
+                    success=False,
+                    destination=None,
+                    integrity_ok=False,
+                    error="DECRYPTION_FAILED",
+                )
+
+        # Verificar integridad SHA-256 del plaintext antes de restaurar
+        integrity_ok = False
+        if expected_sha256:
+            actual_sha256 = _compute_sha256_bytes(data)
+            integrity_ok = actual_sha256 == expected_sha256
+            if not integrity_ok:
+                logger.warning(
+                    "Integridad SHA-256 fallida para %s: esperado=%s actual=%s",
+                    quarantine_path.name,
+                    expected_sha256,
+                    actual_sha256,
+                )
+
+        # Escribir el archivo descifrado en el destino
         try:
             destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(quarantine_path), str(destination))
+            destination.write_bytes(data)
         except Exception as exc:
-            logger.error("Error restaurando %s a %s: %s", quarantine_path, destination, exc)
+            logger.error("Error restaurando a %s: %s", destination, exc)
             return RestoreResult(
                 success=False,
                 destination=None,
@@ -283,30 +434,17 @@ class QuarantineManager:
                 error=f"RESTORE_ERROR: {exc}",
             )
 
-        # ── Verificar integridad SHA-256 ──────────────────────────────
-        integrity_ok = False
-        if expected_sha256:
-            try:
-                actual_sha256 = _compute_sha256(destination)
-                integrity_ok = actual_sha256 == expected_sha256
-                if not integrity_ok:
-                    logger.warning(
-                        "Integridad SHA-256 fallida al restaurar %s: "
-                        "esperado=%s actual=%s",
-                        destination.name,
-                        expected_sha256,
-                        actual_sha256,
-                    )
-            except Exception as exc:
-                logger.warning("No se pudo verificar SHA-256 de restauración: %s", exc)
-        else:
-            # Sin metadatos, no podemos verificar
-            integrity_ok = False
+        # Eliminar el archivo de cuarentena tras restauracion exitosa
+        try:
+            quarantine_path.unlink(missing_ok=True)
+        except Exception as exc:
+            logger.debug("No se pudo eliminar .quar tras restaurar: %s", exc)
 
         logger.info(
-            "Archivo restaurado: dest=%s | integrity_ok=%s",
+            "Archivo restaurado: dest=%s | integrity_ok=%s | encrypted_was=%s",
             destination,
             integrity_ok,
+            meta_encrypted,
         )
 
         return RestoreResult(

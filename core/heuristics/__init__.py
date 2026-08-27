@@ -289,7 +289,7 @@ class HeuristicRiskEngine:
             score += w("ml_score_uncertain")
             triggered.append(f"ml_score={ml_score:.4f} en rango incierto [0.3, 0.7]")
 
-        # ── Protección genérica .NET contra FP ────────────────────────
+        # Proteccion generica .NET contra FP
         # Si es .NET y no hay indicadores graves (overlay/embedded/YARA),
         # aplicamos un descuento base para compensar la mayor ruido de .NET.
         if is_dotnet:
@@ -304,13 +304,42 @@ class HeuristicRiskEngine:
                     f"({self.DOTNET_BASELINE_DISCOUNT} pts)"
                 )
 
-        # ── Protección contra falsos positivos por instalador ──────────
-        if overlay_report.is_known_installer:
+        # Proteccion contra falsos positivos por instalador (T-07 endurecido)
+        # Si hay spoof sospechado, NO aplicar descuento aunque is_known_installer sea True.
+        # Si es instalador legitimo sin spoof, aplicar el descuento habitual.
+        if getattr(overlay_report, "installer_spoof_suspected", False):
+            triggered.append("installer_spoof_suspected")
+            logger.warning(
+                "Installer spoof detectado: descuento cancelado. overlay_ratio=%.2f",
+                getattr(overlay_report, "overlay_ratio", 0.0),
+            )
+        elif overlay_report.is_known_installer:
             score = max(0, score + self.INSTALLER_DISCOUNT)
             triggered.append(
                 f"FP_protection: instalador_conocido={overlay_report.installer_type} "
                 f"(-{abs(self.INSTALLER_DISCOUNT)} pts)"
             )
+
+        # Entropia por bloques (T-06)
+        # Detecta overlays segmentados donde la entropia promedio es baja pero
+        # existen bloques de alta entropia intercalados con bloques de datos crudos.
+        high_block_ratio = getattr(overlay_report, "high_entropy_block_ratio", 0.0)
+        overlay_ratio_val = getattr(overlay_report, "overlay_ratio", 0.0)
+        if high_block_ratio > 0.30 and overlay_ratio_val > 0.50:
+            score += 15
+            triggered.append(
+                f"block_entropy_anomaly: high_block_ratio={high_block_ratio:.2f} "
+                f"(overlay_ratio={overlay_ratio_val:.2f})"
+            )
+
+        # Loader sin imports (T-09)
+        # Un PE sin imports y con una sola seccion ejecutable es caracteristico de
+        # shellcode loaders que evaden el modelo ML por tener features benignas.
+        num_imports_val = packer.get("num_imports", -1)
+        exec_sections = packer.get("executable_sections", -1)
+        if num_imports_val == 0 and exec_sections == 1:
+            score += 10
+            triggered.append("suspicious_loader_no_imports")
 
         risk_level = self._classify_level(score)
         operational_status = self._operational_status(risk_level, ml_score, is_dotnet)

@@ -26,10 +26,11 @@ con alguna firma conocida de malware.
 """
 from __future__ import annotations
 
+import json
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from utils.logger import setup_logger
 
@@ -37,6 +38,9 @@ logger = setup_logger(__name__)
 
 # Ruta por defecto a las reglas YARA en el proyecto
 _DEFAULT_RULES_DIR = Path(__file__).parent / "yara_rules"
+
+# Ruta al archivo de whitelist de software legitimo conocido
+_WHITELIST_PATH = Path(__file__).parent.parent / "configs" / "whitelist.json"
 
 
 @dataclass
@@ -85,6 +89,8 @@ class YaraScanner:
         self.rules_dir = rules_dir or _DEFAULT_RULES_DIR
         self._rules = None
         self._rules_count = 0
+        # Cargar whitelist antes que las reglas para que este disponible durante el primer escaneo
+        self._whitelist: Dict = self._load_whitelist()
         self._load_rules()
 
     # ------------------------------------------------------------------
@@ -157,6 +163,48 @@ class YaraScanner:
             elapsed_ms = (time.perf_counter() - start) * 1000
             return YaraScanResult(has_matches=False, scan_time_ms=elapsed_ms, error=str(exc))
 
+    def is_whitelisted(self, sha256: str, matches: List[YaraMatch]) -> bool:
+        """
+        Determina si un archivo debe ser excluido del veredicto DANGEROUS.
+
+        La logica es la siguiente:
+        1. Si el SHA-256 del archivo esta en la lista de hashes conocidos-benignos,
+           el archivo completo queda whitelisteado sin importar las reglas YARA.
+        2. Si alguna de las reglas que dispararon esta en yara_exclusions,
+           el archivo tambien queda whitelisteado (comportamiento conservador:
+           si la regla esta en exclusiones, se asume FP independiente del firmante).
+
+        Args:
+            sha256: Hash SHA-256 hexadecimal lowercase del archivo analizado.
+            matches: Lista de YaraMatch que dispararon durante el escaneo.
+
+        Returns:
+            True si el archivo debe degradarse a SUSPICIOUS en lugar de DANGEROUS.
+        """
+        # Verificacion por hash exacto del archivo
+        known_hashes = {h.lower() for h in self._whitelist.get("sha256", [])}
+        if sha256.lower() in known_hashes:
+            logger.info(
+                "Whitelist: SHA-256 %s... coincide con hash conocido-benigno",
+                sha256[:16],
+            )
+            return True
+
+        # Verificacion por nombre de regla YARA en exclusiones
+        excluded_rules = {
+            excl.get("rule", "")
+            for excl in self._whitelist.get("yara_exclusions", [])
+        }
+        for match in matches:
+            if match.rule_name in excluded_rules:
+                logger.info(
+                    "Whitelist: regla '%s' esta en yara_exclusions — degradando a SUSPICIOUS",
+                    match.rule_name,
+                )
+                return True
+
+        return False
+
     @property
     def rules_loaded(self) -> int:
         """Número de reglas YARA cargadas."""
@@ -168,8 +216,34 @@ class YaraScanner:
         return self._rules is not None and self._rules_count > 0
 
     # ------------------------------------------------------------------
-    # Implementación Privada
+    # Implementacion Privada
     # ------------------------------------------------------------------
+
+    def _load_whitelist(self) -> Dict:
+        """
+        Carga el whitelist desde configs/whitelist.json.
+
+        Es tolerante a fallos: si el archivo no existe o tiene JSON invalido,
+        retorna un dict vacio para que el sistema siga funcionando sin whitelist.
+        Nunca lanza una excepcion hacia afuera.
+        """
+        try:
+            if _WHITELIST_PATH.exists():
+                data = json.loads(_WHITELIST_PATH.read_text(encoding="utf-8"))
+                sha_count = len(data.get("sha256", []))
+                excl_count = len(data.get("yara_exclusions", []))
+                logger.info(
+                    "Whitelist cargado: %d hash(es) SHA-256, %d exclusion(es) YARA",
+                    sha_count,
+                    excl_count,
+                )
+                return data
+        except Exception as exc:
+            logger.warning(
+                "Whitelist no disponible (continuando sin el): %s",
+                exc,
+            )
+        return {"sha256": [], "yara_exclusions": []}
 
     def _load_rules(self) -> None:
         """
