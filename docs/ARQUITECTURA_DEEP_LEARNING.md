@@ -1,28 +1,66 @@
-# Arquitectura de Deep Learning y Redes Neuronales en ShadowNet Defender
+# Arquitectura de Deep Learning, Redes Neuronales y Sistema Híbrido Multicapa en ShadowNet Defender
 
-Este documento explica de forma **técnica pero clara, estructurada y accesible** cómo está diseñado el sistema de Deep Learning e Inteligencia Artificial dentro de **ShadowNet Defender**.
+Este documento explica de forma **técnica pero clara, estructurada y accesible** cómo está diseñado el sistema de Deep Learning, las Redes Neuronales y la **Arquitectura Híbrida Multicapa** dentro de **ShadowNet Defender**.
 
 ---
 
-## 1. Visión General: El Rol de la Inteligencia Artificial
+## 1. Visión General: El Rol de la Inteligencia Artificial y la Defensa Multicapa
 
-ShadowNet Defender combina el análisis estático tradicional con **Deep Learning (Aprendizaje Profundo)** e **IA Generativa**. 
+ShadowNet Defender combina el análisis estático tradicional con **Deep Learning (Aprendizaje Profundo)**, **Heurísticas Avanzadas** e **IA Generativa**. 
 
-En lugar de depender exclusivamente de firmas estáticas (hashes) o reglas manuales que los atacantes pueden evadir fácilmente cambiando un solo byte, el sistema aprende a **reconocer los patrones estructurales, matemáticos y de comportamiento** del malware.
+En lugar de depender exclusivamente de un modelo único o de firmas estáticas (hashes) que los atacantes pueden evadir fácilmente, el sistema implementa una **estrategia de defensa en profundidad**: el archivo pasa por múltiples capas analíticas independientes cuyo veredicto final es sintetizado por un Motor de Correlación de Riesgo.
 
 ```mermaid
-flowchart LR
-    A[📁 Archivo PE .exe/.dll] --> B[🔬 Extractor 2381-dim]
-    B --> C[⚙️ Normalizador Z-Score]
-    C --> D[🧠 Red Neuronal MLP ONNX]
-    D --> E[📊 Score P Malware]
-    E --> F[🤖 LLM / Ollama Transformer]
+flowchart TD
+    A[📁 Archivo PE .exe/.dll] --> B1[🛡️ Capa 1: Reglas YARA]
+    A --> B2[🔬 Capa 2: Extracción 2381-dim + Normalización]
+    B2 --> C2[🧠 Capa 3: Red Neuronal MLP ONNX]
+    A --> B3[🔍 Capa 4: Overlay Analysis]
+    A --> B4[⚙️ Capa 5: DotNet & IL Behavioral]
+    
+    B1 --> R[📊 Capa 6: Risk Engine / Correlación]
+    C2 --> R
+    B3 --> R
+    B4 --> R
+    
+    R --> F[🤖 Capa 7: LLM / Ollama Transformer]
     F --> G[📋 Reporte Explicativo XAI]
 ```
 
 ---
 
-## 2. Deep Learning en el Proyecto
+## 2. ¿Por qué el Sistema es Híbrido y Multicapa?
+
+### 💡 Justificación Técnica y Humana
+
+Ninguna técnica individual de detección de malware es perfecta contra todos los vectores de evasión existentes:
+
+| Técnica | Fortaleza Principal | Vector de Evasión / Debilidad |
+| :--- | :--- | :--- |
+| **YARA (Firmas)** | Precisión milimétrica en familias conocidas | Falla ante polimorfismo y variantes inéditas |
+| **ML / Deep Learning** | Generalización *Zero-Day* ante variantes | Vulnerable a *Overlay Payloads*, empaquetado y evasión estadística |
+| **Overlay Analysis** | Detecta contenido oculto al final del ejecutable | Solo aplica a binarios con estructura PE |
+| **DotNet & IL Analysis** | Analiza la intención del código CLR sin ejecutarlo | Solo aplica a binarios compilados en .NET |
+
+---
+
+### 🛡️ Los 4 Pilares del Diseño Híbrido Multicapa
+
+1. **Cobertura Ortogonal (Complementariedad):**
+   Las capas no compiten; se complementan. Un atacante puede crear un malware sin firma YARA que logre engañar a la Red Neuronal (score ML = 0.0), pero el **Overlay Analysis** detectará que el 98.7% del archivo es un bloque de datos cifrados de alta entropía (caso verificado en `sample1.exe`).
+
+2. **Independencia y Tolerancia a Fallos:**
+   Si una capa falla o no aplica (por ejemplo, si el binario no es .NET), el pipeline no se detiene. Continúa evaluando con las fases restantes (*Graceful Degradation*).
+
+3. **Divergencia Operativa (`operational_status` vs `label` ML):**
+   A diferencia de los antivirus tradicionales que dependen de un único veredicto, el **Risk Engine** de ShadowNet Defender puede clasificar un archivo como `DANGEROUS` incluso si la Red Neuronal dice `BENIGN`, siempre que las capas de overlay o YARA detecten indicadores críticos.
+
+4. **Cadena de Evidencia Auditable:**
+   El sistema no es una "caja negra". Cada capa aporta evidencias forenses concretas (reglas YARA activadas, ratio de overlay, tokens de metadatos IL, SHAP values) para que el analista humano entienda la razón exacta del diagnóstico.
+
+---
+
+## 3. Deep Learning en el Proyecto
 
 ### 📌 ¿Qué se usa?
 El subsistema de Deep Learning abarca componentes de código, artefactos pre-entrenados y servicios de inferencia:
@@ -57,7 +95,7 @@ El subsistema de Deep Learning abarca componentes de código, artefactos pre-ent
 
 ---
 
-## 3. Red Neuronal Principal: Perceptrón Multicapa (MLP / DNN)
+## 4. Red Neuronal Principal: Perceptrón Multicapa (MLP / DNN)
 
 ### 📌 ¿Qué se usa?
 La arquitectura principal es un **Perceptrón Multicapa (MLP)** o Red Neuronal Feedforward Profunda con topología en "embudo cónico" (*funnel architecture*).
@@ -110,37 +148,87 @@ La red procesa la información de forma secuencial hacia adelante (*forward pass
 
 ---
 
-## 4. Red Neuronal Secundaria: Arquitectura Transformer (LLM)
+## 5. Las Capas del Pipeline Híbrido Multicapa
+
+Para lograr una evaluación integral, `core/engine.py` ejecuta las siguientes capas analíticas en orden:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Archivo as Archivo PE
+    participant YARA as Capa YARA (Firmas)
+    participant ML as Capa ML (ONNX)
+    participant Overlay as Capa Overlay Analysis
+    participant DotNet as Capa DotNet / IL
+    participant Risk as Motor de Riesgo (Risk Engine)
+    
+    Archivo->>YARA: Escaneo de Firmas
+    alt Firma Maliciosa Detectada
+        YARA-->>Risk: Match Cortocircuito (DANGEROUS)
+    end
+    Archivo->>ML: Vector 2381-dim → Inferencia
+    ML-->>Risk: Score Probabilidad [0.0 - 1.0]
+    Archivo->>Overlay: Análisis de bytes fuera de PE
+    Overlay-->>Risk: Ratio, Entropía y Payloads Embebidos
+    Archivo->>DotNet: Inspección de Ensamblado CLR (si aplica)
+    DotNet-->>Risk: Inyección IL, Reflección, Ofuscadores
+    Risk->>Risk: Correlación Ortogonal de Hallazgos
+    Risk-->>Archivo: Veredicto Final (operational_status)
+```
+
+1. **Capa YARA (Firmas Rápidas):**
+   - **Qué hace:** Aplica reglas de firmas sobre los bytes raw del ejecutable.
+   - **Por qué se usa:** Identifica de forma inmediata familias conocidas de ransomware, spyware o troyanos sin gastar recursos de cómputo adicionales. Si hay un match crítico, puede hacer cortocircuito en el pipeline.
+
+2. **Capa ML / Deep Learning (Inferencia ONNX):**
+   - **Qué hace:** Procesa el vector de 2381 características y genera la probabilidad estadística de maliciosidad.
+   - **Por qué se usa:** Captura la estructura general del archivo y detecta variantes no vistas (*Zero-Day*).
+
+3. **Capa Overlay Analysis (Análisis de Payloads Ocultos):**
+   - **Qué hace:** Inspecciona los datos almacenados *después* del final de la última sección PE declarada.
+   - **Por qué se usa:** Los atacantes suelen adjuntar archivos cifrados o executables secundarios al final del archivo para que el parser PE (y la Red Neuronal) no los analice. Esta capa mide la entropía del overlay y detecta magic bytes `MZ`.
+
+4. **Capa DotNet & IL Behavioral Analysis (Infección en código .NET):**
+   - **Qué hace:** Analiza los metadatos CLR e instrucciones IL de binarios compilados en .NET sin ejecutarlos.
+   - **Por qué se usa:** Detecta técnicas de ofuscación (como ConfuserEx), llamadas a `VirtualAlloc`, inyección de código, llamadas reflectivas (`Assembly.Load`) o robo de credenciales en aplicaciones .NET.
+
+5. **Capa Risk Engine (Motor de Correlación de Riesgo):**
+   - **Qué hace:** Reúne las salidas de todas las capas anteriores y aplica reglas de correlación ponderada.
+   - **Por qué se usa:** Garantiza que el veredicto final (`operational_status`: `CLEAN`, `SUSPICIOUS`, `DANGEROUS`) sea robusto y resistente a evadir una sola técnica.
+
+---
+
+## 6. Red Neuronal Secundaria: Arquitectura Transformer (LLM)
 
 ### 📌 ¿Qué se usa?
 Integración con modelos de lenguaje generativos (*Large Language Models*) basados en la arquitectura **Transformer**, ejecutados localmente mediante **Ollama** (ej. `llama3.2:3b`, `mistral-7b`).
 
 ---
 
-### 💡 ¿Por me se usa?
-- **Explicabilidad Forense (XAI):** Un score numérico como `0.982` indica la maliciosidad, pero un analista de seguridad necesita comprender **por qué** se tomó esa decisión.
-- **Traducción Contextual:** El LLM recibe los metadatos del binario y los valores **SHAP** (que indican qué características pesaron más en el veredicto) y redacta un reporte claro en lenguaje natural con recomendaciones de remediación.
+### 💡 ¿Por qué se usa?
+- **Explicabilidad Forense (XAI):** Un score numérico como `0.982` o un veredicto de la capa de riesgo indica la maliciosidad, pero un analista de seguridad necesita comprender **por qué** se tomó esa decisión.
+- **Traducción Contextual:** El LLM recibe los metadatos del binario, las evidencias de las capas multicapa y los valores **SHAP** (que indican qué características pesaron más en el veredicto) y redacta un reporte claro en lenguaje natural con recomendaciones de remediación.
 
 ---
 
 ### ⚙️ ¿Cómo se usa?
-1. Se calcula la predicción del MLP y los valores SHAP correspondientes.
+1. Se calcula la predicción del MLP, las evidencias multicapa y los valores SHAP correspondientes.
 2. `prompt_builder.py` construye una plantilla con la información forense recopilada.
 3. `OllamaClient` envía el prompt mediante la API compatible con OpenAI a Ollama local.
 4. El LLM devuelve un diagnóstico estructurado en JSON con el resumen del comportamiento y las acciones recomendadas.
 
 ---
 
-## 5. Resumen Comparativo de Redes Neuronales
+## 7. Resumen Comparativo de Redes Neuronales y Capas
 
-| Aspecto | Red Principal (MLP / DNN) | Red Secundaria (Transformer / LLM) |
-| :--- | :--- | :--- |
-| **Tipo de Arquitectura** | Perceptrón Multicapa Feedforward | Transformer Autoregresivo |
-| **Rol en el Sistema** | Clasificación rápida y objetiva de malware | Explicabilidad (XAI) y reporte narrativo |
-| **Entrada** | Vector numérico de 2381 dimensiones | Prompt estructurado (Texto + Metadatos + SHAP) |
-| **Salida** | Probabilidad cuantitativa $P(\text{Malware}) \in [0.0, 1.0]$ | Diagnóstico explicativo en lenguaje natural |
-| **Runtime / Motor** | `onnxruntime` (CPU) | `Ollama` / API local |
-| **Tiempo de Inferencia** | $< 15\text{ ms}$ | $1.5\text{ s} - 4.0\text{ s}$ (dependiendo del hardware) |
+| Componente / Capa | Tipo de Tecnología | Rol Principal en el Sistema | Salida / Resultado |
+| :--- | :--- | :--- | :--- |
+| **Capa 1: YARA** | Firmas / Reglas deterministas | Detección inmediata de familias conocidas | Match de Regla / Pass |
+| **Capa 2: Red Principal (MLP)** | **Red Neuronal Profunda (DNN)** | Clasificación de estructura PE y Zero-Day | Probabilidad $P(\text{Malware}) \in [0.0, 1.0]$ |
+| **Capa 3: Overlay Analysis** | Análisis heurístico de entropía | Detección de payloads cifrados adjuntos | Score de riesgo de overlay (0–100) |
+| **Capa 4: DotNet / IL** | Parsing de metadatos CLR | Identificación de ofuscadores e inyección IL | Perfil de riesgo .NET / Evidencia IL |
+| **Capa 5: Risk Engine** | Motor de correlación de reglas | Síntesis ponderada ortogonal | `operational_status` (`CLEAN`/`SUSPICIOUS`/`DANGEROUS`) |
+| **Capa 6: Red Secundaria (LLM)** | **Transformer Autoregresivo** | Explicabilidad (XAI) y reporte en español | Diagnóstico explicativo narrativo |
 
 ---
 
