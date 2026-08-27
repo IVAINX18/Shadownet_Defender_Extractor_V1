@@ -41,12 +41,15 @@ class TestEngineYARA:
             mock_scan.matches = [MagicMock(rule_name="Trojan_Test", category="trojan", tags=[])]
             mock_scan.scan_time_ms = 1.0
             mock_yara.scan.return_value = mock_scan
+            # No whitelisteado: el match debe producir MALWARE
+            mock_yara.is_whitelisted.return_value = False
             engine._yara_scanner = mock_yara
             engine._behavioral_shield = None
 
             result = {}
             result["detection_phases"] = []
             result["yara_matches"] = []
+            result["details"] = {}
             yara_result = engine._run_yara_phase(test_file, result)
 
             assert yara_result is not None
@@ -215,9 +218,10 @@ def test_yara_match_never_unknown(tmp_path):
         mock_scan.matches = [MagicMock(rule_name="Trojan_Test", category="trojan", tags=[])]
         mock_scan.scan_time_ms = 1.0
         mock_yara.scan.return_value = mock_scan
+        mock_yara.is_whitelisted.return_value = False
         engine._yara_scanner = mock_yara
         engine._behavioral_shield = None
-        result = {"detection_phases": [], "yara_matches": [], "operational_status": "SUSPICIOUS"}
+        result = {"detection_phases": [], "yara_matches": [], "details": {}, "operational_status": "SUSPICIOUS"}
         yara_result = engine._run_yara_phase(test_file, result)
         assert yara_result is not None
         assert yara_result["operational_status"] != "UNKNOWN"

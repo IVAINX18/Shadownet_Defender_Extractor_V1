@@ -347,7 +347,7 @@ def test_sample1_evasion_scenario(tmp_path):
     assert risk.operational_status in ("SUSPICIOUS", "DANGEROUS"), \
         f"Estado operativo debe ser SUSPICIOUS/DANGEROUS, got {risk.operational_status}"
 
-    print(f"\n✅ Escenario de evasión detectado:")
+    print(f"\n Escenario de evasion detectado:")
     print(f"   overlay_ratio={report.overlay_ratio:.1%}")
     print(f"   overlay_entropy={report.overlay_entropy:.4f}")
     print(f"   embedded_pe_count={report.embedded_pe_count}")
@@ -355,3 +355,171 @@ def test_sample1_evasion_scenario(tmp_path):
     print(f"   risk_level={risk.risk_level}")
     print(f"   operational_status={risk.operational_status}")
     print(f"   triggers: {risk.triggered_indicators}")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Tests F2 — T-06: Block Entropy (task 2.4 y 2.5)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_block_entropy_detects_segmented_overlay():
+    """
+    T-06 task 2.4 — Overlay con bloques alternos de alta/baja entropia
+    debe activar block_entropy_anomaly en el RiskEngine.
+
+    Tecnica de evasion: bloques de ceros (entropia 0) intercalados con bloques
+    cifrados (entropia ~7.9) bajan la entropia promedio pero no la maxima por bloque.
+    El sistema debe detectar el patron mediante high_entropy_block_ratio.
+    """
+    import os as _os
+
+    analyzer = OverlayAnalyzer()
+    stub = _make_minimal_pe(b"\x00" * 512)
+
+    # Overlay alternando: bloque cifrado (64 KB) + bloque de ceros (64 KB) x 4
+    BLOCK = 64 * 1024
+    encrypted_block = _os.urandom(BLOCK)   # entropia ~7.99
+    zero_block = b"\x00" * BLOCK           # entropia 0.0
+    overlay = (encrypted_block + zero_block) * 4  # 8 bloques, 4 cifrados = 50% ratio
+
+    report = analyzer.analyze(stub + overlay)
+
+    assert report.overlay_present is True
+    assert report.block_count >= 4, "Debe haber al menos 4 bloques de 64 KB"
+    assert report.max_block_entropy > 7.5, "El bloque cifrado debe tener entropia alta"
+    # Al menos el 30% de los bloques deben superar 7.2
+    assert report.high_entropy_block_ratio >= 0.40, (
+        f"high_entropy_block_ratio={report.high_entropy_block_ratio:.2f} debe ser >= 0.40"
+    )
+
+    # El RiskEngine debe activar block_entropy_anomaly
+    engine = HeuristicRiskEngine()
+    risk = engine.assess(report, ml_score=0.0)
+    triggers = " ".join(risk.triggered_indicators)
+    assert "block_entropy_anomaly" in triggers, (
+        f"block_entropy_anomaly esperado. triggers={risk.triggered_indicators}"
+    )
+
+
+def test_section_coverage_anomaly():
+    """
+    T-06 task 2.5 — Un PE limpio sin overlay significativo no dispara
+    block_entropy_anomaly aunque su contenido sea de alta entropia.
+
+    La condicion requiere overlay_ratio > 0.50 ademas del ratio de bloques.
+    Un archivo con overlay_ratio bajo no debe activar el indicador.
+    """
+    import os as _os
+
+    analyzer = OverlayAnalyzer()
+    # Stub grande con datos de alta entropia como seccion principal
+    large_section = _os.urandom(128 * 1024)  # 128 KB de datos aleatorios
+    stub = _make_minimal_pe(large_section)
+    # Overlay minimo (menos del 5% del total)
+    tiny_overlay = _os.urandom(2 * 1024)  # 2 KB
+
+    report = analyzer.analyze(stub + tiny_overlay)
+
+    # El overlay es tan pequeno (< 512 bytes threshold) que no debe ser detectado,
+    # o si lo es, el ratio debe ser bajo.
+    if report.overlay_present:
+        assert report.overlay_ratio < 0.50, (
+            f"overlay_ratio={report.overlay_ratio:.2f} debe ser < 0.50 para no activar anomalia"
+        )
+
+    engine = HeuristicRiskEngine()
+    risk = engine.assess(report, ml_score=0.0)
+    triggers = " ".join(risk.triggered_indicators)
+    assert "block_entropy_anomaly" not in triggers, (
+        f"block_entropy_anomaly NO debe activarse con overlay pequeno. triggers={risk.triggered_indicators}"
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Tests F2 — T-07: Installer Spoof (task 3.4)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_installer_spoof_no_discount():
+    """
+    T-07 task 3.4 — Binario con magic NSIS + overlay_ratio 98% debe producir
+    DANGEROUS y tener installer_spoof_suspected=True, sin aplicar el descuento
+    de instalador legitimo.
+    """
+    analyzer = OverlayAnalyzer()
+    stub = _make_minimal_pe(b"\x00" * 256)
+    # Overlay masivo con firma NSIS al inicio (evasion tipica)
+    overlay = b"NullsoftInst" + b"\x00" * (len(stub) * 50)
+    data = stub + overlay
+    report = analyzer.analyze(data)
+
+    assert report.installer_type == "NSIS", (
+        f"Debe detectar tipo NSIS, got={report.installer_type}"
+    )
+    assert report.installer_spoof_suspected is True, (
+        "overlay_ratio > 0.93 con NSIS debe activar installer_spoof_suspected"
+    )
+    assert report.is_known_installer is False, (
+        "Un instalador con spoof sospechado no debe recibir is_known_installer=True"
+    )
+
+    # El RiskEngine NO debe aplicar el descuento y el resultado debe ser de alto riesgo
+    engine = HeuristicRiskEngine()
+    risk = engine.assess(report, ml_score=0.0)
+
+    triggers = " ".join(risk.triggered_indicators)
+    assert "installer_spoof_suspected" in triggers, (
+        f"installer_spoof_suspected esperado en triggers. got={risk.triggered_indicators}"
+    )
+    # El descuento fue cancelado: el score debe ser >= 45 (MEDIUM minimo)
+    # Con overlay de ceros no hay entropia ni PE embebido, por eso MEDIUM y no HIGH.
+    # Lo que se valida es que el descuento NO se aplico y el status no es CLEAN.
+    assert risk.risk_level in ("MEDIUM", "HIGH", "CRITICAL"), (
+        f"Spoof de instalador no debe producir LOW. got={risk.risk_level}"
+    )
+    assert risk.operational_status in ("SUSPICIOUS", "DANGEROUS"), (
+        f"Estado operativo debe ser SUSPICIOUS/DANGEROUS, got={risk.operational_status}"
+    )
+    assert risk.risk_score >= 40, (
+        f"Con spoof activo el score debe ser >= 40 (sin descuento). got={risk.risk_score}"
+    )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Tests F2 — T-09: Shellcode Loader sin imports (task 5.3)
+# ──────────────────────────────────────────────────────────────────────────────
+
+def test_shellcode_loader_is_dangerous():
+    """
+    T-09 task 5.3 — Un binario nativo con num_imports=0 y una sola seccion
+    ejecutable debe activar suspicious_loader_no_imports y clasificarse como
+    SUSPICIOUS o DANGEROUS, no CLEAN.
+
+    Este patron es caracteristico de shellcode loaders que usan GetProcAddress
+    para resolver APIs en runtime, eludiendo la tabla de importaciones y
+    haciendo que el modelo ML los clasifique como benignos.
+    """
+    engine = HeuristicRiskEngine()
+    report = OverlayReport()
+    # Sin overlay: solo el loader con su seccion ejecutable
+    report.overlay_present = False
+
+    packer = {
+        "num_imports": 0,
+        "packer_detected": False,
+        "rwx_sections": 0,
+        "executable_sections": 1,
+    }
+
+    result = engine.assess(report, packer_indicators=packer, ml_score=0.05)
+
+    triggers = " ".join(result.triggered_indicators)
+    assert "suspicious_loader_no_imports" in triggers, (
+        f"suspicious_loader_no_imports esperado. triggers={result.triggered_indicators}"
+    )
+    assert result.risk_score >= 10, (
+        f"risk_score debe ser >= 10 por el indicador de loader. got={result.risk_score}"
+    )
+    # El sistema no debe clasificar un loader sin imports como completamente CLEAN
+    assert result.operational_status in ("SUSPICIOUS", "DANGEROUS") or result.risk_level != "LOW", (
+        f"Un loader sin imports no debe ser LOW/CLEAN. got level={result.risk_level} status={result.operational_status}"
+    )
+

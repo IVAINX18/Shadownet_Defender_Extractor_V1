@@ -122,22 +122,25 @@ def scan_single_file(
     file_path: Path,
     *,
     scan_type: ScanType = ScanType.SINGLE,
+    enable_behavioral: bool = False,
 ) -> ScanResult:
     """
     Ejecuta el escaneo completo de un archivo individual.
 
     Flujo:
       1. Llamo a ShadowNetEngine.scan_file() (extrae features + inferencia ONNX)
-      2. Si es NOT_PE → clasifico como suspicious (archivo no analizable ≠ seguro)
+      2. Si es NOT_PE → clasifico como suspicious (archivo no analizable != seguro)
       3. Si es PE válido → clasificación tripartita sobre el score ML
       4. Construyo ScanResult estandarizado
 
     Args:
-        file_path: Ruta absoluta al archivo a escanear.
-        scan_type: Tipo de escaneo (single, multiple, realtime).
+        file_path:         Ruta absoluta al archivo a escanear.
+        scan_type:         Tipo de escaneo (single, multiple, realtime).
+        enable_behavioral: Si True, activa BehavioralShield (Fase 8).
+                           Por defecto False para preservar comportamiento V3.
 
     Returns:
-        ScanResult con todos los campos del PRD sección 19.1.
+        ScanResult con todos los campos del PRD seccion 19.1.
 
     Raises:
         FileNotFoundError: Si el archivo no existe.
@@ -149,7 +152,7 @@ def scan_single_file(
     engine = get_engine()
     start_time = time.time()
 
-    # 3.3 — Calcula SHA-256 ANTES de ejecutar el engine
+    # Calcula SHA-256 ANTES de ejecutar el engine
     file_sha256: Optional[str] = None
     try:
         file_sha256 = _compute_sha256(file_path)
@@ -157,9 +160,10 @@ def scan_single_file(
     except Exception as exc:
         logger.warning("No se pudo calcular SHA-256 de %s: %s", file_path.name, exc)
 
-    # Ejecuto el motor ML existente — no lo recreo, solo lo uso
-    raw_result = engine.scan_file(file_path)
+    # Ejecuto el motor ML existente pasando el flag behavioral
+    raw_result = engine.scan_file(file_path, enable_behavioral=enable_behavioral)
     elapsed = time.time() - start_time
+
 
     # Extraer metadatos del pipeline híbrido
     yara_matches    = raw_result.get("yara_matches", [])

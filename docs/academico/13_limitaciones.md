@@ -63,9 +63,11 @@ El `scaler.pkl` fue ajustado sobre datos con distribuciones incompatibles con el
 
 ### L-06 — Reglas YARA generan falsos positivos sobre software legítimo
 
-Confirmado: `procexp64.exe` activa `Keylogger_Generic`. No hay mecanismo de whitelisting implementado.
+Confirmado: `procexp64.exe` activa `Keylogger_Generic`.
 
 **Impacto**: En entornos con herramientas de administración, debuggers o profilers, la tasa de FPR puede ser significativa.
+
+**Mitigacion F2 (T-05)**: Implementado `configs/whitelist.json` + `YaraScanner.is_whitelisted()`. Archivos con SHA-256 en whitelist o que activan reglas en `yara_exclusions` son degradados de DANGEROUS a SUSPICIOUS con `whitelist_hit=true`. La FPR sobre corpus benigno sera medida cuando T-13 este disponible.
 
 ---
 
@@ -101,21 +103,29 @@ El extractor no tiene límite de tiempo documentado en código (solo el LLM tien
 
 ## Riesgos
 
-### R-01 — Evasión por overlay segmentado
+### R-01 — Evasion por overlay segmentado
 
-Un atacante podría distribuir el payload en múltiples overlays de menor tamaño, o reducir la entropía del overlay mezclando datos cifrados con datos no cifrados, para bajar `overlay_ratio` y `overlay_entropy` por debajo de los umbrales del Risk Engine.
+Un atacante podria distribuir el payload en multiples overlays de menor tamano, o reducir la entropia del overlay mezclando datos cifrados con datos no cifrados, para bajar `overlay_ratio` y `overlay_entropy` por debajo de los umbrales del Risk Engine.
 
-### R-02 — Evasión por instalador falso
+**Mitigacion F2 (T-06)**: Implementada entropia por bloques (64 KB). `OverlayAnalyzer` calcula `high_entropy_block_ratio` y `max_block_entropy`. Si `high_entropy_block_ratio > 0.30` y `overlay_ratio > 0.50`, el RiskEngine activa `block_entropy_anomaly` (+15 pts) aunque `overlay_entropy` promedio este bajo 7.2.
 
-Si un binario malicioso incluye las magic bytes de NSIS o InnoSetup al inicio del overlay, el sistema aplicará el "descuento de instalador" (`test_installer_gets_discount` → PASSED) y reducirá el risk_score, potencialmente evitando la clasificación DANGEROUS.
+### R-02 — Evasion por instalador falso
 
-### R-03 — Evasión del modelo ML por adversarial features
+Si un binario malicioso incluye las magic bytes de NSIS o InnoSetup al inicio del overlay, el sistema aplicaria el "descuento de instalador" y reduciria el risk_score, potencialmente evitando la clasificacion DANGEROUS.
 
-Un atacante con acceso a los artefactos del modelo (best_model.onnx, scaler.pkl) podría calcular perturbaciones en el espacio de features para producir un score bajo manteniendo la funcionalidad maliciosa.
+**Mitigacion F2 (T-07)**: Implementado `installer_spoof_suspected`. Si `overlay_ratio > 0.93` y el tipo es NSIS/InnoSetup, el descuento se cancela y se agrega el indicador `installer_spoof_suspected` a `triggered_indicators`. El test `test_installer_spoof_no_discount` verifica que binarios con magic NSIS + 98% overlay producen DANGEROUS.
 
-### R-04 — Colisiones en feature hashing de imports
+### R-03 — Evasion del modelo ML por adversarial features
 
-Con 1280 buckets para 1000+ APIs posibles, el feature hashing del extractor de imports tiene alta probabilidad de colisión. APIs con hashes similares son indistinguibles para el modelo.
+Un atacante con acceso a los artefactos del modelo (`best_model.onnx`, `scaler.pkl`) podria calcular perturbaciones en el espacio de features para producir un score bajo manteniendo la funcionalidad maliciosa.
+
+**Nota F2 (T-09)**: Los artefactos `models/best_model.onnx` y `models/scaler.pkl` deben tratarse como secretos operacionales. Su exposicion permite construir ejemplos adversariales dirigidos sin necesidad de acceso al codigo fuente. No compartir ni exponer via endpoint publico.
+
+### R-04 — Colisiones en feature hashing de imports (1280 buckets)
+
+Con 1280 buckets para 1000+ APIs posibles, el feature hashing del extractor de imports tiene alta probabilidad de colision (~30%). APIs con hashes similares son indistinguibles para el modelo.
+
+**Limitacion conocida F2 (T-09)**: Cambiar a 2048+ buckets requiere reentrenamiento completo y regeneracion de `models/scaler.pkl` + `models/best_model.onnx` — fuera del alcance de F2. **Mitigacion F2**: correlacion `num_imports==0 + executable_sections==1` en RiskEngine activa el indicador `suspicious_loader_no_imports` (+10 pts) para cubrir el caso de loader sin IAT que podria colapsar en el mismo bucket hash.
 
 ### R-05 — Dependencia de Ollama para explicabilidad narrativa
 
@@ -123,7 +133,9 @@ Si el servidor Ollama no está disponible, la explicación narrativa no se gener
 
 ### R-06 — Sin cifrado de datos en cuarentena
 
-Los archivos en cuarentena son movidos a `~/.shadownet/quarantine/` con permisos 700, pero no están cifrados. Un atacante con acceso al sistema de archivos podría extraerlos.
+Los archivos en cuarentena son movidos a `~/.shadownet/quarantine/` con permisos 700, pero no estan cifrados. Un atacante con acceso al sistema de archivos podria extraerlos.
+
+**Mitigacion F2 (T-08)**: Implementado cifrado `cryptography.fernet.Fernet`. La clave se lee de `QUARANTINE_KEY` (env) o se genera en `~/.shadownet/.quarantine.key` (permisos 600). Los archivos `.quar` son cifrados en disco; `encrypted=true` + `key_id` se registran en `.meta.json`. La restauracion descifra y verifica SHA-256 del plaintext. Fallback sin cifrado si `cryptography` no esta instalada.
 
 ---
 

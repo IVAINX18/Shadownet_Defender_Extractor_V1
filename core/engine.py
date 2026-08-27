@@ -101,28 +101,35 @@ class ShadowNetEngine:
     # API Pública
     # ------------------------------------------------------------------
 
-    def scan_file(self, file_path: Union[str, Path]) -> Dict[str, Any]:
+    def scan_file(
+        self,
+        file_path: Union[str, Path],
+        *,
+        enable_behavioral: bool = False,
+    ) -> Dict[str, Any]:
         """
-        Escanea un archivo usando el pipeline híbrido completo.
+        Escanea un archivo usando el pipeline hibrido completo.
+
+        Args:
+            file_path:         Ruta al archivo a analizar.
+            enable_behavioral: Si True, ejecuta la Fase 8 (BehavioralShield).
+                               Por defecto False para preservar comportamiento V3
+                               y no introducir dependencias de psutil en CI.
 
         Returns:
-            Diccionario con:
-                - label     : "MALWARE" | "BENIGN" | "NOT_PE"
-                - score     : Float [0.0, 1.0]
-                - status    : "detected" | "clean" | "not_supported"
-                - confidence: "High" | "Medium" | "Low"
-                - details   : Diccionario con información adicional
-                - yara_matches : Lista de reglas YARA que coincidieron
-                - was_unpacked : Bool — si el archivo fue desempacado
+            Diccionario con label, score, status, confidence, details,
+            yara_matches, was_unpacked, operational_status, behavioral_analysis, etc.
         """
         import concurrent.futures
         from configs.settings import ANALYSIS_TIMEOUT_SECONDS
 
         file_path = Path(file_path)
 
-        # ── WATCHDOG de 60s (2.5) ─────────────────────────────────────
+        # Watchdog global: el pipeline completo no puede superar ANALYSIS_TIMEOUT_SECONDS
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(self._scan_file_internal, file_path)
+            future = executor.submit(
+                self._scan_file_internal, file_path, enable_behavioral
+            )
             try:
                 return future.result(timeout=ANALYSIS_TIMEOUT_SECONDS)
             except concurrent.futures.TimeoutError:
@@ -174,8 +181,16 @@ class ShadowNetEngine:
                     "scan_time_ms": ANALYSIS_TIMEOUT_SECONDS * 1000,
                 }
 
-    def _scan_file_internal(self, file_path: Path) -> Dict[str, Any]:
-        """Pipeline interno de escaneo (ejecutado con watchdog en scan_file)."""
+    def _scan_file_internal(
+        self, file_path: Path, enable_behavioral: bool = False
+    ) -> Dict[str, Any]:
+        """Pipeline interno de escaneo (ejecutado con watchdog en scan_file).
+
+        Args:
+            file_path:         Ruta al archivo.
+            enable_behavioral: Si True, ejecuta Fase 8 BehavioralShield.
+                               Si False (default), behavioral_analysis=None.
+        """
         start_time = time.time()
 
         result: Dict[str, Any] = {
@@ -273,8 +288,12 @@ class ShadowNetEngine:
             logger.error("Error en fase IL para %s: %s", file_path.name, _exc)
             result["details"]["il_phase_error"] = True
 
-        # ── FASE 7: BehavioralShield ──────────────────────────────────
-        self._run_behavioral_phase(file_path, result)
+        # Fase 8: BehavioralShield (opt-in via enable_behavioral)
+        # Solo se ejecuta si el flag esta activo para no impactar el pipeline
+        # por defecto y no introducir dependencias de psutil en CI.
+        if enable_behavioral:
+            self._run_behavioral_phase(file_path, result)
+        # Si el flag esta inactivo, behavioral_analysis permanece None (ya en el dict)
 
         # ── Limpieza del archivo desempacado temporal ─────────────────
         if result["was_unpacked"] and analysis_path != file_path:

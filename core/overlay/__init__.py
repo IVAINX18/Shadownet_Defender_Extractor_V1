@@ -189,6 +189,9 @@ class OverlayAnalyzer:
         # Calcular offset del overlay
         overlay_offset = self._find_overlay_offset(raw_data, pe)
         if overlay_offset <= 0 or overlay_offset >= total_size:
+            # Sin overlay: resolver legitimidad del instalador con ratio=0.0
+            # para que instaladores sin datos extra sean marcados como legitimos.
+            self._resolve_installer_legitimacy(raw_data, report)
             return report
 
         overlay_data = raw_data[overlay_offset:]
@@ -196,7 +199,9 @@ class OverlayAnalyzer:
 
         # Overlays < 512 bytes no son significativos
         if overlay_size < 512:
+            self._resolve_installer_legitimacy(raw_data, report)
             return report
+
 
         report.overlay_present = True
         report.overlay_offset = overlay_offset
@@ -390,24 +395,29 @@ class OverlayAnalyzer:
         detectar binarios que incluyen magic bytes de NSIS/InnoSetup como evasion.
 
         Reglas:
+          - overlay_ratio == 0.0: sin overlay, el archivo ES el instalador → legitimo
           - overlay_ratio > 0.93 con tipo NSIS/InnoSetup  => installer_spoof_suspected
           - overlay_ratio <= 0.90 con tipo conocido        => is_known_installer = True
           - 0.90 < overlay_ratio <= 0.93                  => zona gris, sin descuento
 
-        Los tipos de instalador que NO son NSIS/InnoSetup (ZIP, CAB, RAR, etc.)
-        se tratan como legitimos independientemente del overlay_ratio, ya que
-        estos formatos por definicion pueden tener overlays grandes.
+        Los tipos que NO son NSIS/InnoSetup (ZIP, CAB, RAR, etc.) se tratan como
+        legitimos independientemente del overlay_ratio.
         """
         if report.installer_type is None:
-            # Sin tipo de instalador detectado, no hay nada que resolver
             return
 
-        # Los tipos que pueden ser falsificados facilmente son NSIS e InnoSetup
-        # porque sus magic bytes son strings ASCII legibles y faciles de incluir
+        # Sin overlay real: el archivo entero es el instalador → siempre legitimo
+        if report.overlay_ratio == 0.0:
+            report.is_known_installer = True
+            logger.info(
+                "Instalador sin overlay: %s → is_known_installer=True",
+                report.installer_type,
+            )
+            return
+
         spoofable_types = ("NSIS", "InnoSetup")
 
         if report.installer_type in spoofable_types and report.overlay_ratio > 0.93:
-            # Overlay demasiado grande para ser un instalador legitimo
             report.is_known_installer = False
             report.installer_spoof_suspected = True
             logger.warning(
@@ -417,7 +427,6 @@ class OverlayAnalyzer:
                 report.overlay_ratio * 100,
             )
         elif report.overlay_ratio <= 0.90:
-            # Ratio razonable para un instalador legitimo
             report.is_known_installer = True
             logger.info(
                 "Instalador legitimo confirmado: %s (overlay=%.1f%%, FP protection activa)",
@@ -432,6 +441,7 @@ class OverlayAnalyzer:
                 report.installer_type,
                 report.overlay_ratio * 100,
             )
+
 
     @staticmethod
     def _compute_block_entropy(
