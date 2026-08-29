@@ -11320,3 +11320,1549 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-08-26 20:31:13,975 - core.remediation - WARNING - Exe mismatch rechazado: pid=12345 expected=/opt/malware/evil.exe actual=/usr/bin/python3
 2026-08-26 20:31:13,977 - core.remediation - INFO - Remediación solicitada: pid=99999 reason=test scan_id=test-scan-003 expected_exe=None
 2026-08-26 20:31:13,977 - core.remediation - ERROR - Permiso denegado al enviar SIGTERM a pid=99999: Operation not permitted
+2026-08-29 13:24:27,209 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-08-29 13:24:27,523 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-08-29 13:24:32,739 - models.inference - INFO - Model and scaler loaded successfully.
+2026-08-29 13:24:32,740 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-08-29 13:24:32,743 - security.yara_scanner - INFO - Whitelist cargado: 0 hash(es) SHA-256, 1 exclusion(es) YARA
+2026-08-29 13:24:32,744 - security.yara_scanner - ERROR - El módulo 'yara-python' no está instalado. Instalar con: pip install yara-python
+2026-08-29 13:24:32,745 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-08-29 13:24:32,754 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,755 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,755 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,756 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,757 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,758 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,758 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,759 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,759 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,760 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,761 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,761 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,762 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,762 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,763 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,763 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,764 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,764 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,765 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,765 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,766 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,766 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,767 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,768 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,768 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,769 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,770 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,770 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,771 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,772 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,772 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,773 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,773 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,774 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,774 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,775 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,775 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,776 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,776 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,777 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,777 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,778 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,778 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,779 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,779 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,780 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,781 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,781 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,782 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,782 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,783 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,783 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,784 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,785 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,786 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,786 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,787 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,787 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,788 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,788 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,789 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,789 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,790 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,790 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,791 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,791 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,792 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,792 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,793 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,793 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,794 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,794 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,795 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,796 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,796 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,797 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,797 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,798 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,798 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,799 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,799 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,800 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,800 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,801 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,802 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,803 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,804 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,804 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,805 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,805 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,806 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,806 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,807 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,807 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,808 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,808 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,809 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,809 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,810 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,810 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,810 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,811 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,812 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,812 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,813 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,813 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,814 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,815 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,816 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,816 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,817 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,818 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,818 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,819 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,820 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,820 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,821 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,821 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,822 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,822 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,823 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,823 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,824 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,824 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,825 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,825 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,826 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,826 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,827 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,827 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,828 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,828 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,829 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,829 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,830 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,830 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,831 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,831 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,832 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,832 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,833 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,833 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,834 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,835 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,836 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,836 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,837 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,838 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,838 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,839 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,839 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,840 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,840 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,841 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,841 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,842 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,842 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,843 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,843 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,844 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,844 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,845 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,846 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,846 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,847 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,847 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,848 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,848 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,849 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,849 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,850 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,850 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,851 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,852 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,852 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,853 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,853 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,854 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,854 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,855 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,855 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,856 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,857 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,857 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,858 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,858 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,859 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,859 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,860 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,860 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,861 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,861 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,861 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,862 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,863 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,863 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,864 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,864 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,865 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,865 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,866 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,866 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,867 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,868 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,868 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,869 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,870 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,871 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,871 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,872 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,882 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,883 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,883 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,885 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,886 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,887 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,887 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,888 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,889 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,889 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,890 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,890 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,891 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,891 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,892 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,892 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,893 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,893 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,894 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,894 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,895 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,895 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,896 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,896 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,897 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,897 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,898 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,899 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,899 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,900 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,900 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,901 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,902 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,903 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,904 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,905 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,905 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,906 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,906 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,907 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,907 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,908 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,908 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,909 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,910 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,910 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,911 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,911 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,912 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,912 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,913 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,913 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,913 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,914 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,914 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,915 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,915 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,916 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,916 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,917 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,918 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,919 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,919 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,920 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,921 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,921 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,922 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,922 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,923 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,924 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,924 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,925 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,925 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,926 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,926 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,927 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,927 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,928 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,928 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,929 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,929 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,930 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,931 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,931 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,932 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,932 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,933 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,933 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,934 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,935 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,936 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,936 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,937 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,937 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,938 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,938 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,939 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,940 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,940 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,941 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,941 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,942 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,942 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,943 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,944 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,944 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,944 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,945 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,946 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,946 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,947 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,947 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,948 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,948 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,949 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,949 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,950 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,950 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,951 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,952 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,953 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,954 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,954 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,955 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,955 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,956 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,956 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,957 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,958 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,958 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,959 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,959 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,960 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,960 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,961 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,961 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,962 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,964 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,964 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,965 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,966 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,966 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,967 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,968 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,968 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,969 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,969 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,970 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,970 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,971 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,972 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,972 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,973 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,973 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,974 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,974 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,975 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,976 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,976 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,977 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,978 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,978 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,979 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,980 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,980 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,981 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,981 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,982 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,982 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,983 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,984 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,985 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,986 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,987 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,988 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,988 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,989 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,990 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,990 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,991 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,991 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,992 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,992 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,993 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,994 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,994 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,995 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,995 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,996 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,996 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,997 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,997 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,998 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,998 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,999 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:32,999 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,000 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,001 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,001 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,002 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,003 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,003 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,004 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,005 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,005 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,006 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,006 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,007 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,007 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,008 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,008 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,009 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,010 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,010 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,011 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,012 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,013 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,013 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,014 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,014 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,015 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,015 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,016 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,016 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,017 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,018 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,018 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,019 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,020 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,021 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,021 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,022 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,022 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,023 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,023 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,024 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,025 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,026 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,026 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,027 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,028 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,028 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,029 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,030 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,030 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,031 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,031 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,032 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,032 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,033 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,033 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,034 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,035 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,036 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,037 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,037 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,038 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,038 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,039 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,039 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,040 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,040 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,041 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,041 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,042 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,042 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,043 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,043 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,044 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,044 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,045 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,045 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,046 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,046 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,047 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,047 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,048 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,048 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,049 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,050 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,050 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,051 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,052 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,053 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,054 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,055 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,055 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,056 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,056 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,057 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,057 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,058 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,058 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,059 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,059 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,060 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,060 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,061 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,061 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,062 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,062 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,063 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,063 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,064 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,064 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,065 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,065 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,066 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,066 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,067 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,068 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,069 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,070 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,071 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,071 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,072 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,072 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,073 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,074 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,074 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,075 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,075 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,076 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,076 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,077 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,077 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,078 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,078 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,079 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,080 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,080 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,081 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,081 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,082 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,083 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,084 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,085 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,086 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,087 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,088 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,088 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,089 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,090 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,091 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,092 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,093 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,093 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,094 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,095 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,095 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,096 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,096 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,097 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,097 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,098 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,099 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,099 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,100 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,100 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,101 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,102 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,102 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,103 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,104 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,104 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,105 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,106 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,107 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,108 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,109 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,110 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,111 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,112 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,113 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,114 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,115 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,116 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,117 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,119 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,120 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,121 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,122 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,123 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,124 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,125 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,125 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,126 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,127 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,128 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,129 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,129 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,130 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,131 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,132 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,133 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,133 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,134 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,134 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,135 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,136 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,136 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,137 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,137 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,138 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,138 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,139 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,139 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,140 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,140 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,141 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,141 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,142 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,142 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,143 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,143 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,144 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,145 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,145 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,146 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,146 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,147 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,147 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,148 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,148 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,149 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,149 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,150 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,151 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,151 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,152 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,152 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,153 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,153 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,154 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,154 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,155 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,155 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,156 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,156 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,157 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,157 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,158 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,159 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,159 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,160 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,160 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,161 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,161 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,162 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,163 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,163 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,164 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,164 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,165 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,165 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,166 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,166 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,167 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,167 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,168 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,169 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,169 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,170 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,170 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,171 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,171 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,172 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,172 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,173 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,173 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,174 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,174 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,175 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,175 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,176 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,177 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,177 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,178 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,178 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,179 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,179 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,180 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,180 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,181 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,181 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,182 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,182 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,183 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,184 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,184 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,185 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,186 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,186 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,187 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,187 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,188 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,188 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,189 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,189 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,190 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,191 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,191 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,192 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,192 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,193 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,193 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,194 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,195 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,195 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,196 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,196 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,197 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,197 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,198 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,198 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,199 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,199 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,200 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,200 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,201 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,201 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,202 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,203 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,203 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,204 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,204 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,205 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,205 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,206 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,206 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,207 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,207 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,208 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,209 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,210 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,210 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,211 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,211 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,212 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,212 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,213 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,213 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,214 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,214 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,215 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,216 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,216 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,217 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,217 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,218 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,219 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,220 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,221 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,221 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,222 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,222 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,223 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,223 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,224 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,224 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,225 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,225 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,226 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,226 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,227 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,227 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,228 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,228 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,229 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,230 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,230 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,231 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,231 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,232 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,232 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,233 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,233 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,234 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,235 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,236 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,236 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,237 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,237 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,238 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,238 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,239 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,240 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,240 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,241 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,241 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,242 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,242 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,242 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,243 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,244 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,244 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,245 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,245 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,246 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,246 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,247 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,247 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,248 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,248 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,249 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,249 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,250 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,251 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,252 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,253 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,253 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,254 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,255 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,255 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,256 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,256 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,257 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,257 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,258 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,258 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,259 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,259 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,260 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,261 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,262 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,262 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,263 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,263 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,264 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,264 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,265 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,265 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,266 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,266 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,267 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,268 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,269 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,270 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,270 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,271 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,271 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,272 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,272 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,273 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,273 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,274 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,274 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,275 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,275 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,276 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,277 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,277 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,278 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,278 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,279 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,279 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,280 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,280 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,281 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,282 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,282 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,283 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,283 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,284 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,285 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,286 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,286 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,287 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,288 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,288 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,289 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,289 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,290 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,291 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,292 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,292 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,293 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,294 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,294 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,295 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,296 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,296 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,297 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,298 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,299 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,299 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,300 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,300 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,301 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,302 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,302 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,303 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,304 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,304 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,305 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,306 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,306 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,307 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,308 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,308 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,309 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,310 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,310 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,311 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,311 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,312 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,312 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,313 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,313 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,314 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,315 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,315 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,316 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,316 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,317 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,318 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,318 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,319 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,319 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,320 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,320 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,321 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,321 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,322 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,322 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,323 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,324 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,324 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,325 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,326 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,326 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,327 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,327 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,328 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,328 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,329 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,330 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,330 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,331 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,331 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,332 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,332 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,333 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,333 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,334 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,335 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,336 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,336 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,337 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,337 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,338 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,338 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,339 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,339 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,340 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,341 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,341 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,342 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,342 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,343 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,343 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,344 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,344 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,345 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,345 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,346 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,347 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,347 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,348 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,348 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,349 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,349 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,350 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,350 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,351 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,352 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,352 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,353 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,354 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,354 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,355 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,355 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,356 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,356 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,357 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,358 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,358 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,359 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,359 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,360 - models.inference - ERROR - Inference error: 'list' object has no attribute 'reshape'
+2026-08-29 13:24:33,477 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: report.pdf.exe
+2026-08-29 13:24:33,482 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: image.jpg.dll
+2026-08-29 13:24:33,487 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: document.docx.bat
+2026-08-29 13:24:33,490 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: archive.zip.ps1
+2026-08-29 13:24:33,494 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: photo.png.scr
+2026-08-29 13:24:34,687 - backend.routes.scan - WARNING - Rate limit excedido para user=rl-user-1788027874.6344745 (máx 20/min)
+2026-08-29 13:24:34,699 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-08-29 13:24:34,700 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-08-29 13:24:34,708 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-08-29 13:24:34,709 - models.inference - INFO - Model and scaler loaded successfully.
+2026-08-29 13:24:34,710 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-08-29 13:24:34,710 - security.yara_scanner - INFO - Whitelist cargado: 0 hash(es) SHA-256, 1 exclusion(es) YARA
+2026-08-29 13:24:34,711 - security.yara_scanner - ERROR - El módulo 'yara-python' no está instalado. Instalar con: pip install yara-python
+2026-08-29 13:24:34,711 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-08-29 13:24:34,861 - core.engine - INFO - Extrayendo features de: 1788027874699-evil_00.exe
+2026-08-29 13:24:34,976 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/shadownet_uploads/1788027874699-evil_00.exe ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-08-29 13:24:35,093 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/shadownet_uploads/1788027874699-evil_00.exe. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-08-29 13:24:35,199 - extractors.extractor - INFO - Extracción completada: 1788027874699-evil_00.exe | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=336.6ms
+2026-08-29 13:24:35,782 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=DANGEROUS is_dotnet=False | triggers=1
+2026-08-29 13:24:35,856 - core.engine - INFO - Escaneo completo: 1788027874699-evil_00.exe | label=MALWARE | score=1.0000 | operational=DANGEROUS | risk=LOW(20) | phases=['ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS'] | time=1143ms
+2026-08-29 13:24:35,857 - backend.scan_service - INFO - Archivo PE analizado: 1788027874699-evil_00.exe | type=pe | result=malicious | risk=high | score=1.0000 | unpacked=False | inference_time=1.145s
+2026-08-29 13:24:35,874 - backend.routes.scan - WARNING - Nombre de archivo con caracteres de control rechazado: 'invoice\u202e.exe'
+2026-08-29 13:24:35,966 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-0/test_raw_fallback_non_pe0/test.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-08-29 13:24:36,036 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-0/test_raw_fallback_non_pe0/test.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-08-29 13:24:36,037 - extractors.extractor - INFO - Extracción completada: test.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=144.1ms
+2026-08-29 13:24:36,406 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-0/test_distributed_sampling0/large_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-08-29 13:24:36,476 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-0/test_distributed_sampling0/large_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-08-29 13:24:36,785 - extractors.extractor - INFO - Extracción completada: large_file.bin | modo=RAW_FALLBACK | ratio_analizado=83.3% | packer_detectado=False | tiempo=732.5ms
+2026-08-29 13:24:36,865 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-0/test_packer_detection0/upx_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-08-29 13:24:36,940 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-0/test_packer_detection0/upx_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-08-29 13:24:36,942 - extractors.extractor - INFO - Extracción completada: upx_file.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=153.0ms
+2026-08-29 13:24:36,944 - core.engine - INFO - Extrayendo features de: slow.exe
+2026-08-29 13:24:37,945 - core.engine - WARNING - Extractor timeout (1s) para slow.exe → SUSPICIOUS
+2026-08-29 13:24:39,946 - security.yara_scanner - INFO - Whitelist: SHA-256 aaaaaaaaaaaaaaaa... coincide con hash conocido-benigno
+2026-08-29 13:24:39,947 - security.yara_scanner - INFO - Whitelist: regla 'Keylogger_Generic' esta en yara_exclusions — degradando a SUSPICIOUS
+2026-08-29 13:24:39,950 - security.yara_scanner - WARNING - Whitelist no disponible (continuando sin el): Expecting value: line 1 column 1 (char 0)
+2026-08-29 13:24:39,955 - core.engine - INFO - YARA whitelist: procexp64.exe degradado de DANGEROUS a SUSPICIOUS (reglas: ['Keylogger_Generic'] | sha256: dcb8daf9f7b51b4b...)
+2026-08-29 13:24:39,963 - core.overlay - INFO - Overlay analizado — size=0.1MB ratio=99.2% entropy=7.9988 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 13:24:39,964 - core.heuristics - INFO - Heurística — score=15 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-08-29 13:24:39,965 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 13:24:39,967 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-08-29 13:24:39,968 - core.overlay - WARNING - Installer spoof sospechado: tipo=NSIS overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-08-29 13:24:39,970 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0051 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-08-29 13:24:39,971 - core.overlay - INFO - Firma de instalador detectada: InnoSetup
+2026-08-29 13:24:39,972 - core.overlay - WARNING - Installer spoof sospechado: tipo=InnoSetup overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-08-29 13:24:39,973 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0043 embedded_pe=0 installer=InnoSetup suspicious_strings=0
+2026-08-29 13:24:39,974 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-08-29 13:24:39,974 - core.overlay - INFO - Instalador legitimo confirmado: NSIS (overlay=5.9%, FP protection activa)
+2026-08-29 13:24:39,975 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=5.9% entropy=0.0378 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-08-29 13:24:39,976 - core.heuristics - WARNING - Installer spoof detectado: descuento cancelado. overlay_ratio=0.99
+2026-08-29 13:24:39,977 - core.heuristics - INFO - Heurística — score=80 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=5
+2026-08-29 13:24:39,978 - core.heuristics - INFO - Heurística — score=60 level=HIGH operational=SUSPICIOUS is_dotnet=False | triggers=5
+2026-08-29 13:24:39,979 - core.heuristics - INFO - Heurística — score=5 level=LOW operational=CLEAN is_dotnet=False | triggers=2
+2026-08-29 13:24:39,980 - core.heuristics - INFO - Heurística — score=25 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=1
+2026-08-29 13:24:40,373 - core.heuristics - INFO - Heurística — score=30 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-08-29 13:24:40,375 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-08-29 13:24:40,376 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 13:24:40,389 - core.engine - INFO - Escaneo completo: test.exe | label=Unknown | score=-1.0000 | operational=SUSPICIOUS | risk=LOW(0) | phases=[] | time=0ms
+2026-08-29 13:24:40,391 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-08-29 13:24:40,394 - core.engine - INFO - BehavioralShield: riesgo=0.40 → SUSPICIOUS | pid=5678 | file=test.exe
+2026-08-29 13:24:43,397 - core.engine - WARNING - BehavioralShield timeout (2.0s) para test.exe
+2026-08-29 13:24:43,401 - core.engine - ERROR - Error en fase Behavioral para test.exe: (pid=0)
+2026-08-29 13:24:51,855 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:51,855 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:51,983 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-08-29 13:24:51,983 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-08-29 13:24:51,988 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:51,988 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,120 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:52,120 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:52,123 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,123 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,254 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-08-29 13:24:52,254 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-08-29 13:24:52,256 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,256 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,388 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:52,388 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:52,390 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,390 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,519 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:52,519 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:52,521 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,521 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,654 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-08-29 13:24:52,654 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-08-29 13:24:52,657 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,657 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,794 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:52,794 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:52,796 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,796 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,926 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:52,926 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:52,928 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:52,928 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,060 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:53,060 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:53,063 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,063 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,195 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-08-29 13:24:53,195 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-08-29 13:24:53,197 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,197 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,340 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-08-29 13:24:53,340 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-08-29 13:24:53,342 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,342 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,491 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:53,491 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:53,493 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,493 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,629 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:53,629 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:53,632 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,632 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,770 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:53,770 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 13:24:53,773 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,773 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,903 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-08-29 13:24:53,903 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-08-29 13:24:53,906 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:53,906 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,037 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-08-29 13:24:54,037 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-08-29 13:24:54,039 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,039 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,177 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-08-29 13:24:54,177 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-08-29 13:24:54,180 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,180 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,320 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-08-29 13:24:54,320 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-08-29 13:24:54,322 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,322 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,454 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:54,454 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:54,456 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,456 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,588 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-08-29 13:24:54,588 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-08-29 13:24:54,590 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,590 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,726 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:54,726 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 13:24:54,728 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,728 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,861 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-08-29 13:24:54,861 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-08-29 13:24:54,865 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,865 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:54,997 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-08-29 13:24:54,997 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-08-29 13:24:55,006 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:55,006 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 13:24:56,513 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-08-29 13:24:56,513 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-08-29 13:24:56,524 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: malware.exe (HTTP 200, intento 1)
+2026-08-29 13:24:56,527 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: dropper.exe (HTTP 200, intento 1)
+2026-08-29 13:24:56,529 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 1/3: Connection refused, reintentando en 1s...
+2026-08-29 13:24:57,530 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 2/3: Connection refused, reintentando en 2s...
+2026-08-29 13:24:59,531 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] Error de red tras 3 intentos: Connection refused
+2026-08-29 13:24:59,573 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.9% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 13:24:59,575 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=50.0% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 13:24:59,652 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=100.0% entropy=7.9999 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 13:24:59,703 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=100.0% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 13:24:59,840 - core.overlay - INFO - PE embebido en overlay @ offset +1024 | entropy=0.7733 | structurally_valid=True
+2026-08-29 13:24:59,841 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=69.3% entropy=1.4217 embedded_pe=1 installer=no suspicious_strings=0
+2026-08-29 13:24:59,870 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.9% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 13:24:59,872 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-08-29 13:24:59,872 - core.overlay - INFO - Instalador sin overlay: NSIS → is_known_installer=True
+2026-08-29 13:24:59,873 - core.overlay - INFO - Firma de instalador detectada: InnoSetup
+2026-08-29 13:24:59,874 - core.overlay - INFO - Instalador sin overlay: InnoSetup → is_known_installer=True
+2026-08-29 13:24:59,876 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 13:24:59,878 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 13:24:59,879 - core.heuristics - INFO - Heurística — score=35 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=1
+2026-08-29 13:24:59,880 - core.heuristics - INFO - Heurística — score=100 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=7
+2026-08-29 13:24:59,881 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 13:24:59,883 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=DANGEROUS is_dotnet=False | triggers=0
+2026-08-29 13:24:59,885 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 13:24:59,887 - core.heuristics - INFO - Heurística — score=40 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-08-29 13:24:59,888 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 13:24:59,889 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-08-29 13:25:00,030 - core.overlay - INFO - PE embebido en overlay @ offset +10240 | entropy=7.9991 | structurally_valid=True
+2026-08-29 13:25:00,041 - core.overlay - INFO - Overlay analizado — size=0.5MB ratio=99.1% entropy=7.9991 embedded_pe=1 installer=no suspicious_strings=0
+2026-08-29 13:25:00,043 - core.heuristics - INFO - Heurística — score=135 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=7
+2026-08-29 13:25:00,059 - core.overlay - INFO - Overlay analizado — size=0.5MB ratio=99.8% entropy=4.9795 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 13:25:00,061 - core.heuristics - INFO - Heurística — score=60 level=HIGH operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-08-29 13:25:00,064 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=1.5% entropy=7.9085 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 13:25:00,065 - core.heuristics - INFO - Heurística — score=50 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-08-29 13:25:00,069 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-08-29 13:25:00,069 - core.overlay - WARNING - Installer spoof sospechado: tipo=NSIS overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-08-29 13:25:00,071 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0051 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-08-29 13:25:00,071 - core.heuristics - WARNING - Installer spoof detectado: descuento cancelado. overlay_ratio=0.98
+2026-08-29 13:25:00,072 - core.heuristics - INFO - Heurística — score=45 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-08-29 13:25:00,073 - core.heuristics - INFO - Heurística — score=30 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-08-29 13:25:00,076 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-08-29 13:25:00,078 - core.engine - INFO - Extrayendo features de: test.exe
+2026-08-29 13:25:00,079 - core.engine - ERROR - Error ONNX en inferencia de test.exe: ONNX session error
+2026-08-29 13:25:00,082 - core.engine - INFO - Extrayendo features de: fake.exe
+2026-08-29 13:25:00,083 - core.engine - WARNING - Archivo no-PE omitido: /tmp/pytest-of-ivainx18/pytest-0/test_non_pe_exe_suspicious0/fake.exe
+2026-08-29 13:25:00,085 - core.engine - WARNING - NonPEFileError en archivo con extensión ejecutable (.exe) → SUSPICIOUS
+2026-08-29 13:25:00,088 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-08-29 13:25:00,090 - core.engine - INFO - BehavioralShield: riesgo=0.35 → SUSPICIOUS | pid=1234 | file=test.exe
+2026-08-29 13:25:00,093 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-08-29 13:25:00,096 - core.engine - ERROR - Error en fase overlay para test.exe: overlay crashed
+2026-08-29 13:25:00,096 - core.engine - ERROR - Error en fase dotnet para test.exe: dotnet crashed
+2026-08-29 13:25:00,097 - core.engine - INFO - Escaneo completo: test.exe | label=Unknown | score=-1.0000 | operational=SUSPICIOUS | risk=LOW(0) | phases=[] | time=2ms
+2026-08-29 13:25:00,110 - core.remediation - INFO - Remediación solicitada: pid=0 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 13:25:00,112 - core.remediation - WARNING - PID protegido rechazado: pid=0 — PID 0 es un proceso protegido del SO (PID < 10)
+2026-08-29 13:25:00,113 - core.remediation - INFO - Remediación solicitada: pid=1 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 13:25:00,114 - core.remediation - WARNING - PID protegido rechazado: pid=1 — PID 1 es un proceso protegido del SO (PID < 10)
+2026-08-29 13:25:00,115 - core.remediation - INFO - Remediación solicitada: pid=2 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 13:25:00,116 - core.remediation - WARNING - PID protegido rechazado: pid=2 — PID 2 es un proceso protegido del SO (PID < 10)
+2026-08-29 13:25:00,118 - core.remediation - INFO - Remediación solicitada: pid=5 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 13:25:00,119 - core.remediation - WARNING - PID protegido rechazado: pid=5 — PID 5 es un proceso protegido del SO (PID < 10)
+2026-08-29 13:25:00,121 - core.remediation - INFO - Remediación solicitada: pid=9 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 13:25:00,121 - core.remediation - WARNING - PID protegido rechazado: pid=9 — PID 9 es un proceso protegido del SO (PID < 10)
+2026-08-29 13:25:00,123 - core.remediation - INFO - Remediación solicitada: pid=12345 reason=test scan_id=test-scan-002 expected_exe=/opt/malware/evil.exe
+2026-08-29 13:25:00,124 - core.remediation - WARNING - Exe mismatch rechazado: pid=12345 expected=/opt/malware/evil.exe actual=/usr/bin/python3
+2026-08-29 13:25:00,126 - core.remediation - INFO - Remediación solicitada: pid=99999 reason=test scan_id=test-scan-003 expected_exe=None
+2026-08-29 13:25:00,127 - core.remediation - ERROR - Permiso denegado al enviar SIGTERM a pid=99999: Operation not permitted
+2026-08-29 14:09:10,981 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,005 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,006 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,012 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,013 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,014 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,020 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,021 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,022 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,028 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,028 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,029 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,035 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,036 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,037 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,043 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9990 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,043 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,044 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,050 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,051 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,051 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,057 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9989 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,058 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,058 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,064 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9989 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,065 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,066 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,072 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:09:11,073 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:09:11,073 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:09:11,080 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=98.3% entropy=4.9804 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:15:41,950 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: report.pdf.exe
+2026-08-29 14:15:41,957 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: image.jpg.dll
+2026-08-29 14:15:41,961 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: document.docx.bat
+2026-08-29 14:15:41,964 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: archive.zip.ps1
+2026-08-29 14:15:41,966 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: photo.png.scr
+2026-08-29 14:15:42,954 - backend.routes.scan - WARNING - Rate limit excedido para user=rl-user-1788030942.8980181 (máx 20/min)
+2026-08-29 14:15:42,980 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-08-29 14:15:42,981 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-08-29 14:15:43,598 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-08-29 14:15:46,845 - models.inference - INFO - Model and scaler loaded successfully.
+2026-08-29 14:15:46,846 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-08-29 14:15:46,866 - security.yara_scanner - INFO - Whitelist cargado: 0 hash(es) SHA-256, 1 exclusion(es) YARA
+2026-08-29 14:15:46,867 - security.yara_scanner - ERROR - El módulo 'yara-python' no está instalado. Instalar con: pip install yara-python
+2026-08-29 14:15:46,868 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-08-29 14:15:46,945 - core.engine - INFO - Extrayendo features de: 1788030942980-evil_00.exe
+2026-08-29 14:15:47,017 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/shadownet_uploads/1788030942980-evil_00.exe ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-08-29 14:15:47,088 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/shadownet_uploads/1788030942980-evil_00.exe. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-08-29 14:15:47,132 - extractors.extractor - INFO - Extracción completada: 1788030942980-evil_00.exe | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=185.4ms
+2026-08-29 14:15:47,193 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=DANGEROUS is_dotnet=False | triggers=1
+2026-08-29 14:15:47,264 - core.engine - INFO - Escaneo completo: 1788030942980-evil_00.exe | label=MALWARE | score=1.0000 | operational=DANGEROUS | risk=LOW(20) | phases=['ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS'] | time=389ms
+2026-08-29 14:15:47,265 - backend.scan_service - INFO - Archivo PE analizado: 1788030942980-evil_00.exe | type=pe | result=malicious | risk=high | score=1.0000 | unpacked=False | inference_time=0.391s
+2026-08-29 14:15:47,302 - backend.routes.scan - WARNING - Nombre de archivo con caracteres de control rechazado: 'invoice\u202e.exe'
+2026-08-29 14:15:47,406 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-1/test_raw_fallback_non_pe0/test.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-08-29 14:15:47,479 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-1/test_raw_fallback_non_pe0/test.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-08-29 14:15:47,481 - extractors.extractor - INFO - Extracción completada: test.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=160.0ms
+2026-08-29 14:15:47,842 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-1/test_distributed_sampling0/large_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-08-29 14:15:47,914 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-1/test_distributed_sampling0/large_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-08-29 14:15:48,413 - extractors.extractor - INFO - Extracción completada: large_file.bin | modo=RAW_FALLBACK | ratio_analizado=83.3% | packer_detectado=False | tiempo=919.9ms
+2026-08-29 14:15:48,558 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-1/test_packer_detection0/upx_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-08-29 14:15:48,642 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-1/test_packer_detection0/upx_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-08-29 14:15:48,644 - extractors.extractor - INFO - Extracción completada: upx_file.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=225.5ms
+2026-08-29 14:15:48,646 - core.engine - INFO - Extrayendo features de: slow.exe
+2026-08-29 14:15:49,647 - core.engine - WARNING - Extractor timeout (1s) para slow.exe → SUSPICIOUS
+2026-08-29 14:15:51,648 - security.yara_scanner - INFO - Whitelist: SHA-256 aaaaaaaaaaaaaaaa... coincide con hash conocido-benigno
+2026-08-29 14:15:51,650 - security.yara_scanner - INFO - Whitelist: regla 'Keylogger_Generic' esta en yara_exclusions — degradando a SUSPICIOUS
+2026-08-29 14:15:51,652 - security.yara_scanner - WARNING - Whitelist no disponible (continuando sin el): Expecting value: line 1 column 1 (char 0)
+2026-08-29 14:15:51,654 - core.engine - INFO - YARA whitelist: procexp64.exe degradado de DANGEROUS a SUSPICIOUS (reglas: ['Keylogger_Generic'] | sha256: dcb8daf9f7b51b4b...)
+2026-08-29 14:15:51,662 - core.overlay - INFO - Overlay analizado — size=0.1MB ratio=99.2% entropy=7.9986 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:15:51,664 - core.heuristics - INFO - Heurística — score=15 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-08-29 14:15:51,665 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:15:51,666 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-08-29 14:15:51,667 - core.overlay - WARNING - Installer spoof sospechado: tipo=NSIS overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-08-29 14:15:51,668 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0051 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-08-29 14:15:51,670 - core.overlay - INFO - Firma de instalador detectada: InnoSetup
+2026-08-29 14:15:51,670 - core.overlay - WARNING - Installer spoof sospechado: tipo=InnoSetup overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-08-29 14:15:51,671 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0043 embedded_pe=0 installer=InnoSetup suspicious_strings=0
+2026-08-29 14:15:51,673 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-08-29 14:15:51,673 - core.overlay - INFO - Instalador legitimo confirmado: NSIS (overlay=5.9%, FP protection activa)
+2026-08-29 14:15:51,674 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=5.9% entropy=0.0378 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-08-29 14:15:51,675 - core.heuristics - WARNING - Installer spoof detectado: descuento cancelado. overlay_ratio=0.99
+2026-08-29 14:15:51,676 - core.heuristics - INFO - Heurística — score=80 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=5
+2026-08-29 14:15:51,677 - core.heuristics - INFO - Heurística — score=60 level=HIGH operational=SUSPICIOUS is_dotnet=False | triggers=5
+2026-08-29 14:15:51,678 - core.heuristics - INFO - Heurística — score=5 level=LOW operational=CLEAN is_dotnet=False | triggers=2
+2026-08-29 14:15:51,679 - core.heuristics - INFO - Heurística — score=25 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=1
+2026-08-29 14:15:52,004 - core.heuristics - INFO - Heurística — score=30 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-08-29 14:15:52,005 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-08-29 14:15:52,006 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:15:52,017 - core.engine - INFO - Escaneo completo: test.exe | label=Unknown | score=-1.0000 | operational=SUSPICIOUS | risk=LOW(0) | phases=[] | time=0ms
+2026-08-29 14:15:52,020 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-08-29 14:15:52,022 - core.engine - INFO - BehavioralShield: riesgo=0.40 → SUSPICIOUS | pid=5678 | file=test.exe
+2026-08-29 14:15:55,024 - core.engine - WARNING - BehavioralShield timeout (2.0s) para test.exe
+2026-08-29 14:15:55,028 - core.engine - ERROR - Error en fase Behavioral para test.exe: (pid=0)
+2026-08-29 14:16:02,996 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9990 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:02,997 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:02,998 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,004 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,005 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:03,006 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,012 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,013 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:03,013 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,019 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9993 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,020 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:03,021 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,026 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,027 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:03,028 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,033 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,034 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:03,035 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,040 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,041 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:03,042 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,048 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,048 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:03,049 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,054 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,055 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:03,056 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,062 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9990 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,063 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:03,064 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:03,069 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=98.3% entropy=4.9779 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:03,071 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,071 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,167 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-08-29 14:16:03,167 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-08-29 14:16:03,170 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,170 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,263 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:03,263 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:03,265 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,265 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,371 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-08-29 14:16:03,371 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-08-29 14:16:03,373 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,373 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,468 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:03,468 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:03,470 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,470 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,567 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:03,567 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:03,570 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,570 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,671 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-08-29 14:16:03,671 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-08-29 14:16:03,673 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,673 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,780 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:03,780 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:03,782 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,782 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,882 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:03,882 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:03,884 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,884 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,983 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:03,983 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:03,986 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:03,986 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,085 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-08-29 14:16:04,085 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-08-29 14:16:04,088 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,088 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,191 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-08-29 14:16:04,191 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-08-29 14:16:04,194 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,194 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,294 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:04,294 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:04,297 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,297 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,413 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:04,413 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:04,415 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,415 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,515 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:04,515 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-08-29 14:16:04,517 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,517 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,619 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-08-29 14:16:04,619 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-08-29 14:16:04,622 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,622 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,726 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-08-29 14:16:04,726 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-08-29 14:16:04,729 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,729 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,837 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-08-29 14:16:04,837 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-08-29 14:16:04,840 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,840 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,984 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-08-29 14:16:04,984 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-08-29 14:16:04,986 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:04,986 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,098 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:05,098 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:05,100 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,100 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,204 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-08-29 14:16:05,204 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-08-29 14:16:05,206 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,206 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,314 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:05,314 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-08-29 14:16:05,316 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,316 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,433 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-08-29 14:16:05,433 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-08-29 14:16:05,436 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,436 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,538 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-08-29 14:16:05,538 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-08-29 14:16:05,543 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:05,543 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-08-29 14:16:06,915 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-08-29 14:16:06,915 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-08-29 14:16:06,922 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: malware.exe (HTTP 200, intento 1)
+2026-08-29 14:16:06,924 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: dropper.exe (HTTP 200, intento 1)
+2026-08-29 14:16:06,927 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 1/3: Connection refused, reintentando en 1s...
+2026-08-29 14:16:07,927 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 2/3: Connection refused, reintentando en 2s...
+2026-08-29 14:16:09,929 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] Error de red tras 3 intentos: Connection refused
+2026-08-29 14:16:09,965 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.9% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:09,967 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=50.0% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:10,039 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=100.0% entropy=7.9999 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:10,086 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=100.0% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:10,190 - core.overlay - INFO - PE embebido en overlay @ offset +1024 | entropy=0.7733 | structurally_valid=True
+2026-08-29 14:16:10,191 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=69.3% entropy=1.4217 embedded_pe=1 installer=no suspicious_strings=0
+2026-08-29 14:16:10,214 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.9% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:10,215 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-08-29 14:16:10,216 - core.overlay - INFO - Instalador sin overlay: NSIS → is_known_installer=True
+2026-08-29 14:16:10,217 - core.overlay - INFO - Firma de instalador detectada: InnoSetup
+2026-08-29 14:16:10,218 - core.overlay - INFO - Instalador sin overlay: InnoSetup → is_known_installer=True
+2026-08-29 14:16:10,220 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:10,221 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:10,222 - core.heuristics - INFO - Heurística — score=35 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=1
+2026-08-29 14:16:10,223 - core.heuristics - INFO - Heurística — score=100 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=7
+2026-08-29 14:16:10,224 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:10,225 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=DANGEROUS is_dotnet=False | triggers=0
+2026-08-29 14:16:10,227 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:10,228 - core.heuristics - INFO - Heurística — score=40 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-08-29 14:16:10,229 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:10,230 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-08-29 14:16:10,341 - core.overlay - INFO - PE embebido en overlay @ offset +10240 | entropy=7.9990 | structurally_valid=True
+2026-08-29 14:16:10,352 - core.overlay - INFO - Overlay analizado — size=0.5MB ratio=99.1% entropy=7.9990 embedded_pe=1 installer=no suspicious_strings=0
+2026-08-29 14:16:10,353 - core.heuristics - INFO - Heurística — score=135 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=7
+2026-08-29 14:16:10,372 - core.overlay - INFO - Overlay analizado — size=0.5MB ratio=99.8% entropy=4.9797 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:10,373 - core.heuristics - INFO - Heurística — score=60 level=HIGH operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-08-29 14:16:10,376 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=1.5% entropy=7.9029 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:10,377 - core.heuristics - INFO - Heurística — score=50 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-08-29 14:16:10,378 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-08-29 14:16:10,379 - core.overlay - WARNING - Installer spoof sospechado: tipo=NSIS overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-08-29 14:16:10,380 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0051 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-08-29 14:16:10,381 - core.heuristics - WARNING - Installer spoof detectado: descuento cancelado. overlay_ratio=0.98
+2026-08-29 14:16:10,381 - core.heuristics - INFO - Heurística — score=45 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-08-29 14:16:10,382 - core.heuristics - INFO - Heurística — score=30 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-08-29 14:16:10,385 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-08-29 14:16:10,387 - core.engine - INFO - Extrayendo features de: test.exe
+2026-08-29 14:16:10,388 - core.engine - ERROR - Error ONNX en inferencia de test.exe: ONNX session error
+2026-08-29 14:16:10,390 - core.engine - INFO - Extrayendo features de: fake.exe
+2026-08-29 14:16:10,390 - core.engine - WARNING - Archivo no-PE omitido: /tmp/pytest-of-ivainx18/pytest-1/test_non_pe_exe_suspicious0/fake.exe
+2026-08-29 14:16:10,391 - core.engine - WARNING - NonPEFileError en archivo con extensión ejecutable (.exe) → SUSPICIOUS
+2026-08-29 14:16:10,393 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-08-29 14:16:10,396 - core.engine - INFO - BehavioralShield: riesgo=0.35 → SUSPICIOUS | pid=1234 | file=test.exe
+2026-08-29 14:16:10,398 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-08-29 14:16:10,400 - core.engine - ERROR - Error en fase overlay para test.exe: overlay crashed
+2026-08-29 14:16:10,401 - core.engine - ERROR - Error en fase dotnet para test.exe: dotnet crashed
+2026-08-29 14:16:10,401 - core.engine - INFO - Escaneo completo: test.exe | label=Unknown | score=-1.0000 | operational=SUSPICIOUS | risk=LOW(0) | phases=[] | time=1ms
+2026-08-29 14:16:10,449 - core.remediation - INFO - Remediación solicitada: pid=0 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 14:16:10,449 - core.remediation - WARNING - PID protegido rechazado: pid=0 — PID 0 es un proceso protegido del SO (PID < 10)
+2026-08-29 14:16:10,451 - core.remediation - INFO - Remediación solicitada: pid=1 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 14:16:10,451 - core.remediation - WARNING - PID protegido rechazado: pid=1 — PID 1 es un proceso protegido del SO (PID < 10)
+2026-08-29 14:16:10,453 - core.remediation - INFO - Remediación solicitada: pid=2 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 14:16:10,454 - core.remediation - WARNING - PID protegido rechazado: pid=2 — PID 2 es un proceso protegido del SO (PID < 10)
+2026-08-29 14:16:10,455 - core.remediation - INFO - Remediación solicitada: pid=5 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 14:16:10,456 - core.remediation - WARNING - PID protegido rechazado: pid=5 — PID 5 es un proceso protegido del SO (PID < 10)
+2026-08-29 14:16:10,457 - core.remediation - INFO - Remediación solicitada: pid=9 reason=test scan_id=test-scan-001 expected_exe=None
+2026-08-29 14:16:10,457 - core.remediation - WARNING - PID protegido rechazado: pid=9 — PID 9 es un proceso protegido del SO (PID < 10)
+2026-08-29 14:16:10,459 - core.remediation - INFO - Remediación solicitada: pid=12345 reason=test scan_id=test-scan-002 expected_exe=/opt/malware/evil.exe
+2026-08-29 14:16:10,460 - core.remediation - WARNING - Exe mismatch rechazado: pid=12345 expected=/opt/malware/evil.exe actual=/usr/bin/python3
+2026-08-29 14:16:10,462 - core.remediation - INFO - Remediación solicitada: pid=99999 reason=test scan_id=test-scan-003 expected_exe=None
+2026-08-29 14:16:10,463 - core.remediation - ERROR - Permiso denegado al enviar SIGTERM a pid=99999: Operation not permitted
+2026-08-29 14:16:53,092 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9989 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,115 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,116 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,122 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,124 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,124 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,130 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,131 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,132 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,138 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,139 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,140 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,147 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,148 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,148 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,154 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,155 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,157 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,163 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9990 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,163 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,164 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,169 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,170 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,171 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,177 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,178 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,179 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,184 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-08-29 14:16:53,185 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-08-29 14:16:53,186 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-08-29 14:16:53,193 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=98.3% entropy=4.9794 embedded_pe=0 installer=no suspicious_strings=0

@@ -1,0 +1,18 @@
+sha256,label,source,vt_report,file_size,overlay_ratio
+# TEMPLATE — Reemplazar con entradas reales.
+# Columnas requeridas (DQS ≥85):
+#   sha256       : hash SHA-256 de 64 chars hex (obligatorio, unique)
+#   label        : 0=benigno, 1=malware (obligatorio, ∈{0,1})
+#   source       : fuente de adquisición (ej: VirusTotal, MalwareBazaar, System32)
+#   vt_report    : nombre del archivo JSON de reporte VT (ej: abc123.json) o "sandbox_log"
+#   file_size    : tamaño en bytes
+#   overlay_ratio: ratio overlay/total del archivo (puede ser null para benignos sin overlay)
+#
+# Proceso de adquisición reproducible:
+#   Malware  → VT API: positives≥5, type=peexe, size<10MB, first_seen≥2024
+#   Benignos → C:\Windows\System32, Sysinternals, fresh installs (positives=0)
+#
+# Para descargar binarios:
+#   python tools/fetch_corpus.py --manifest data/eval_real/manifest.csv --vt-api-key <KEY>
+#
+# Umbral mínimo: ≥1000 malware + ≥1000 benignos (2000 total para potencia estadística)

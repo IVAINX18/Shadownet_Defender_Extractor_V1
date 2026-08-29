@@ -196,3 +196,45 @@ Los siguientes experimentos son necesarios para completar el cuadro de métricas
 4. **Latencia en percentil 95**: medir tiempos de ejecución sobre N≥100 archivos para reportar distribución, no solo casos individuales.
 
 5. **Evaluación de IL Behavioral sobre malware .NET real**: los tests actuales usan datos sintéticos. Falta evaluación sobre ensamblados .NET maliciosos reales (AgentTesla, XWorm, AsyncRAT).
+
+---
+
+## Métricas de campo (T-13)
+
+> **PENDIENTE**: Requiere CorpusReal (≥1000 malware VT≥5 + ≥1000 benignos VT=0).
+> Para adquirir el corpus: `python tools/fetch_corpus.py --help`
+> Script de evaluación: `python evaluation/evaluate_real_corpus.py --corpus data/eval_real/`
+
+### Proceso de adquisición reproducible
+
+- **Malware**: VirusTotal API (`positives ≥5`, `type=peexe`, `size<10MB`, `first_seen ≥2024`)
+- **Benignos**: `C:\Windows\System32`, Sysinternals, fresh installs (`positives == 0`)
+- **Balance**: 1000/1000 mínimo; 2000 ideal
+- **Legal**: Solo `manifest.csv` commiteado (hashes + metadatos). Binarios en `.gitignore`.
+  - Cualquier revisor puede reproducir con: `python tools/fetch_corpus.py --manifest data/eval_real/manifest.csv --vt-api-key <KEY>`
+
+### Tabla de métricas de campo (pendiente)
+
+| Sistema | Accuracy | F1 | AUC-ROC | AUC-PR | FPR@TPR=90% | TPR@FPR=1% | N |
+|---|---|---|---|---|---|---|---|
+| solo-ML (ONNX) | — | — | — | — | — | — | ≥2000 |
+| híbrido | — | — | — | — | — | — | ≥2000 |
+| delta | — | — | — | — | — | — | — |
+
+> Tabla a completar tras ejecutar `evaluation/evaluate_real_corpus.py`.
+> Metodología: StratifiedKFold k=5, seed=42, MLflow tracking, Bonferroni α/3.
+
+### Scaler drift (T-13)
+
+| Campo | Corpus Real (esperado) | Sintético (medido H-02) |
+|---|---|---|
+| mean_post | \|mean\| < 2.0 | **21.73** |
+| std_post | 0.5 < std < 2.0 | **112.1** |
+
+> Gap de padding: las 100K muestras del dataset original fueron rellenadas con 2,348 ceros
+> (33→2381). El modelo puede usar ese patrón como atajo discriminativo.
+> Ver limitación L-01 en `13_limitaciones.md`.
+
+> ⚠️  `data/test_set/X_test.npy` — **SINTETICO — no usar para métricas de campo**.
+> `docs/academico/figures/fig7_roc_pr_SINTETICO.png` — advertencia: métricas sintéticas.
+

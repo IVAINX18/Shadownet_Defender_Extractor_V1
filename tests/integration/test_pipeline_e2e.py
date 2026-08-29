@@ -1,14 +1,16 @@
 """
 tests/integration/test_pipeline_e2e.py — Tests de integración E2E del pipeline.
 
-17.1 — Accuracy sobre data/test_set/ (X_test.npy, y_test.npy).
+F4 — test_accuracy_above_threshold ahora corre sobre data/eval_real/ con umbral
+AUC-ROC > 0.85 y es skipped si el corpus real no está presente.
 
-Carga el modelo real y verifica que la accuracy sobre el test set supere
-el umbral mínimo definido en el PRD (≥ 90%).
+NOTA: data/test_set/X_test.npy es SINTETICO — no usar para métricas de campo.
+      Ver docs/academico/07_metricas_y_resultados.md para contexto.
 """
 from __future__ import annotations
 
 import sys
+import warnings
 from pathlib import Path
 
 import pytest
@@ -17,11 +19,20 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
+# ─── Paths ────────────────────────────────────────────────────────────────────
 _TEST_SET_DIR = _PROJECT_ROOT / "data" / "test_set"
 _X_TEST = _TEST_SET_DIR / "X_test.npy"
 _Y_TEST = _TEST_SET_DIR / "y_test.npy"
 
-# Accuracy mínima aceptable (PRD sección 6)
+# F4 — corpus real para métricas de campo
+_EVAL_REAL_DIR = _PROJECT_ROOT / "data" / "eval_real"
+_EVAL_REAL_MANIFEST = _EVAL_REAL_DIR / "manifest.csv"
+_CORPUS_REAL_ABSENT = not _EVAL_REAL_MANIFEST.exists()
+
+# Umbral AUC-ROC campo (realista, no el 1.0 del sintético)
+_MIN_AUC_ROC_FIELD = 0.85
+
+# Accuracy mínima sobre test set sintético (legacy, no usar para artículo)
 _MIN_ACCURACY = 0.90
 
 
@@ -61,54 +72,87 @@ def loaded_engine():
 
 
 class TestPipelineAccuracy:
-    """Accuracy del modelo sobre el test set real."""
+    """Accuracy del modelo sobre el test set SINTETICO (diagnóstico, no métricas de campo)."""
 
-    def test_accuracy_above_threshold(self, test_data, loaded_engine):
-        """El modelo debe superar el {_MIN_ACCURACY*100:.0f}% de accuracy en el test set."""
+    def test_accuracy_above_threshold(self):
+        """
+        F4: test parametrizado sobre data/eval_real/ con AUC-ROC > 0.85.
+        Skipped si corpus real no está presente (CI público no falla).
+
+        data/test_set/X_test.npy — SINTETICO — no usar para métricas de campo.
+        Ver docs/academico/07_metricas_y_resultados.md — Sección Métricas de campo (T-13).
+        """
+        if _CORPUS_REAL_ABSENT:
+            pytest.skip(
+                "CorpusReal no presente en data/eval_real/ — "
+                "umbral AUC-ROC > 0.85 requiere corpus real. "
+                "Ejecutar: python tools/fetch_corpus.py --help"
+            )
+
         try:
             import numpy as np
-        except ImportError:
-            pytest.skip("numpy no instalado")
+            import joblib
+            import onnxruntime as ort
+            from sklearn.metrics import roc_auc_score
+        except ImportError as e:
+            pytest.skip(f"Dependencia no instalada: {e}")
 
-        X, y = test_data
-        engine = loaded_engine
+        from configs.settings import MODEL_PATH, SCALER_PATH, FEATURE_DIMENSION
 
-        correct = 0
-        total = len(y)
+        if not MODEL_PATH.exists():
+            pytest.skip(f"Modelo ONNX no encontrado: {MODEL_PATH}")
+        if not SCALER_PATH.exists():
+            pytest.skip(f"Scaler no encontrado: {SCALER_PATH}")
 
-        for i in range(total):
-            try:
-                features = X[i].tolist()
-                # Usar el scaler si está disponible
-                if hasattr(engine, "scaler") and engine.scaler is not None:
-                    import joblib
-                    features_scaled = engine.scaler.transform([features])[0].tolist()
-                else:
-                    features_scaled = features
+        # Cargar scaler y sesión ONNX
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            scaler = joblib.load(str(SCALER_PATH))
+        session = ort.InferenceSession(str(MODEL_PATH))
+        input_name = session.get_inputs()[0].name
 
-                score = engine.model.predict(features_scaled)
-                predicted = 1 if score >= 0.5 else 0
-                if predicted == int(y[i]):
-                    correct += 1
-            except Exception:
-                # Ignorar errores en muestras individuales
-                total -= 1
+        # Cargar features desde eval_real (si ya tienen npy pre-generados)
+        eval_npy = _EVAL_REAL_DIR / "X_eval.npy"
+        eval_labels = _EVAL_REAL_DIR / "y_eval.npy"
+        if not eval_npy.exists() or not eval_labels.exists():
+            pytest.skip(
+                "X_eval.npy / y_eval.npy no encontrados en data/eval_real/. "
+                "Ejecutar: python evaluation/evaluate_real_corpus.py --corpus data/eval_real/"
+            )
 
-        if total == 0:
-            pytest.skip("Sin muestras válidas para evaluar")
+        X = np.load(str(eval_npy))
+        y = np.load(str(eval_labels))
 
-        accuracy = correct / total
-        assert accuracy >= _MIN_ACCURACY, (
-            f"Accuracy {accuracy:.3f} por debajo del umbral mínimo {_MIN_ACCURACY} "
-            f"({correct}/{total} correctas)"
+        if X.shape[1] != FEATURE_DIMENSION:
+            pytest.skip(
+                f"Dimensión de features en eval_real ({X.shape[1]}) ≠ {FEATURE_DIMENSION}. "
+                "Regenerar X_eval.npy con el extractor actual."
+            )
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            X_scaled = scaler.transform(X).astype(np.float32)
+
+        proba = session.run(None, {input_name: X_scaled})[0].flatten()
+        if proba.max() > 1.0 or proba.min() < 0.0:
+            proba = 1.0 / (1.0 + np.exp(-proba))
+
+        auc = roc_auc_score(y, proba)
+        assert auc >= _MIN_AUC_ROC_FIELD, (
+            f"AUC-ROC={auc:.4f} < {_MIN_AUC_ROC_FIELD} sobre corpus real data/eval_real/. "
+            f"N={len(y)} muestras."
         )
 
     def test_test_set_dimensions(self, test_data):
-        """El test set debe tener la dimensión esperada (2381 features)."""
+        """
+        El test set SINTETICO debe tener la dimensión esperada (2381 features).
+        NOTA: data/test_set/X_test.npy — SINTETICO — no usar para métricas de campo.
+        """
         from configs.settings import FEATURE_DIMENSION
         X, y = test_data
         assert X.shape[1] == FEATURE_DIMENSION, (
-            f"Dimensión de features inesperada: {X.shape[1]} (esperado {FEATURE_DIMENSION})"
+            f"Dimensión de features inesperada: {X.shape[1]} (esperado {FEATURE_DIMENSION}). "
+            "NOTA: Este es el test set SINTETICO, incompatible con el scaler de producción."
         )
         assert len(X) == len(y), "X_test y y_test deben tener el mismo número de muestras"
 
@@ -117,3 +161,4 @@ class TestPipelineAccuracy:
         _, y = test_data
         unique = set(int(v) for v in y)
         assert unique.issubset({0, 1}), f"Etiquetas inesperadas: {unique}"
+

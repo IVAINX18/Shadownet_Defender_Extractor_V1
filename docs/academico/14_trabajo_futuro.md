@@ -62,18 +62,24 @@
 
 ---
 
-## TF-05 — Telemetría avanzada y conjunto de evaluación real
+## TF-05 — Telemetría avanzada y conjunto de evaluación real ✅ F4 implementado
 
-**Estado actual**: El test set disponible es sintético. No hay métricas de campo verificadas.
+**Estado F4**: Scripts implementados. Corpus externo pendiente de adquisición.
 
-**Trabajo propuesto**:
-- Construir un corpus de evaluación real con ground truth externo (VirusTotal, análisis forense).
-- Mínimo: 1000 malware + 1000 benignos de campo, con confirmación de al menos 5 motores AV.
-- Recalcular el scaler sobre el corpus de campo.
-- Calcular y reportar: Accuracy, Precision, Recall, F1, AUC-ROC, FPR@TPR=90%, TPR@FPR=1%.
-- Comparar métricas del sistema solo-ML vs. sistema multicapa sobre el corpus real.
+- `evaluation/evaluate_real_corpus.py` — T-13: StratifiedKFold + MLflow + scaler drift
+- `evaluation/benchmark_overlay.py` — T-14: McNemar + guardrail FPR + figura
+- `tools/fetch_corpus.py` — adquisición reproducible via VT API
+- `tests/test_f4_validation.py` — 4 tests con skip si corpus ausente
+- `evaluation/DATA_QUALITY_REPORT.md` — DQS reporte
+- Docs actualizados: `05_hallazgo_multicapa.md`, `07_metricas_y_resultados.md`, `08_comparacion_ml_vs_hibrido.md`
 
-**Impacto científico**: Sin este trabajo, las métricas del sistema no pueden ser reportadas con rigor en un artículo revisado por pares.
+**Trabajo restante** (requiere recursos externos):
+- Adquirir CorpusReal (≥2000 PE con VT ground truth)
+- Adquirir CorpusOverlay (N≥100 PE con overlay payload VT≥5)
+- Ejecutar evaluaciones y poblar tablas en docs académicos
+- Registrar MLflow run ID en `evaluation/metrics.json`
+
+
 
 ---
 

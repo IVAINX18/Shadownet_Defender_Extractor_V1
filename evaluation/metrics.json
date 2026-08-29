@@ -1,0 +1,33 @@
+{
+  "corpus": "PLACEHOLDER — ejecutar evaluation/evaluate_real_corpus.py con corpus real",
+  "N": 0,
+  "metrics": {
+    "accuracy": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "auc_roc": 0.0,
+    "auc_pr": 0.0,
+    "fpr_at_tpr90": 0.0,
+    "tpr_at_fpr1": 0.0
+  },
+  "scaler_drift": {
+    "mean_post": 0.0,
+    "std_post": 0.0,
+    "mean_synthetic_ref": 21.73,
+    "std_synthetic_ref": 112.1
+  },
+  "mlflow_run_id": "PLACEHOLDER — ejecutar T-13",
+  "overlay_benchmark": {
+    "N": 100,
+    "FNR_ML": 0.18,
+    "FNR_hibrido": 0.04,
+    "FNR_diff": 0.14,
+    "mcnemar_chi2": 9.82,
+    "p_value": 0.0017,
+    "alpha_bonferroni": 0.016667,
+    "significant": true,
+    "guardrail_FPR": null
+  },
+  "_note": "PLACEHOLDER — datos sintéticos para validar schema. Reemplazar con corpus real."
+}

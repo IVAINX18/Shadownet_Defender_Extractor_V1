@@ -127,12 +127,56 @@ Todos verificados en la ejecución de tests del 2026-08-18.
 
 ---
 
-## Limitación del hallazgo
+## Limitación del hallazgo (pre-F4)
 
-El hallazgo está basado en un único archivo (`sample1.exe`). Para que sea estadísticamente significativo en un artículo científico se requeriría:
+El hallazgo original (pre-T-14) estaba basado en un único archivo (`sample1.exe`).
+Para que sea estadísticamente significativo en un artículo científico se requería:
 
 - Un corpus de N≥100 muestras con overlay payload conocido.
-- Comparación sistemática de FNR del modelo solo vs. FNR del sistema multicapa sobre ese corpus.
+- Comparación sistemática de FNR del modelo solo vs. FNR del sistema multicapa.
 - Verificación que `sample1.exe` es genuinamente malicioso (no disponible — el archivo no tiene confirmación forense externa en este repositorio).
 
-Estas pruebas están pendientes y constituyen trabajo futuro documentado en `14_trabajo_futuro.md`.
+Estas pruebas constituyen T-14 de la fase F4.
+
+---
+
+## T-14: Benchmark ML vs. Híbrido sobre CorpusOverlay (F4 — pendiente corpus)
+
+> **PENDIENTE**: Requiere `samples/overlay_corpus/` con N≥100 PE overlay confirmados maliciosos.
+> Script: `python evaluation/benchmark_overlay.py --corpus samples/overlay_corpus/`
+
+### Hipótesis (experiment-designer)
+
+**H-T14**: Si comparamos FNR sobre CorpusOverlay (N≥100 overlay payload), entonces
+**FNR híbrido < FNR solo-ML con p<0.05 (McNemar)**, porque Overlay Analysis es ortogonal
+al extractor PE y detecta lo que el vector 2381 no ve.
+
+### Sample size justificación (experiment-designer)
+
+| Parámetro | Valor |
+|---|---|
+| FNR baseline solo-ML (estimado) | ≈15–25% sobre overlay |
+| FNR híbrido (estimado) | ≈2–5% |
+| Δ = MDE | ≥10pp absolute |
+| α | 0.05 / 3 (Bonferroni) |
+| Power | 0.8 |
+| N no-pareado (proporciones) | ≈296 total (para Δ=8pp) |
+| **N McNemar pareado** | **100 mínimo, 200 ideal** |
+
+McNemar pareado tiene mayor potencia que el test no-pareado con mismo N porque
+la correlación intra-par reduce la varianza del estimador.
+
+### Tabla de benchmark (pendiente corpus)
+
+| Sistema | N | FNR | Wilson CI 95% | p-value McNemar | Guardrail FPR |
+|---|---|---|---|---|---|
+| solo-ML (ONNX) | — | — | — | — | — |
+| híbrido | — | — | — | — | — |
+| delta | — | — | — | — | — |
+
+> Tabla a completar tras ejecutar `evaluation/benchmark_overlay.py`.
+> Figura: `docs/academico/figures/fig_overlay_benchmark.png`
+>
+> **Guardrail**: FPR_hibrido − FPR_ML ≤ 2pp sobre benignos de `data/eval_real`.
+> **Bonferroni**: α/3 = 0.0167 para múltiples métricas (FPR@TPR90 + TPR@FPR1 + F1).
+

@@ -1,0 +1,21 @@
+sha256,overlay_ratio,overlay_entropy,vt_report
+# TEMPLATE — Reemplazar con entradas reales del CorpusOverlay (T-14).
+# Columnas requeridas (DQS ≥85):
+#   sha256          : hash SHA-256 de 64 chars hex (obligatorio, unique)
+#   overlay_ratio   : ratio overlay/total (0.0-1.0); NULL para PE sin overlay → MCAR, no imputar
+#   overlay_entropy : entropía del overlay (0.0-8.0); NULL si overlay_ratio=0 → MAR, no imputar
+#   vt_report       : nombre del archivo JSON de reporte VT (VT positives≥5 requerido)
+#
+# Distribución objetivo del overlay_ratio:
+#   50-70%  → incluir para medir sensibilidad en casos límite
+#   70-90%  → rango medio
+#   90-100% → casos extremos (como sample1.exe=98.7%)
+#   NO solo >90% — requiere distribución representativa
+#
+# Umbral mínimo: N≥100 (McNemar mínimo aceptable), N≥200 (ideal)
+# Todos los archivos deben ser maliciosos confirmados: VT positives≥5
+#
+# sample1.exe referencia: overlay_ratio=0.987, overlay_entropy=7.9987
+#
+# Para descargar binarios:
+#   python tools/fetch_corpus.py --manifest samples/overlay_corpus/manifest.csv --vt-api-key <KEY>

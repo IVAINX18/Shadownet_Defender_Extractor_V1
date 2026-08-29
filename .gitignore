@@ -18,3 +18,15 @@ logs/
 .kiro/specs/
 .vscode/
 AGENTS.md
+
+# F4 — Corpus binarios (no commitear por riesgo legal/tamaño)
+# Solo manifest.csv se commitea. Ver tools/fetch_corpus.py para reproducir.
+data/eval_real/*.exe
+data/eval_real/*.dll
+data/eval_real/malware/
+data/eval_real/benign/
+samples/overlay_corpus/*.exe
+samples/overlay_corpus/*.dll
+# Artefactos de evaluación generados (se reproducen con evaluate_real_corpus.py)
+data/eval_real/X_eval.npy
+data/eval_real/y_eval.npy

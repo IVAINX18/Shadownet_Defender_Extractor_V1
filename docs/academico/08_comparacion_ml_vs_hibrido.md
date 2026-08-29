@@ -168,3 +168,37 @@ ScanResult completo:
 | Falsos positivos YARA | N/A | Presentes |
 | Auditable por analista | No | Sí |
 | Monitoreo dinámico | No | No (pendiente) |
+
+---
+
+## T-14 — Benchmark estadístico ML vs. Híbrido (F4 — pendiente corpus)
+
+> **PENDIENTE**: Requiere `samples/overlay_corpus/` con N≥100 PE overlay maliciosos.
+> Script: `python evaluation/benchmark_overlay.py --corpus samples/overlay_corpus/ --help`
+
+### Metodología (experiment-designer + McNemar)
+
+El benchmark es **pareado por muestra** (mismo corpus, dos sistemas):
+
+| Métrica | Descripción |
+|---|---|
+| FNR_ML | False Negative Rate del sistema solo-ML sobre CorpusOverlay |
+| FNR_híbrido | FNR del sistema multicapa completo |
+| FNR_diff | FNR_ML − FNR_híbrido (ganancia esperada ≥10pp) |
+| McNemar χ² | Test pareado con corrección de Yates |
+| p-value | Con Bonferroni α/3 = 0.0167 |
+| Guardrail FPR | FPR_híbrido − FPR_ML ≤ 2pp sobre benignos de `data/eval_real` |
+
+### Tabla de resultados (pendiente corpus)
+
+| Sistema | N | FNR | FNR diff | McNemar χ² | p-value | Guardrail FPR |
+|---|---|---|---|---|---|---|
+| solo-ML (ONNX) | — | — | — | — | — | — |
+| híbrido | — | — | — | — | — | ≤ +2pp |
+
+> Figura: `docs/academico/figures/fig_overlay_benchmark.png`
+> (barras FNR con intervalos Wilson 95% + histograma overlay_ratio + línea sample1.exe=98.7%)
+>
+> **Calibración Platt**: aplicada antes de fijar thresholds 0.4/0.7.
+> **Bonferroni**: α corregida a 0.0167 por múltiples métricas simultáneas.
+
