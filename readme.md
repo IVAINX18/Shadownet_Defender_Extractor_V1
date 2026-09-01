@@ -209,7 +209,13 @@ Shadownet_Defender_Extractor_V2/
 ├── backend/          # Backend de la API FastAPI
 ├── configs/          # Configuraciones y whitelists (settings.py, YARA)
 ├── core/             # Engine híbrido, LLM, Risk, Automation
-├── docs/             # Documentación técnica, académica y diseño (kiro/specs)
+├── docs/             # Documentación técnica organizada por módulos:
+│   ├── academico/    # Artículos, tesis y secciones de investigación
+│   ├── arquitectura/ # Documentación técnica integral, PRD y Deep Learning
+│   ├── auditorias/   # Auditorías (n8n/Supabase), progreso y roadmap
+│   ├── database/     # Esquemas y migraciones SQL
+│   ├── frontend/     # Guías de desarrollo UI y especificaciones
+│   └── pruebas_y_reportes/ # Guías E2E, test flow y reportes demo
 ├── extractors/       # Bloques de extracción EMBER 2.0
 ├── models/           # ONNX y scaler estadístico
 ├── samples/          # Ejemplos de malware (para testing y análisis)
@@ -223,7 +229,7 @@ Shadownet_Defender_Extractor_V2/
 └── requirements.txt  # Dependencias generales
 ```
 
-Para detalles exactos de diseño de nuevas características y tareas completadas, consulte la carpeta `.kiro/specs/` y el archivo `docs/DOCUMENTACION_TECNICA_INTEGRAL.md`.
+Para detalles exactos de diseño de nuevas características y tareas completadas, consulte la carpeta `.kiro/specs/` y el archivo `docs/arquitectura/DOCUMENTACION_TECNICA_INTEGRAL.md`.
 
 ---
 
@@ -363,7 +369,7 @@ El enfoque principal del sistema es reemplazar firmas con una detección estadí
 - **SOREL-20M**: (Sophos-ReversingLabs). Aproximadamente 5 millones de registros estratificados, combinados con una colección in-the-wild (ShadowNet original) de 100K muestras frescas. Total: ~5.1 Millones de registros.
 - **Normalización**: Escalamiento `StandardScaler` (Z-Score) serializado en `scaler.pkl`.
 
-Para detalles profundos, revisar [Arquitectura Deep Learning](docs/ARQUITECTURA_DEEP_LEARNING.md).
+Para detalles profundos, revisar [Arquitectura Deep Learning](docs/arquitectura/ARQUITECTURA_DEEP_LEARNING.md).
 
 ---
 
@@ -489,15 +495,35 @@ Para mitigaciones previstas: [Limitaciones](docs/academico/13_limitaciones.md).
 
 ## 30. Documentación Adicional
 
-### Documentación General
-- [Documentación Técnica Integral](docs/DOCUMENTACION_TECNICA_INTEGRAL.md)
-- [Arquitectura Deep Learning](docs/ARQUITECTURA_DEEP_LEARNING.md)
-- [Auditoria (Kiro)](docs/Auditoria.md)
-- [Tareas de Prioridad Crítica Realizadas](docs/TareasPrioridadCriticaRealizadas.md)
-- [PRD (Requerimientos)](docs/PRD.md)
-- [Progreso (PROGRESS)](docs/PROGRESS.md)
+### 📌 Índice Principal
+- [Índice General de Documentación](docs/README.md)
 
-### Académica & Científica
+### 🏗️ Arquitectura y Especificaciones
+- [Documentación Técnica Integral](docs/arquitectura/DOCUMENTACION_TECNICA_INTEGRAL.md)
+- [Arquitectura Deep Learning](docs/arquitectura/ARQUITECTURA_DEEP_LEARNING.md)
+- [PRD (Requerimientos del Producto)](docs/arquitectura/PRD.md)
+
+### 🗄️ Base de Datos (Supabase)
+- [Esquema Base SQL](docs/database/supabase_schema.sql)
+- [Migración e Índices SQL](docs/database/supabase_migration.sql)
+
+### 🔍 Auditorías y Seguimiento
+- [Auditoría n8n -> Supabase (Alertas Malware)](docs/auditorias/auditoria_n8n_supabase/AUDITORIA_MIGRACION_N8N_SUPABASE.md)
+- [Auditoría del Sistema](docs/auditorias/Auditoria.md)
+- [Tareas de Prioridad Crítica Realizadas](docs/auditorias/TareasPrioridadCriticaRealizadas.md)
+- [Progreso del Proyecto (PROGRESS)](docs/auditorias/PROGRESS.md)
+- [Pendientes y Roadmap (ToDo)](docs/auditorias/ToDo.md)
+
+### 🎨 Frontend y UI
+- [Guía del Frontend](docs/frontend/FrontendGuide.md)
+- [Especificación Frontend V2](docs/frontend/Frontv2.md)
+
+### 🧪 Pruebas y Reportes
+- [Guía de Pruebas E2E](docs/pruebas_y_reportes/TEST_E2E.md)
+- [Flujo de Pruebas (Test Flow)](docs/pruebas_y_reportes/test-flow.md)
+- [Reporte de Demostración](docs/pruebas_y_reportes/demo-reporte.md)
+
+### 🎓 Investigación Académica & Científica
 - [Resumen Ejecutivo](docs/academico/01_resumen_ejecutivo.md)
 - [Dataset SOREL-20M](docs/academico/03_modelo_sorel20m.md)
 - [XAI y Explicabilidad LLM](docs/academico/06_xai_explicabilidad.md)
@@ -508,7 +534,7 @@ Para mitigaciones previstas: [Limitaciones](docs/academico/13_limitaciones.md).
 - [Task V4 (Hardening y Ajustes)](docs/academico/TaskV4.md)
 - [Artículo Base y Tesis](docs/academico/articulo_base.md)
 
-### Especificaciones (.kiro/specs)
+### 📋 Especificaciones de Tareas (.kiro/specs)
 - **Mejoras de Auditoría:** [.kiro/specs/shadownet-audit-improvements/design.md](.kiro/specs/shadownet-audit-improvements/design.md)
 - **Tareas V4 (F1):** [.kiro/specs/shadownet-taskv4-f1/design.md](.kiro/specs/shadownet-taskv4-f1/design.md)
 - **Tareas V4 (F2):** [.kiro/specs/shadownet-taskv4-f2/design.md](.kiro/specs/shadownet-taskv4-f2/design.md)

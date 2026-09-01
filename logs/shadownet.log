@@ -12866,3 +12866,291 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-08-29 14:16:53,185 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
 2026-08-29 14:16:53,186 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
 2026-08-29 14:16:53,193 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=98.3% entropy=4.9794 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 13:44:35,329 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-09-01 13:44:35,374 - core.engine - INFO - Extrayendo features de: test.exe
+2026-09-01 13:44:35,375 - core.engine - ERROR - Error ONNX en inferencia de test.exe: ONNX session error
+2026-09-01 13:44:35,377 - core.engine - INFO - Extrayendo features de: fake.exe
+2026-09-01 13:44:35,378 - core.engine - WARNING - Archivo no-PE omitido: /tmp/pytest-of-ivainx18/pytest-0/test_non_pe_exe_suspicious0/fake.exe
+2026-09-01 13:44:35,378 - core.engine - WARNING - NonPEFileError en archivo con extensión ejecutable (.exe) → SUSPICIOUS
+2026-09-01 13:44:35,380 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-09-01 13:44:35,383 - core.engine - INFO - BehavioralShield: riesgo=0.35 → SUSPICIOUS | pid=1234 | file=test.exe
+2026-09-01 13:44:35,385 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-09-01 13:44:35,388 - core.engine - ERROR - Error en fase overlay para test.exe: overlay crashed
+2026-09-01 13:44:35,388 - core.engine - ERROR - Error en fase dotnet para test.exe: dotnet crashed
+2026-09-01 13:44:35,389 - core.engine - INFO - Escaneo completo: test.exe | label=Unknown | score=-1.0000 | operational=SUSPICIOUS | risk=LOW(0) | phases=[] | time=1ms
+2026-09-01 13:44:36,701 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: report.pdf.exe
+2026-09-01 13:44:36,704 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: image.jpg.dll
+2026-09-01 13:44:36,707 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: document.docx.bat
+2026-09-01 13:44:36,710 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: archive.zip.ps1
+2026-09-01 13:44:36,712 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: photo.png.scr
+2026-09-01 13:44:37,769 - backend.routes.scan - WARNING - Rate limit excedido para user=rl-user-1788288277.7195358 (máx 20/min)
+2026-09-01 13:44:37,781 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-09-01 13:44:37,782 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-09-01 13:44:38,208 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-09-01 13:44:44,934 - models.inference - INFO - Model and scaler loaded successfully.
+2026-09-01 13:44:44,935 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-09-01 13:44:44,987 - security.yara_scanner - INFO - Whitelist cargado: 0 hash(es) SHA-256, 1 exclusion(es) YARA
+2026-09-01 13:44:44,988 - security.yara_scanner - ERROR - El módulo 'yara-python' no está instalado. Instalar con: pip install yara-python
+2026-09-01 13:44:44,989 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-09-01 13:44:45,061 - core.engine - INFO - Extrayendo features de: 1788288277781-evil_00.exe
+2026-09-01 13:44:45,128 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/shadownet_uploads/1788288277781-evil_00.exe ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-09-01 13:44:45,191 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/shadownet_uploads/1788288277781-evil_00.exe. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-09-01 13:44:45,238 - extractors.extractor - INFO - Extracción completada: 1788288277781-evil_00.exe | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=175.7ms
+2026-09-01 13:44:45,266 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=DANGEROUS is_dotnet=False | triggers=1
+2026-09-01 13:44:45,341 - core.engine - INFO - Escaneo completo: 1788288277781-evil_00.exe | label=MALWARE | score=1.0000 | operational=DANGEROUS | risk=LOW(20) | phases=['ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS'] | time=343ms
+2026-09-01 13:44:45,342 - backend.scan_service - INFO - Archivo PE analizado: 1788288277781-evil_00.exe | type=pe | result=malicious | risk=high | score=1.0000 | unpacked=False | inference_time=0.345s
+2026-09-01 13:44:45,397 - backend.routes.scan - WARNING - Nombre de archivo con caracteres de control rechazado: 'invoice\u202e.exe'
+2026-09-01 14:27:39,991 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: report.pdf.exe
+2026-09-01 14:27:40,021 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: image.jpg.dll
+2026-09-01 14:27:40,024 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: document.docx.bat
+2026-09-01 14:27:40,028 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: archive.zip.ps1
+2026-09-01 14:27:40,031 - backend.routes.scan - WARNING - Extensión doble sospechosa rechazada: photo.png.scr
+2026-09-01 14:27:41,122 - backend.routes.scan - WARNING - Rate limit excedido para user=rl-user-1788290861.0735412 (máx 20/min)
+2026-09-01 14:27:41,136 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-09-01 14:27:41,137 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-09-01 14:27:41,147 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-09-01 14:27:44,605 - models.inference - INFO - Model and scaler loaded successfully.
+2026-09-01 14:27:44,606 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-09-01 14:27:44,626 - security.yara_scanner - INFO - Whitelist cargado: 0 hash(es) SHA-256, 1 exclusion(es) YARA
+2026-09-01 14:27:44,628 - security.yara_scanner - ERROR - El módulo 'yara-python' no está instalado. Instalar con: pip install yara-python
+2026-09-01 14:27:44,629 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-09-01 14:27:44,700 - core.engine - INFO - Extrayendo features de: 1788290861136-evil_00.exe
+2026-09-01 14:27:44,769 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/shadownet_uploads/1788290861136-evil_00.exe ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-09-01 14:27:44,835 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/shadownet_uploads/1788290861136-evil_00.exe. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-09-01 14:27:44,836 - extractors.extractor - INFO - Extracción completada: 1788290861136-evil_00.exe | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=134.4ms
+2026-09-01 14:27:45,205 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=DANGEROUS is_dotnet=False | triggers=1
+2026-09-01 14:27:45,293 - core.engine - INFO - Escaneo completo: 1788290861136-evil_00.exe | label=MALWARE | score=1.0000 | operational=DANGEROUS | risk=LOW(20) | phases=['ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS'] | time=660ms
+2026-09-01 14:27:45,294 - backend.scan_service - INFO - Archivo PE analizado: 1788290861136-evil_00.exe | type=pe | result=malicious | risk=high | score=1.0000 | unpacked=False | inference_time=0.661s
+2026-09-01 14:27:45,329 - backend.routes.scan - WARNING - Nombre de archivo con caracteres de control rechazado: 'invoice\u202e.exe'
+2026-09-01 14:27:45,429 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-1/test_raw_fallback_non_pe0/test.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-09-01 14:27:45,528 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-1/test_raw_fallback_non_pe0/test.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-09-01 14:27:45,530 - extractors.extractor - INFO - Extracción completada: test.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=179.1ms
+2026-09-01 14:27:45,904 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-1/test_distributed_sampling0/large_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-09-01 14:27:45,978 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-1/test_distributed_sampling0/large_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-09-01 14:27:46,329 - extractors.extractor - INFO - Extracción completada: large_file.bin | modo=RAW_FALLBACK | ratio_analizado=83.3% | packer_detectado=False | tiempo=784.6ms
+2026-09-01 14:27:46,406 - extractors.extractor - WARNING - pefile: parseo estricto falló para /tmp/pytest-of-ivainx18/pytest-1/test_packer_detection0/upx_file.bin ('Invalid NT Headers signature.'). Intentando parseo relajado (fast_load)...
+2026-09-01 14:27:46,492 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para /tmp/pytest-of-ivainx18/pytest-1/test_packer_detection0/upx_file.bin. Error estricto: 'Invalid NT Headers signature.' | Error relajado: 'Invalid NT Headers signature.'
+2026-09-01 14:27:46,493 - extractors.extractor - INFO - Extracción completada: upx_file.bin | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=True | tiempo=161.8ms
+2026-09-01 14:27:46,496 - core.engine - INFO - Extrayendo features de: slow.exe
+2026-09-01 14:27:47,497 - core.engine - WARNING - Extractor timeout (1s) para slow.exe → SUSPICIOUS
+2026-09-01 14:27:49,498 - security.yara_scanner - INFO - Whitelist: SHA-256 aaaaaaaaaaaaaaaa... coincide con hash conocido-benigno
+2026-09-01 14:27:49,500 - security.yara_scanner - INFO - Whitelist: regla 'Keylogger_Generic' esta en yara_exclusions — degradando a SUSPICIOUS
+2026-09-01 14:27:49,504 - security.yara_scanner - WARNING - Whitelist no disponible (continuando sin el): Expecting value: line 1 column 1 (char 0)
+2026-09-01 14:27:49,507 - core.engine - INFO - YARA whitelist: procexp64.exe degradado de DANGEROUS a SUSPICIOUS (reglas: ['Keylogger_Generic'] | sha256: dcb8daf9f7b51b4b...)
+2026-09-01 14:27:49,519 - core.overlay - INFO - Overlay analizado — size=0.1MB ratio=99.2% entropy=7.9988 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:27:49,521 - core.heuristics - INFO - Heurística — score=15 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-09-01 14:27:49,523 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:27:49,525 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-09-01 14:27:49,526 - core.overlay - WARNING - Installer spoof sospechado: tipo=NSIS overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-09-01 14:27:49,527 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0051 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-09-01 14:27:49,529 - core.overlay - INFO - Firma de instalador detectada: InnoSetup
+2026-09-01 14:27:49,530 - core.overlay - WARNING - Installer spoof sospechado: tipo=InnoSetup overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-09-01 14:27:49,531 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0043 embedded_pe=0 installer=InnoSetup suspicious_strings=0
+2026-09-01 14:27:49,533 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-09-01 14:27:49,534 - core.overlay - INFO - Instalador legitimo confirmado: NSIS (overlay=5.9%, FP protection activa)
+2026-09-01 14:27:49,534 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=5.9% entropy=0.0378 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-09-01 14:27:49,536 - core.heuristics - WARNING - Installer spoof detectado: descuento cancelado. overlay_ratio=0.99
+2026-09-01 14:27:49,536 - core.heuristics - INFO - Heurística — score=80 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=5
+2026-09-01 14:27:49,537 - core.heuristics - INFO - Heurística — score=60 level=HIGH operational=SUSPICIOUS is_dotnet=False | triggers=5
+2026-09-01 14:27:49,538 - core.heuristics - INFO - Heurística — score=5 level=LOW operational=CLEAN is_dotnet=False | triggers=2
+2026-09-01 14:27:49,539 - core.heuristics - INFO - Heurística — score=25 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=1
+2026-09-01 14:27:49,986 - core.heuristics - INFO - Heurística — score=30 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-09-01 14:27:49,988 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-09-01 14:27:49,989 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:27:50,001 - core.engine - INFO - Escaneo completo: test.exe | label=Unknown | score=-1.0000 | operational=SUSPICIOUS | risk=LOW(0) | phases=[] | time=0ms
+2026-09-01 14:27:50,004 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-09-01 14:27:50,006 - core.engine - INFO - BehavioralShield: riesgo=0.40 → SUSPICIOUS | pid=5678 | file=test.exe
+2026-09-01 14:27:53,009 - core.engine - WARNING - BehavioralShield timeout (2.0s) para test.exe
+2026-09-01 14:27:53,013 - core.engine - ERROR - Error en fase Behavioral para test.exe: (pid=0)
+2026-09-01 14:28:02,199 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9990 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,201 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,202 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,212 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9990 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,213 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,214 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,224 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,226 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,228 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,236 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9990 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,237 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,238 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,244 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,245 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,246 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,252 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9990 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,253 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,254 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,260 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9990 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,261 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,262 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,268 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,269 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,270 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,276 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9991 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,278 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,278 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,285 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=97.8% entropy=7.9992 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,285 - core.heuristics - INFO - Heurística — score=110 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:02,286 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:02,293 - core.overlay - INFO - Overlay analizado — size=0.2MB ratio=98.3% entropy=4.9803 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:02,295 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,295 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,408 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-09-01 14:28:02,408 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-09-01 14:28:02,411 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,411 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,525 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:02,525 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:02,528 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,528 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,683 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-09-01 14:28:02,683 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=12 (LOW) | family=asyncrat | indicators=4
+2026-09-01 14:28:02,686 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,686 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,789 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:02,789 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:02,791 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,791 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,895 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:02,895 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:02,897 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,897 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:02,998 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-09-01 14:28:02,998 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=unknown | indicators=2
+2026-09-01 14:28:03,001 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,001 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,104 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,104 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,107 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,107 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,209 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:03,209 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:03,212 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,212 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,311 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,311 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,313 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,313 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,414 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-09-01 14:28:03,414 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-09-01 14:28:03,416 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,416 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,533 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-09-01 14:28:03,533 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=9 (LOW) | family=agenttesla | indicators=3
+2026-09-01 14:28:03,535 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,535 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,652 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,652 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,654 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,654 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,755 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,755 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,758 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,758 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,859 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,859 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=3
+2026-09-01 14:28:03,862 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,862 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,961 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-09-01 14:28:03,961 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=13 (LOW) | family=quasarrat | indicators=3
+2026-09-01 14:28:03,963 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:03,963 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,068 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-09-01 14:28:04,068 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=18 (LOW) | family=agenttesla | indicators=4
+2026-09-01 14:28:04,071 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,071 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,173 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-09-01 14:28:04,173 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=66 (HIGH) | family=xworm | indicators=11
+2026-09-01 14:28:04,175 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,175 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,278 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-09-01 14:28:04,278 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=agenttesla | indicators=9
+2026-09-01 14:28:04,280 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,280 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,377 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:04,377 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:04,379 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,379 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,497 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-09-01 14:28:04,497 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=71 (HIGH) | family=njrat | indicators=12
+2026-09-01 14:28:04,499 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,499 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,599 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:04,599 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=0 (LOW) | family=unknown | indicators=0
+2026-09-01 14:28:04,601 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,601 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,703 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-09-01 14:28:04,703 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=22 (LOW) | family=njrat | indicators=3
+2026-09-01 14:28:04,706 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,706 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,816 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-09-01 14:28:04,816 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=44 (MEDIUM) | family=quasarrat | indicators=3
+2026-09-01 14:28:04,821 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:04,821 - core.dotnet.il_analyzer - WARNING - ILAnalyzer: CLR parsing falló o no produjo tokens, usando fallback de bytes (confidence=low)
+2026-09-01 14:28:06,169 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-09-01 14:28:06,169 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=42 (MEDIUM) | family=asyncrat | indicators=4
+2026-09-01 14:28:06,179 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: malware.exe (HTTP 200, intento 1)
+2026-09-01 14:28:06,183 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: dropper.exe (HTTP 200, intento 1)
+2026-09-01 14:28:06,186 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 1/3: Connection refused, reintentando en 1s...
+2026-09-01 14:28:07,188 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 2/3: Connection refused, reintentando en 2s...
+2026-09-01 14:28:09,189 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] Error de red tras 3 intentos: Connection refused
+2026-09-01 14:28:09,223 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.9% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:09,225 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=50.0% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:09,296 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=100.0% entropy=7.9999 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:09,345 - core.overlay - INFO - Overlay analizado — size=2.0MB ratio=100.0% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:09,464 - core.overlay - INFO - PE embebido en overlay @ offset +1024 | entropy=0.7733 | structurally_valid=True
+2026-09-01 14:28:09,465 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=69.3% entropy=1.4217 embedded_pe=1 installer=no suspicious_strings=0
+2026-09-01 14:28:09,497 - core.overlay - INFO - Overlay analizado — size=1.0MB ratio=99.9% entropy=-0.0000 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:09,499 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-09-01 14:28:09,500 - core.overlay - INFO - Instalador sin overlay: NSIS → is_known_installer=True
+2026-09-01 14:28:09,501 - core.overlay - INFO - Firma de instalador detectada: InnoSetup
+2026-09-01 14:28:09,502 - core.overlay - INFO - Instalador sin overlay: InnoSetup → is_known_installer=True
+2026-09-01 14:28:09,504 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:09,505 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:09,506 - core.heuristics - INFO - Heurística — score=35 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=1
+2026-09-01 14:28:09,507 - core.heuristics - INFO - Heurística — score=100 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=7
+2026-09-01 14:28:09,508 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:09,509 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=DANGEROUS is_dotnet=False | triggers=0
+2026-09-01 14:28:09,511 - core.heuristics - INFO - Heurística — score=120 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=6
+2026-09-01 14:28:09,512 - core.heuristics - INFO - Heurística — score=40 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-09-01 14:28:09,514 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-01 14:28:09,515 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-09-01 14:28:09,631 - core.overlay - INFO - PE embebido en overlay @ offset +10240 | entropy=7.9990 | structurally_valid=True
+2026-09-01 14:28:09,641 - core.overlay - INFO - Overlay analizado — size=0.5MB ratio=99.1% entropy=7.9990 embedded_pe=1 installer=no suspicious_strings=0
+2026-09-01 14:28:09,642 - core.heuristics - INFO - Heurística — score=135 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=7
+2026-09-01 14:28:09,656 - core.overlay - INFO - Overlay analizado — size=0.5MB ratio=99.8% entropy=4.9806 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:09,657 - core.heuristics - INFO - Heurística — score=60 level=HIGH operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-09-01 14:28:09,660 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=1.5% entropy=7.9170 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-01 14:28:09,661 - core.heuristics - INFO - Heurística — score=50 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-09-01 14:28:09,663 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-09-01 14:28:09,663 - core.overlay - WARNING - Installer spoof sospechado: tipo=NSIS overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-09-01 14:28:09,665 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0051 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-09-01 14:28:09,665 - core.heuristics - WARNING - Installer spoof detectado: descuento cancelado. overlay_ratio=0.98
+2026-09-01 14:28:09,666 - core.heuristics - INFO - Heurística — score=45 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-09-01 14:28:09,667 - core.heuristics - INFO - Heurística — score=30 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-09-01 14:28:09,670 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-09-01 14:28:09,672 - core.engine - INFO - Extrayendo features de: test.exe
+2026-09-01 14:28:09,673 - core.engine - ERROR - Error ONNX en inferencia de test.exe: ONNX session error
+2026-09-01 14:28:09,675 - core.engine - INFO - Extrayendo features de: fake.exe
+2026-09-01 14:28:09,676 - core.engine - WARNING - Archivo no-PE omitido: /tmp/pytest-of-ivainx18/pytest-1/test_non_pe_exe_suspicious0/fake.exe
+2026-09-01 14:28:09,677 - core.engine - WARNING - NonPEFileError en archivo con extensión ejecutable (.exe) → SUSPICIOUS
+2026-09-01 14:28:09,681 - core.engine - WARNING - BehavioralShield: riesgo=0.70 → DANGEROUS | pid=1234 | file=test.exe
+2026-09-01 14:28:09,685 - core.engine - INFO - BehavioralShield: riesgo=0.35 → SUSPICIOUS | pid=1234 | file=test.exe
+2026-09-01 14:28:09,688 - core.engine - WARNING - YARA: Amenaza confirmada en malware.exe — Reglas: ['Trojan.Test'] | Categorías: ['trojan']
+2026-09-01 14:28:09,692 - core.engine - ERROR - Error en fase overlay para test.exe: overlay crashed
+2026-09-01 14:28:09,694 - core.engine - ERROR - Error en fase dotnet para test.exe: dotnet crashed
+2026-09-01 14:28:09,695 - core.engine - INFO - Escaneo completo: test.exe | label=Unknown | score=-1.0000 | operational=SUSPICIOUS | risk=LOW(0) | phases=[] | time=3ms
+2026-09-01 14:28:09,753 - core.remediation - INFO - Remediación solicitada: pid=0 reason=test scan_id=test-scan-001 expected_exe=None
+2026-09-01 14:28:09,754 - core.remediation - WARNING - PID protegido rechazado: pid=0 — PID 0 es un proceso protegido del SO (PID < 10)
+2026-09-01 14:28:09,756 - core.remediation - INFO - Remediación solicitada: pid=1 reason=test scan_id=test-scan-001 expected_exe=None
+2026-09-01 14:28:09,757 - core.remediation - WARNING - PID protegido rechazado: pid=1 — PID 1 es un proceso protegido del SO (PID < 10)
+2026-09-01 14:28:09,759 - core.remediation - INFO - Remediación solicitada: pid=2 reason=test scan_id=test-scan-001 expected_exe=None
+2026-09-01 14:28:09,760 - core.remediation - WARNING - PID protegido rechazado: pid=2 — PID 2 es un proceso protegido del SO (PID < 10)
+2026-09-01 14:28:09,762 - core.remediation - INFO - Remediación solicitada: pid=5 reason=test scan_id=test-scan-001 expected_exe=None
+2026-09-01 14:28:09,763 - core.remediation - WARNING - PID protegido rechazado: pid=5 — PID 5 es un proceso protegido del SO (PID < 10)
+2026-09-01 14:28:09,765 - core.remediation - INFO - Remediación solicitada: pid=9 reason=test scan_id=test-scan-001 expected_exe=None
+2026-09-01 14:28:09,766 - core.remediation - WARNING - PID protegido rechazado: pid=9 — PID 9 es un proceso protegido del SO (PID < 10)
+2026-09-01 14:28:09,769 - core.remediation - INFO - Remediación solicitada: pid=12345 reason=test scan_id=test-scan-002 expected_exe=/opt/malware/evil.exe
+2026-09-01 14:28:09,772 - core.remediation - WARNING - Exe mismatch rechazado: pid=12345 expected=/opt/malware/evil.exe actual=/usr/bin/python3
+2026-09-01 14:28:09,776 - core.remediation - INFO - Remediación solicitada: pid=99999 reason=test scan_id=test-scan-003 expected_exe=None
+2026-09-01 14:28:09,777 - core.remediation - ERROR - Permiso denegado al enviar SIGTERM a pid=99999: Operation not permitted
