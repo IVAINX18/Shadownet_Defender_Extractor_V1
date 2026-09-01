@@ -17,7 +17,7 @@ flowchart TD
     
     C -->|groq| D{¿Existe GROQ_API_KEY?}
     D -->|Sí| E[GroqClient - api.groq.com/openai/v1]
-    E -->|Modelo: meta-llama/llama-prompt-guard-2-22m| F[Llamada API Groq]
+    E -->|Modelo: openai/gpt-oss-20b| F[Llamada API Groq]
     F -->|Éxito| G[Respuesta LLM Parseada y Validada]
     F -->|Error / Timeout / 429 Rate Limit| H[Fallback Automático a Template Generator]
     D -->|No| H
@@ -40,9 +40,10 @@ flowchart TD
 3. **Modo Offline/Nativo (`template`) — Fallback Automático**: Si no hay conexión a internet, falla la API Key de Groq o no hay servidor Ollama disponible, el sistema conmuta automáticamente a `TemplateExplainer`. Este motor determinístico genera una narrativa en español detallada y sin latencia (0.001s), consumiendo 0 MB de memoria adicional.
 
 ### 1.3 Especificación del Modelo Groq
-* **Modelo Designado**: `meta-llama/llama-prompt-guard-2-22m`
+* **Modelo Designado**: `openai/gpt-oss-20b` — verificado 2026-09-01 vía `GET /openai/v1/models` (14 modelos habilitados para esta org; Llama 3.1/3.3 no disponible para esta API key). Alternativa inmediata si hay cuota: `openai/gpt-oss-120b`.
 * **Endpoint API**: `https://api.groq.com/openai/v1`
 * **SDK**: `openai` (Biblioteca oficial de OpenAI en Python)
+* **Specs**: 131,072 contexto / 65,536 max_output / ~1000 tok/s / `json_mode, structured_outputs, reasoning, tools` / Pricing $0.075 input / $0.30 output por 1M tokens. Free Tier: 30 RPM / 1K RPD / 8K TPM / 200K TPD (suficiente para ~250 scans/día por usuario).
 
 ---
 
@@ -75,7 +76,7 @@ class GroqClientConfig:
     """Configuración para el cliente de Groq API."""
     api_key: str = field(default_factory=lambda: os.getenv("GROQ_API_KEY", ""))
     base_url: str = "https://api.groq.com/openai/v1"
-    model: str = "meta-llama/llama-prompt-guard-2-22m"
+    model: str = "openai/gpt-oss-20b"
     timeout_seconds: float = 10.0
 
 
@@ -261,7 +262,7 @@ class ExplanationServiceConfig:
         default_factory=lambda: os.getenv("LLM_PROVIDER", "groq").lower()
     )
     default_model: str = field(
-        default_factory=lambda: os.getenv("GROQ_MODEL", "meta-llama/llama-prompt-guard-2-22m")
+        default_factory=lambda: os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
     )
 
 
@@ -345,16 +346,16 @@ Añadir las variables de entorno necesarias para la configuración de Groq:
 # Configuración del LLM
 LLM_PROVIDER=groq
 GROQ_API_KEY=gsk_tu_clave_groq_aqui
-GROQ_MODEL=meta-llama/llama-prompt-guard-2-22m
+GROQ_MODEL=openai/gpt-oss-20b
 GROQ_TIMEOUT_SECONDS=10.0
 ```
 
 #### **Archivo `backend/app/config.py`**
 ```python
-# Añadir al esquema de Settings:
-LLM_PROVIDER: str = Field(default="groq", env="LLM_PROVIDER")
-GROQ_API_KEY: str = Field(default="", env="GROQ_API_KEY")
-GROQ_MODEL: str = Field(default="meta-llama/llama-prompt-guard-2-22m", env="GROQ_MODEL")
+# Añadir al esquema de Settings (compatible con backend/app/config.py actual basado en os.getenv):
+LLM_PROVIDER: str = os.getenv("LLM_PROVIDER", "groq")
+GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL: str = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
 ```
 
 ---
@@ -396,11 +397,11 @@ En la vista de **Ajustes / Configuración** de la aplicación Electron, se inclu
 ## 4. 🧪 Plan de Pruebas y Validación
 
 ### 4.1 Script de Verificación Rápida: `scripts/test_groq.py`
-Crear un script para verificar la conectividad directa con Groq API y la generación con el modelo `meta-llama/llama-prompt-guard-2-22m`.
+Crear un script para verificar la conectividad directa con Groq API y la generación con el modelo `openai/gpt-oss-20b` (validado 2026-09-01 con tu API key).
 
 ```python
 """
-scripts/test_groq.py — Verificación de llamada a Groq API con meta-llama/llama-prompt-guard-2-22m.
+scripts/test_groq.py — Verificación de llamada a Groq API con openai/gpt-oss-20b.
 """
 import os
 import sys
@@ -421,7 +422,7 @@ def test_groq_direct():
 
     client = GroqClient(GroqClientConfig(
         api_key=api_key,
-        model="meta-llama/llama-prompt-guard-2-22m"
+        model="openai/gpt-oss-20b"
     ))
     
     prompt = "Responde en JSON: {\"status\": \"ok\", \"message\": \"Groq funcionando\"}"
@@ -481,7 +482,7 @@ if __name__ == "__main__":
 ## 6. 🗺️ Roadmap / Tareas Numeradas (Tasks)
 
 ### Task 1: Crear el Cliente de Groq (`GroqClient`)
-* **Objetivo**: Implementar `core/llm/groq_client.py` con el SDK de OpenAI apuntando a `https://api.groq.com/openai/v1` y usando el modelo `meta-llama/llama-prompt-guard-2-22m`.
+* **Objetivo**: Implementar `core/llm/groq_client.py` con el SDK de OpenAI apuntando a `https://api.groq.com/openai/v1` y usando el modelo `openai/gpt-oss-20b` (verificado disponible para esta org el 2026-09-01; fallback documentado `openai/gpt-oss-120b`).
 * **Archivos involucrados**: `core/llm/groq_client.py`, `core/llm/__init__.py`.
 * **Criterio de aceptación**: El test unitario instancie `GroqClient` y reciba respuesta JSON de Groq API.
 
@@ -496,9 +497,9 @@ if __name__ == "__main__":
 * **Criterio de aceptación**: Al invocar `.explain()` sin API key o con un proveedor erróneo, la función devuelva exitosamente un resultado firmado por `provider="template"`.
 
 ### Task 4: Actualizar Configuraciones y Entorno
-* **Objetivo**: Añadir variables `LLM_PROVIDER`, `GROQ_API_KEY` y `GROQ_MODEL` en `backend/app/config.py` y `.env`.
+* **Objetivo**: Añadir variables `LLM_PROVIDER`, `GROQ_API_KEY` y `GROQ_MODEL` en `backend/app/config.py` y `.env` (respetando `backend/app/config.py:1` actual basado en `os.getenv`, no Pydantic Settings).
 * **Archivos involucrados**: `.env`, `backend/app/config.py`, `.env.example`.
-* **Criterio de aceptación**: `ExplanationService` lea `groq` como proveedor predeterminado desde la configuración del entorno.
+* **Criterio de aceptación**: `ExplanationService` lea `groq` y `openai/gpt-oss-20b` como proveedor/modelo predeterminado desde la configuración del entorno.
 
 ### Task 5: Script de Prueba e Integración E2E
 * **Objetivo**: Crear `scripts/test_groq.py` y actualizar los tests de integración en `tests/`.
