@@ -96,8 +96,10 @@ export async function scanMultiple(files) {
 /**
  * Solicita explicación LLM para un resultado de escaneo.
  * POST /analysis/explain
+ * provider = null deja que el backend aplique la cascada Tri-Fallover
+ * (groq -> gemini -> template) según LLM_PROVIDER_ORDER del entorno.
  */
-export async function explainResult(scanResult, provider = 'ollama') {
+export async function explainResult(scanResult, provider = null) {
   const { data } = await api.post('/analysis/explain', {
     scan_result: scanResult,
     provider,

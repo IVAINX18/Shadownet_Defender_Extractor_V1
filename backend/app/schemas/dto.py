@@ -274,9 +274,13 @@ class ExplainRequest(BaseModel):
         default=None,
         description="Ruta del archivo para escanear primero y luego explicar",
     )
-    provider: str = Field(
-        default="ollama",
-        description="Proveedor LLM a utilizar",
+    provider: Optional[str] = Field(
+        default=None,
+        description=(
+            "Proveedor LLM explícito (groq|gemini|ollama|template). "
+            "Si se omite, el backend aplica la cascada Tri-Fallover "
+            "configurada en LLM_PROVIDER / LLM_PROVIDER_ORDER."
+        ),
     )
     model: Optional[str] = Field(
         default=None,

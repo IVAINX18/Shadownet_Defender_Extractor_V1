@@ -1,5 +1,7 @@
 # Plan de Implementación: Integración de Groq API (LLM Cloud) y Fallback Nativo en ShadowNet Defender
 
+> **⚠️ Este plan fue implementado y extendido por `docs/TriFallover_Groq_Gemini_Template.md` (v1.1, 2026-09-04), que añade Gemini como secundario de la cascada. Este documento se conserva como referencia del diseño original Groq+Template.**
+
 > **Objetivo:** Reemplazar la dependencia obligatoria de Ollama local en la aplicación de escritorio (Electron), permitiendo generar explicaciones forenses en lenguaje humano de forma ultra rápida a través de la API de Groq o mediante un generador nativo offline por plantillas (*Template Generator*), sin requerir que los usuarios finales instalen Ollama ni descarguen modelos pesados.
 
 ---

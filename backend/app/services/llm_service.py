@@ -54,14 +54,16 @@ def _get_service() -> ExplanationService:
     """
     Retorna la instancia compartida del ExplanationService.
     La inicializo lazy para no bloquear el arranque de la API.
+
+    Tri-Fallover: el proveedor y la cascada se leen del entorno
+    (LLM_PROVIDER / LLM_PROVIDER_ORDER) con defaults groq -> gemini ->
+    template. Sin API keys, la cascada degenera limpiamente a template.
     """
     global _explanation_service
     if _explanation_service is None:
         logger.info("Inicializando ExplanationService (primera vez)...")
         _explanation_service = ExplanationService(
-            config=ExplanationServiceConfig(
-                default_provider="ollama",
-            )
+            config=ExplanationServiceConfig()
         )
     return _explanation_service
 
@@ -111,8 +113,8 @@ def explain_scan_result(
 
     No lanza excepciones: siempre retorna un dict válido.
     """
-    effective_provider = provider or "ollama"
-    effective_model = model or "default"
+    effective_provider = provider or os.getenv("LLM_PROVIDER", "groq")
+    effective_model = model or "cascade-default"
 
     logger.info(
         "Generando explicación → provider=%s, model=%s, label=%s, score=%s, timeout=%ds",

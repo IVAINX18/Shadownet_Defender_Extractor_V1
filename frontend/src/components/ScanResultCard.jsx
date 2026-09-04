@@ -1,8 +1,39 @@
 /**
  * components/ScanResultCard.jsx — Tarjeta de resultado de escaneo.
  */
-import { FileText, RefreshCw, Bot } from 'lucide-react'
+import { FileText, RefreshCw, Bot, Cpu, Cloud, Zap } from 'lucide-react'
 import StatusBadge from './StatusBadge'
+
+/**
+ * Indicador del proveedor que resolvió la explicación en la cascada
+ * Tri-Fallover (groq -> gemini -> template). El backend lo expone en
+ * response.data.llm.provider; el frontend jamás ve API keys, solo el nombre.
+ */
+const PROVIDER_META = {
+  groq: { label: 'Groq · gpt-oss-20b', icon: Zap, color: 'var(--orange, #f97316)' },
+  gemini: { label: 'Gemini · flash-lite', icon: Cloud, color: 'var(--blue, #3b82f6)' },
+  template: { label: 'Offline · Nativo', icon: Cpu, color: 'var(--text-muted)' },
+  ollama: { label: 'Ollama · Local', icon: Cpu, color: 'var(--green)' },
+}
+
+function ProviderPill({ llmMeta }) {
+  if (!llmMeta?.provider) return null
+  const meta = PROVIDER_META[llmMeta.provider] || { label: llmMeta.provider, icon: Bot, color: 'var(--text-muted)' }
+  const Icon = meta.icon
+  return (
+    <span
+      title={`${meta.label}${llmMeta.model ? ` (${llmMeta.model})` : ''}${llmMeta.status && llmMeta.status !== 'ok' ? ` — ${llmMeta.status}` : ''}`}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 4,
+        fontSize: '0.6rem', fontWeight: 600, color: meta.color,
+        border: `1px solid ${meta.color}`, borderRadius: 999, padding: '2px 8px',
+        textTransform: 'uppercase', letterSpacing: '0.04em',
+      }}
+    >
+      <Icon size={10} /> {meta.label}
+    </span>
+  )
+}
 
 export default function ScanResultCard({ result, onExplain, explaining = false }) {
   if (!result) return null
@@ -62,7 +93,11 @@ export default function ScanResultCard({ result, onExplain, explaining = false }
           <h4 style={{
             fontSize: '0.65rem', fontWeight: 600, color: 'var(--accent)',
             marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em',
-          }}>AI Explanation</h4>
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8,
+          }}>
+            <span>AI Explanation</span>
+            <ProviderPill llmMeta={result.llmMeta} />
+          </h4>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
             {result.explanation}
           </p>

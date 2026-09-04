@@ -5,10 +5,25 @@ import logging
 import os
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Protocol
+from typing import Any, Dict, List, Optional, Protocol
 
+from .gemini_client import GeminiClient, GeminiClientConfig
+from .groq_client import GroqClient, GroqClientConfig
 from .ollama_client import OllamaClient, OllamaClientConfig
 from .prompt_builder import build_llm_prompt
+from .template_explainer import TemplateExplainer
+
+try:
+    from openai import APIConnectionError, APIError, APITimeoutError, RateLimitError
+
+    _LLM_TRANSPORT_ERRORS: tuple[type[BaseException], ...] = (
+        RateLimitError,
+        APITimeoutError,
+        APIConnectionError,
+        APIError,
+    )
+except ImportError:  # openai ausente: los clientes ya lanzan RuntimeError al construirse
+    _LLM_TRANSPORT_ERRORS = ()  # type: ignore[assignment]
 
 logger = logging.getLogger("shadownet.llm.service")
 
@@ -124,14 +139,34 @@ class LLMClient(Protocol):
 @dataclass
 class ExplanationServiceConfig:
     """
-    Configuracion del servicio de explicacion.
+    Configuracion del servicio de explicacion con cascada Tri-Fallover.
 
-    Lee OLLAMA_MODEL del entorno para determinar el modelo por defecto.
+    provider_order define la prelación de fallover cuando un proveedor falla
+    por cuota (429), red o timeout. Cada proveedor lee su modelo del entorno:
+    GROQ_MODEL (default openai/gpt-oss-20b), GEMINI_MODEL
+    (default gemini-3.5-flash-lite) y OLLAMA_MODEL (default llama3.2:3b).
     """
 
-    default_provider: str = "ollama"
+    default_provider: str = field(
+        default_factory=lambda: os.getenv("LLM_PROVIDER", "groq").lower()
+    )
+    provider_order: List[str] = field(
+        default_factory=lambda: [
+            p.strip().lower()
+            for p in os.getenv("LLM_PROVIDER_ORDER", "groq,gemini,template").split(",")
+            if p.strip()
+        ]
+    )
+    # default_model aplica a ollama (y a clientes inyectados en tests); groq y
+    # gemini resuelven su modelo propio, asi el contrato legacy no se rompe.
     default_model: str = field(
         default_factory=lambda: os.getenv("OLLAMA_MODEL", "llama3.2:3b")
+    )
+    groq_model: str = field(
+        default_factory=lambda: os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
+    )
+    gemini_model: str = field(
+        default_factory=lambda: os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
     )
 
 
@@ -139,8 +174,13 @@ class ExplanationService:
     """
     Servicio de alto nivel que genera explicacion de resultados ML.
 
-    Usa OllamaClient (OpenAI SDK) para comunicarse con Ollama,
-    ya sea local o remoto mediante un endpoint HTTP compatible.
+    Cascada Tri-Fallover: groq -> gemini -> template. Un provider explicito
+    (parametro `provider` o `default_provider`) se intenta primero; si lanza
+    un error de transporte/recursos (429, timeout, red, ValueError por falta
+    de API key), se recorre el resto del provider_order sin reintentos, y el
+    TemplateExplainer deterministico garantiza que la operacion siempre
+    retorna un resultado valido. `_metadata.provider_used` identifica quien
+    resolvio la peticion para UI y telemetria.
     """
 
     def __init__(
@@ -150,49 +190,95 @@ class ExplanationService:
         clients: Optional[Dict[str, LLMClient]] = None,
     ):
         self.config = config or ExplanationServiceConfig()
-        self.clients = clients or {
-            "ollama": OllamaClient(OllamaClientConfig(model=self.config.default_model)),
+        # Clientos inyectados (tests / integraciones) tienen prioridad absoluta.
+        self._clients: Dict[str, LLMClient] = {
+            k.strip().lower(): v for k, v in (clients or {}).items()
         }
+        # Los clientes por defecto se construyen de forma perezosa: evitar
+        # abrir conexiones o validar entorno en el arranque del servicio.
+        self._factories: Dict[str, callable] = {
+            "groq": lambda: GroqClient(
+                GroqClientConfig(model=self.config.groq_model)
+            ),
+            "gemini": lambda: GeminiClient(
+                GeminiClientConfig(model=self.config.gemini_model)
+            ),
+            "ollama": lambda: OllamaClient(
+                OllamaClientConfig(model=self.config.default_model)
+            ),
+            "template": lambda: TemplateExplainer(),
+        }
+        self._template = TemplateExplainer()
         logger.info(
-            "ExplanationService inicializado → provider=%s, model=%s",
+            "ExplanationService inicializado → provider=%s, order=%s",
             self.config.default_provider,
-            self.config.default_model,
+            self.config.provider_order,
         )
+
+    def _get_client(self, provider: str) -> Optional[LLMClient]:
+        """Resuelve un cliente: inyectado primero, construido bajo demanda despues."""
+        client = self._clients.get(provider)
+        if client is not None:
+            return client
+        factory = self._factories.get(provider)
+        if factory is None:
+            return None
+        try:
+            client = factory()
+        except Exception as exc:
+            # Un default roto (p.ej. Ollama en localhost con ENVIRONMENT=prod)
+            # no debe tumbar el servicio: se registra y se hace fallover.
+            logger.warning("No se pudo construir cliente %s: %s", provider, exc)
+            return None
+        self._clients[provider] = client
+        return client
+
+    @property
+    def clients(self) -> Dict[str, LLMClient]:
+        """Vista de clientes registrados (compat con introspeccion/tests previos)."""
+        return self._clients
 
     def register_client(self, provider: str, client: LLMClient) -> None:
         """
-        Registra un nuevo proveedor LLM (futuro: OpenAI/Gemini/Claude).
+        Registra (o reemplaza) un proveedor LLM. Permite añadir un 4º
+        proveedor sin modificar explain() — principio abierto/cerrado.
         """
-        self.clients[provider.strip().lower()] = client
+        self._clients[provider.strip().lower()] = client
 
-    def explain(
+    def _resolve_model(self, provider: str, model: Optional[str]) -> str:
+        """Modelo explicito > modelo propio del provider > default legacy."""
+        if model:
+            return model
+        if provider == "groq":
+            return self.config.groq_model
+        if provider == "gemini":
+            return self.config.gemini_model
+        return self.config.default_model
+
+    def _try_provider(
         self,
         scan_result: Dict,
-        *,
-        provider: Optional[str] = None,
-        model: Optional[str] = None,
+        provider: str,
+        model: Optional[str],
     ) -> Dict:
-        """
-        Genera explicacion basada en el JSON de escaneo.
+        """Intenta un proveedor unico. Lanza en error de recurso/transporte.
 
-        Incluye validacion post-LLM para detectar inconsistencias entre
-        el veredicto del scan y la narrativa generada por el modelo de lenguaje.
+        Nota de compatibilidad: si el cliente responde pero el texto no es
+        JSON parseable, se retorna el resultado sin `parsed_response` (igual
+        que antes) en lugar de hacer fallover — un LLM que contesta no es un
+        proveedor caido, y silenciarlo cambiaria la semantica existente.
         """
-        resolved_provider = (provider or self.config.default_provider).strip().lower()
-        client = self.clients.get(resolved_provider)
+        client = self._get_client(provider)
         if client is None:
-            raise ValueError(
-                f"Proveedor '{resolved_provider}' no soportado. "
-                f"Disponibles: {sorted(self.clients.keys())}"
-            )
+            raise LookupError(f"Proveedor '{provider}' no disponible.")
 
         prompt = build_llm_prompt(scan_result)
-        resolved_model = model or self.config.default_model
+        resolved_model = self._resolve_model(provider, model)
         response_text = client.generate(prompt, model=resolved_model)
         parsed_response = _parse_json_response(response_text)
 
-        result = {
-            "provider": resolved_provider,
+        result: Dict[str, Any] = {
+            "provider": provider,
             "model": resolved_model,
             "response_text": response_text,
             "prompt_version": "v1",
@@ -212,9 +298,78 @@ class ExplanationService:
                     validation.get("llm_confidence", 0),
                 )
 
-            # Mantener compatibilidad hacia atras con response_text
-            # mientras se ofrece la salida estructurada validada.
             result["parsed_response"] = parsed_response
 
         return result
+
+    def _fallback_template(self, scan_result: Dict, last_error: Optional[BaseException]) -> Dict:
+        """Ultimo recurso deterministico: nunca lanza excepcion ni usa red."""
+        parsed_template = self._template.explain_from_scan_result(scan_result)
+        return {
+            "provider": "template",
+            "model": "rule-engine-v1",
+            "response_text": json.dumps(parsed_template, ensure_ascii=False),
+            "parsed_response": parsed_template,
+            "prompt_version": "v1_fallback",
+            "_metadata": {
+                "provider_used": "template",
+                "fallover": last_error is not None,
+                "last_error": str(last_error)[:300] if last_error else None,
+            },
+        }
+
+    def explain(
+        self,
+        scan_result: Dict,
+        *,
+        provider: Optional[str] = None,
+        model: Optional[str] = None,
+    ) -> Dict:
+        """
+        Genera explicacion con cascada groq -> gemini -> template.
+
+        El provider solicitado (o default_provider) se intenta primero; ante
+        errores de recurso (429/quota, timeout, red, falta de API key) se
+        recorre provider_order excluyendo al ya intentado. Template nunca
+        falla, por lo que explain() siempre retorna un dict utilizable.
+        """
+        primary = (provider or self.config.default_provider).strip().lower()
+        # Cadena a intentar: primary primero, luego el resto del orden configurado.
+        chain = [primary] + [p for p in self.config.provider_order if p != primary]
+
+        last_error: Optional[BaseException] = None
+        errors: Dict[str, str] = {}
+
+        for candidate in chain:
+            if candidate == "template":
+                return self._fallback_template(scan_result, last_error)
+            try:
+                result = self._try_provider(scan_result, candidate, model)
+                result["_metadata"] = {
+                    "provider_used": candidate,
+                    "fallover": last_error is not None,
+                    "errors": errors or None,
+                }
+                return result
+            except (
+                *_LLM_TRANSPORT_ERRORS,
+                ValueError,
+                RuntimeError,
+                LookupError,
+            ) as exc:
+                # 429 y fallos de red/keys: saltar de inmediato, sin reintento.
+                is_quota = isinstance(exc, RateLimitError) or "429" in str(exc)
+                logger.warning(
+                    "Fallo en proveedor '%s'%s (%s): %s — conmutando al siguiente...",
+                    candidate,
+                    " (cuota/rate limit)" if is_quota else "",
+                    type(exc).__name__,
+                    exc,
+                )
+                errors[candidate] = f"{type(exc).__name__}: {str(exc)[:200]}"
+                last_error = exc
+                continue
+
+        # Inalcanzable en la practica (template corta el loop); defensa propia.
+        return self._fallback_template(scan_result, last_error)
 

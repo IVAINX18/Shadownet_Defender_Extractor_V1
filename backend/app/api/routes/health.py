@@ -185,3 +185,45 @@ def health():
             },
         },
     )
+
+
+# ---------------------------------------------------------------------------
+# Tri-Fallover — Endpoint GET /health/llm-providers (sin JWT)
+#
+# La UI de Electron lo consulta para saber qué proveedores están configurados
+# y mostrar el badge del proveedor que resolvió cada explicación. Seguridad:
+# SOLO expone booleans y nombres de modelo — jamás valores de API keys.
+# ---------------------------------------------------------------------------
+
+@router.get(
+    "/health/llm-providers",
+    summary="Proveedores LLM disponibles",
+    description=(
+        "Reporta la cascada Tri-Fallover configurada (groq -> gemini -> "
+        "template) y qué proveedores tienen API key disponible. No expone "
+        "claves, solo disponibilidad."
+    ),
+)
+def health_llm_providers():
+    """Disponibilidad de proveedores para la UI (autodetección de keys)."""
+    order = [
+        p.strip().lower()
+        for p in os.getenv("LLM_PROVIDER_ORDER", "groq,gemini,template").split(",")
+        if p.strip()
+    ]
+    return success_response(
+        {
+            "order": order,
+            "available": {
+                "groq": bool(os.getenv("GROQ_API_KEY")),
+                "gemini": bool(os.getenv("GEMINI_API_KEY")),
+                "ollama": True,  # intentable siempre; healthcheck local aparte
+                "template": True,  # offline determinístico, nunca falta
+            },
+            "models": {
+                "groq": os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"),
+                "gemini": os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
+                "ollama": os.getenv("OLLAMA_MODEL", "llama3.2:3b"),
+            },
+        }
+    )

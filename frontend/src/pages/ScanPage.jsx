@@ -43,9 +43,12 @@ export default function ScanPage() {
   const handleExplain = async (scanData) => {
     setExplaining(true)
     try {
+      // provider undefined → el backend aplica la cascada Tri-Fallover
+      // (groq -> gemini -> template) y responde qué proveedor resolvió.
       const response = await explainResult(scanData)
       const explanation = response.data?.explanation || ''
-      const updated = { ...result, explanation }
+      const llmMeta = response.data?.llm || null
+      const updated = { ...result, explanation, llmMeta }
       setResult(updated)
       setScanHistory((prev) => prev.map((r, i) => i === 0 ? updated : r))
     } catch (err) { console.error('Explain error:', err) }
