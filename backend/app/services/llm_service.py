@@ -1,13 +1,12 @@
 """
-backend/app/services/llm_service.py — Servicio de explicación LLM con timeout.
+backend/app/services/llm_service.py — Servicio de explicacion LLM cloud con timeout.
 
-Centralizo toda la lógica de comunicación con Ollama en un solo servicio.
-Ejecuto la llamada al LLM en un thread con timeout configurable para que
-nunca bloquee el flujo de escaneo. Si el LLM tarda más del timeout,
-retorno un fallback inmediato.
+Centralizo toda la logica de comunicacion con proveedores cloud (Groq/Gemini)
+en un solo servicio. Ejecuto la llamada al LLM en un thread con timeout
+configurable para que nunca bloquee el flujo de escaneo. Si el LLM tarda
+mas del timeout, retorno un fallback inmediato.
 
-La lógica real sigue delegando a core/llm/ que ya tiene el cliente
-Ollama implementado con OpenAI SDK.
+La logica real delega a core/llm/ (cascada Tri-Fallover groq -> gemini -> template).
 """
 
 from __future__ import annotations
@@ -31,8 +30,8 @@ from core.llm.prompt_builder import build_llm_prompt
 logger = logging.getLogger("backend.llm_service")
 
 # ---------------------------------------------------------------------------
-# Timeout configurable para el LLM
-# Leo de env para poder ajustar sin tocar código:
+# Timeout configurable para el LLM cloud
+# Leo de env para poder ajustar sin tocar codigo:
 #   LLM_TIMEOUT=30  (segundos, default: 30)
 # Un valor de 0 o negativo desactiva el timeout
 # ---------------------------------------------------------------------------
@@ -43,9 +42,9 @@ LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "30"))
 _executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="llm")
 
 # ---------------------------------------------------------------------------
-# Instancia lazy del servicio de explicación
-# La creo en la primera llamada para evitar fallos al arrancar si Ollama
-# no está disponible todavía (puede estar cargando un modelo pesado)
+# Instancia lazy del servicio de explicacion
+# La creo en la primera llamada para evitar fallos al arrancar si la API
+# cloud no esta disponible (rate limit, sin API key, etc.)
 # ---------------------------------------------------------------------------
 _explanation_service: Optional[ExplanationService] = None
 
@@ -98,9 +97,9 @@ def explain_scan_result(
 
     Args:
         scan_data: Dict con el resultado del escaneo ML
-                   (mínimo: label, score, confidence).
-        provider:  Proveedor LLM a usar (default: "ollama").
-        model:     Modelo específico (sobreescribe el default).
+                   (minimo: label, score, confidence).
+        provider:  Proveedor LLM a usar (default: cascada Tri-Fallover groq->gemini->template).
+        model:     Modelo especifico (sobreescribe el default del proveedor).
 
     Returns:
         Dict con:

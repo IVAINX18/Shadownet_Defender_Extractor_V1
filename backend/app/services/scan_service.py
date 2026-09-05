@@ -365,7 +365,7 @@ def scan_and_explain(
     Args:
         file_path: Ruta al archivo a escanear.
         with_explanation: Si True, genera explicación con LLM.
-        provider: Proveedor LLM (default: "ollama").
+        provider: Proveedor LLM (default: cascada cloud groq->gemini->template).
         model: Modelo LLM específico.
         save_to_supabase: Si True, guarda en Supabase.
 

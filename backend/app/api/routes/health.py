@@ -217,13 +217,11 @@ def health_llm_providers():
             "available": {
                 "groq": bool(os.getenv("GROQ_API_KEY")),
                 "gemini": bool(os.getenv("GEMINI_API_KEY")),
-                "ollama": True,  # intentable siempre; healthcheck local aparte
-                "template": True,  # offline determinístico, nunca falta
+                "template": True,  # offline deterministico, nunca falta
             },
             "models": {
                 "groq": os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"),
                 "gemini": os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
-                "ollama": os.getenv("OLLAMA_MODEL", "llama3.2:3b"),
             },
         }
     )

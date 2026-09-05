@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Script de Verificación de Integración LLM y Automatización.
+Script de Verificacion de Integracion LLM y Automatizacion.
 Ejecuta un flujo completo simulado para validar:
-1. Extracción de features (simulada o real)
+1. Extraccion de features (simulada o real)
 2. Inferencia del modelo (MockModel)
-3. Generación de Prompts para LLM
-4. Configuración del servicio de explicación (Ollama)
+3. Generacion de Prompts para LLM
+4. Configuracion del servicio de explicacion (cascada cloud Groq/Gemini/template)
 """
 
 import sys

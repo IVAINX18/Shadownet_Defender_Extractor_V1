@@ -34,7 +34,7 @@ router = APIRouter(prefix="/analysis", tags=["Análisis"])
 @router.post(
     "/explain",
     summary="Generar explicación con LLM",
-    description="Envía un resultado de escaneo a Ollama y genera una explicación técnica detallada.",
+    description="Envia un resultado de escaneo a la cascada cloud (Groq/Gemini/template) y genera una explicacion tecnica detallada.",
     responses={
         200: {"description": "Explicación generada exitosamente"},
         422: {"description": "Payload incompleto"},

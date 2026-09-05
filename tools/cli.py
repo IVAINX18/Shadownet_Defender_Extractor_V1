@@ -147,12 +147,10 @@ def _cmd_scan(args: argparse.Namespace) -> int:
         return 0 if result.get("error") is None else 1
 
     telemetry = TelemetryClient()
-    llm_service = ExplanationService(
-        config=ExplanationServiceConfig(default_provider="ollama")
-    )
+    llm_service = ExplanationService()
     payload = run_scan_explain_pipeline(
         result,
-        provider=args.provider or "ollama",
+        provider=args.provider,
         model=args.model,
         llm_service=llm_service,
         telemetry=telemetry,
@@ -233,9 +231,7 @@ def _cmd_update_model(args: argparse.Namespace) -> int:
 
 def _cmd_llm_explain(args: argparse.Namespace) -> int:
     telemetry = TelemetryClient()
-    llm_service = ExplanationService(
-        config=ExplanationServiceConfig(default_provider="ollama")
-    )
+    llm_service = ExplanationService()
 
     if not args.scan_json and not args.file:
         raise ValueError("Provide --file or --scan-json.")
@@ -248,7 +244,7 @@ def _cmd_llm_explain(args: argparse.Namespace) -> int:
 
     payload = run_scan_explain_pipeline(
         scan_result,
-        provider=args.provider or "ollama",
+        provider=args.provider,
         model=args.model,
         llm_service=llm_service,
         telemetry=telemetry,
@@ -294,13 +290,17 @@ def build_parser() -> argparse.ArgumentParser:
 
     scan_parser = subparsers.add_parser("scan", help="Scan a PE file")
     scan_parser.add_argument("file", help="Path to file to scan")
-    scan_parser.add_argument("--explain", action="store_true", help="Generate LLM explanation with Ollama")
+    scan_parser.add_argument(
+        "--explain", action="store_true", help="Generate LLM explanation via cloud cascade (Groq -> Gemini -> template)"
+    )
     scan_parser.add_argument(
         "--provider",
-        default="ollama",
-        help="LLM provider (actual): ollama",
+        default=None,
+        help="LLM provider: groq|gemini|template (default: cascada Tri-Fallover groq->gemini->template)",
     )
-    scan_parser.add_argument("--model", default=None, help="LLM model name for Ollama (default: from OLLAMA_MODEL env)")
+    scan_parser.add_argument(
+        "--model", default=None, help="Override LLM model (default: GROQ_MODEL / GEMINI_MODEL del entorno)"
+    )
     scan_parser.set_defaults(func=_cmd_scan)
 
     verify_parser = subparsers.add_parser("verify-model", help="Verify artifact hashes and sizes")
@@ -328,10 +328,12 @@ def build_parser() -> argparse.ArgumentParser:
     llm_parser.add_argument("--scan-json", help="Path to precomputed scan result JSON")
     llm_parser.add_argument(
         "--provider",
-        default="ollama",
-        help="LLM provider (actual): ollama",
+        default=None,
+        help="LLM provider: groq|gemini|template (default: cascada Tri-Fallover)",
     )
-    llm_parser.add_argument("--model", default=None, help="Override model (default: from OLLAMA_MODEL env)")
+    llm_parser.add_argument(
+        "--model", default=None, help="Override LLM model (default: GROQ_MODEL / GEMINI_MODEL del entorno)"
+    )
     llm_parser.set_defaults(func=_cmd_llm_explain)
 
     return parser

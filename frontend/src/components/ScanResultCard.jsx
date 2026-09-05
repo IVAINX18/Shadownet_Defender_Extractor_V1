@@ -13,7 +13,6 @@ const PROVIDER_META = {
   groq: { label: 'Groq · gpt-oss-20b', icon: Zap, color: 'var(--orange, #f97316)' },
   gemini: { label: 'Gemini · flash-lite', icon: Cloud, color: 'var(--blue, #3b82f6)' },
   template: { label: 'Offline · Nativo', icon: Cpu, color: 'var(--text-muted)' },
-  ollama: { label: 'Ollama · Local', icon: Cpu, color: 'var(--green)' },
 }
 
 function ProviderPill({ llmMeta }) {

@@ -131,17 +131,17 @@ class TestTriFailoverCascade:
         assert result["_metadata"]["errors"] is None
 
     def test_explicit_provider_short_circuits_cascade(self):
-        """provider='ollama' explícito se intenta primero aunque el default sea groq."""
+        """provider='gemini' explícito se intenta primero aunque el default sea groq."""
         groq = _client_returning(VALID_LLM_JSON)
-        ollama = _client_returning(VALID_LLM_JSON)
+        gemini = _client_returning(VALID_LLM_JSON)
         svc = ExplanationService(
             config=ExplanationServiceConfig(default_provider="groq"),
-            clients={"groq": groq, "ollama": ollama},
+            clients={"groq": groq, "gemini": gemini},
         )
 
-        result = svc.explain(SAMPLE_SCAN, provider="ollama")
+        result = svc.explain(SAMPLE_SCAN, provider="gemini")
 
-        assert result["_metadata"]["provider_used"] == "ollama"
+        assert result["_metadata"]["provider_used"] == "gemini"
         groq.generate.assert_not_called()
 
     def test_provider_order_from_env_config(self):

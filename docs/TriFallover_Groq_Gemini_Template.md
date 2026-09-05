@@ -8,7 +8,7 @@
 > - E2E real: key Groq inválida → fallover → Gemini degrade 503 → `provider_used=gemini` (9.9s); ambos caídos → template instantáneo. Suite: 214 passed / 26 skipped.
 > - Codigo: `core/llm/groq_client.py`, `core/llm/gemini_client.py`, `core/llm/template_explainer.py`, `core/llm/explanation_service.py` (cascada + `_metadata.provider_used`), `GET /health/llm-providers` (solo booleans, nunca keys), tests en `tests/test_tri_fallover.py`.
 
-> **Predecesor:** `docs/IntegracionOllama-Nolocal.md` — este plan lo extiende y corrige (`meta-llama/llama-prompt-guard-2-22m` era clasificador 512 ctx, no generativo; y `llama-3.1-8b-instant` no está habilitado para la org actual — 14 modelos listados).
+> **Predecesor:** `docs/IntegracionOllama-Nolocal.md` (eliminado — solo nube; `meta-llama/llama-prompt-guard-2-22m` era clasificador 512 ctx, no generativo; y `llama-3.1-8b-instant` no esta habilitado para la org actual).
 
 ---
 
@@ -193,8 +193,8 @@ import json, logging, os, re
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Protocol
 
+from .base_client import BaseLLMClient  # esqueleto OpenAI-compatible compartido
 from .groq_client import GroqClient, GroqClientConfig
-from .ollama_client import OllamaClient, OllamaClientConfig
 from .gemini_client import GeminiClient, GeminiClientConfig
 from .template_explainer import TemplateExplainer
 from .prompt_builder import build_llm_prompt
@@ -215,7 +215,7 @@ class ExplanationServiceConfig:
     provider_order: list[str] = field(default_factory=lambda: [p.strip().lower() for p in os.getenv("LLM_PROVIDER_ORDER", "groq,gemini,template").split(",") if p.strip()])
     groq_model: str = field(default_factory=lambda: os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"))
     gemini_model: str = field(default_factory=lambda: os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"))
-    ollama_model: str = field(default_factory=lambda: os.getenv("OLLAMA_MODEL", "llama3.2:3b"))
+    default_model: str = field(default_factory=lambda: os.getenv("LLM_MODEL", os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")))
     groq_timeout: float = field(default_factory=lambda: float(os.getenv("GROQ_TIMEOUT_SECONDS", "10")))
     gemini_timeout: float = field(default_factory=lambda: float(os.getenv("GEMINI_TIMEOUT_SECONDS", "12")))
 
@@ -227,8 +227,7 @@ class ExplanationService:
         default_clients: Dict[str, LLMClient] = {
             "groq": GroqClient(GroqClientConfig(model=self.config.groq_model, timeout_seconds=self.config.groq_timeout, api_key=os.getenv("GROQ_API_KEY", ""))),
             "gemini": GeminiClient(GeminiClientConfig(model=self.config.gemini_model, timeout_seconds=self.config.gemini_timeout, api_key=os.getenv("GEMINI_API_KEY", ""))),
-            "ollama": OllamaClient(OllamaClientConfig(model=self.config.ollama_model)),
-            "template": TemplateExplainer(),  # siempre disponible
+            "template": TemplateExplainer(),  # siempre disponible, sin red
         }
         if clients:
             default_clients.update({k.lower(): v for k, v in clients.items()})
@@ -280,11 +279,10 @@ class ExplanationService:
         client = self.clients.get(provider)
         if client is None:
             raise ValueError(f"Proveedor '{provider}' no registrado. Disponibles: {sorted(self.clients)}")
-        # Resolver modelo según provider
+        # Resolver modelo segun provider (solo nube)
         target_model = model or {
             "groq": self.config.groq_model,
             "gemini": self.config.gemini_model,
-            "ollama": self.config.ollama_model,
         }.get(provider, self.config.groq_model)
 
         prompt = build_llm_prompt(scan_result)
@@ -359,8 +357,7 @@ def list_providers():
         "available": {
             "groq": bool(os.getenv("GROQ_API_KEY")),
             "gemini": bool(os.getenv("GEMINI_API_KEY")),
-            "ollama": True,  # siempre intentable, verifica healthcheck aparte
-            "template": True,
+            "template": True,  # offline deterministico, nunca falta
         },
         "models": {
             "groq": os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"),
@@ -380,13 +377,12 @@ Alternativa sin nuevo endpoint: exponer en `GET /health` existente junto a `MAX_
 
 ```tsx
 // frontend/src/components/ScanResult.tsx
-type ProviderBadge = "groq" | "gemini" | "template" | "ollama";
+type ProviderBadge = "groq" | "gemini" | "template";
 function ProviderPill({ provider }: { provider: ProviderBadge }) {
   const map = {
-    groq:   { label: "Groq • gpt-oss-20b",   color: "bg-orange-500" },
-    gemini: { label: "Gemini • flash-lite", color: "bg-blue-500" },
-    template: { label: "Offline • Nativo",  color: "bg-zinc-500" },
-    ollama: { label: "Ollama • Local",     color: "bg-green-600" },
+    groq:   { label: "Groq · gpt-oss-20b",   color: "bg-orange-500" },
+    gemini: { label: "Gemini · flash-lite", color: "bg-blue-500" },
+    template: { label: "Offline · Nativo",  color: "bg-zinc-500" },
   };
   const m = map[provider] ?? map.template;
   return <span className={`px-2 py-0.5 rounded text-xs text-white ${m.color}`}>{m.label}</span>;
@@ -408,7 +404,7 @@ function ProviderPill({ provider }: { provider: ProviderBadge }) {
 | **A04 Rate limit abuse** | 429 → fallover inmediato sin retry loop; timeouts 10s Groq / 12s Gemini; no reintento con backoff infinito. |
 | **A06 Vulnerable deps** | `openai>=1.0.0` ya en `requirements/base.in:22`; no añadir `google-generativeai` innecesario (usa endpoint OpenAI-compatible). |
 | **A09 Logging** | `logger.warning` trunca `last_error` a 300 chars; no incluye `prompt` completo en prod (`APP_DEBUG=false`). |
-| **Transporte** | Ambos endpoints `https://`; validar `base_url` inicia con `https://` en prod (`ENVIRONMENT=prod` guard similar a `ollama_client.py:135`). |
+| **Transporte** | Ambos endpoints `https://`; validar `base_url` inicia con `https://` en prod (`ENVIRONMENT=prod` guard en `core/llm/base_client.py`). |
 | **Disponibilidad** | `TemplateExplainer` sin red/keys garantiza Degraded-but-Operational; tests de contrato lo verifican. |
 
 ---
@@ -473,5 +469,5 @@ if __name__ == "__main__":
 * No añadir `torch` ni `google-generativeai` a `base.in` — el endpoint OpenAI-compatible de Gemini evita nueva dependencia.
 * Timeout Gemini 12s > Groq 10s porque Gemini Flash-Lite tiene p50 similar pero p95 mayor.
 * Si `gemini-3.5-flash-lite` no está aún en tu región de AI Studio, usar `gemini-3.5-flash-lite-preview` como alias (mismo contrato). `gemini-2.0-flash-lite` está retirado — no usar. No usar `gemini-1.5-flash` salvo fallback documental.
-* Mantener `TemplateExplainer` idéntico al ya especificado en `docs/IntegracionOllama-Nolocal.md:145` — no requiere IA ni red, 0 MB, <0.001s.
+* Mantener `TemplateExplainer` (`core/llm/template_explainer.py`) identico — no requiere IA ni red, 0 MB, <0.001s.
 

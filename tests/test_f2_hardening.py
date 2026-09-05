@@ -596,25 +596,26 @@ class TestLLMValidation:
         )
         assert many["llm_confidence"] >= few["llm_confidence"]
 
-    def test_prod_localhost_raises(self):
-        """OllamaClient con ENVIRONMENT=prod y URL localhost debe lanzar RuntimeError."""
-        from core.llm.ollama_client import OllamaClient, OllamaClientConfig
-        config = OllamaClientConfig(base_url="http://127.0.0.1:11434/v1")
+    def test_prod_http_raises(self):
+        """GroqClient con ENVIRONMENT=prod y base_url http debe lanzar RuntimeError (HTTPS requerido)."""
+        from core.llm.groq_client import GroqClient, GroqClientConfig
+
+        config = GroqClientConfig(api_key="test-key", base_url="http://api.groq.com/openai/v1")
 
         with patch.dict(os.environ, {"ENVIRONMENT": "prod"}):
-            with patch("core.llm.ollama_client.OpenAI"):
-                with pytest.raises(RuntimeError, match="OLLAMA_BASE_URL apunta a localhost"):
-                    OllamaClient(config)
+            with patch("core.llm.base_client.OpenAI"):
+                with pytest.raises(RuntimeError, match="HTTPS en produccion"):
+                    GroqClient(config)
 
-    def test_prod_external_url_ok(self):
-        """OllamaClient con ENVIRONMENT=prod y URL externa no debe lanzar error."""
-        from core.llm.ollama_client import OllamaClient, OllamaClientConfig
-        config = OllamaClientConfig(base_url="https://demo.trycloudflare.com/v1")
+    def test_prod_https_ok(self):
+        """GroqClient con ENVIRONMENT=prod y base_url https no debe lanzar error."""
+        from core.llm.groq_client import GroqClient, GroqClientConfig
+
+        config = GroqClientConfig(api_key="test-key", base_url="https://api.groq.com/openai/v1")
 
         with patch.dict(os.environ, {"ENVIRONMENT": "prod"}):
-            with patch("core.llm.ollama_client.OpenAI"):
-                # No debe lanzar excepcion
-                client = OllamaClient(config)
+            with patch("core.llm.base_client.OpenAI"):
+                client = GroqClient(config)
                 assert client is not None
 
     def test_explain_includes_validation_fields(self):
@@ -630,8 +631,8 @@ class TestLLMValidation:
         })
 
         svc = ExplanationService(
-            config=ExplanationServiceConfig(default_provider="ollama"),
-            clients={"ollama": mock_client},
+            config=ExplanationServiceConfig(default_provider="groq"),
+            clients={"groq": mock_client},
         )
         scan_result = {
             "risk_level": "HIGH",

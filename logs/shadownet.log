@@ -14448,3 +14448,27 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-09-04 11:30:53,881 - core.remediation - WARNING - Exe mismatch rechazado: pid=12345 expected=/opt/malware/evil.exe actual=/usr/bin/python3
 2026-09-04 11:30:53,883 - core.remediation - INFO - Remediación solicitada: pid=99999 reason=test scan_id=test-scan-003 expected_exe=None
 2026-09-04 11:30:53,884 - core.remediation - ERROR - Permiso denegado al enviar SIGTERM a pid=99999: Operation not permitted
+2026-09-04 21:54:12,743 - security.yara_scanner - INFO - Whitelist: SHA-256 aaaaaaaaaaaaaaaa... coincide con hash conocido-benigno
+2026-09-04 21:54:12,749 - security.yara_scanner - INFO - Whitelist: regla 'Keylogger_Generic' esta en yara_exclusions — degradando a SUSPICIOUS
+2026-09-04 21:54:12,753 - security.yara_scanner - WARNING - Whitelist no disponible (continuando sin el): Expecting value: line 1 column 1 (char 0)
+2026-09-04 21:54:12,756 - core.engine - INFO - YARA whitelist: procexp64.exe degradado de DANGEROUS a SUSPICIOUS (reglas: ['Keylogger_Generic'] | sha256: dcb8daf9f7b51b4b...)
+2026-09-04 21:54:12,763 - core.overlay - INFO - Overlay analizado — size=0.1MB ratio=99.2% entropy=7.9987 embedded_pe=0 installer=no suspicious_strings=0
+2026-09-04 21:54:12,765 - core.heuristics - INFO - Heurística — score=15 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-09-04 21:54:12,766 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-04 21:54:12,769 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-09-04 21:54:12,770 - core.overlay - WARNING - Installer spoof sospechado: tipo=NSIS overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-09-04 21:54:12,771 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0051 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-09-04 21:54:12,773 - core.overlay - INFO - Firma de instalador detectada: InnoSetup
+2026-09-04 21:54:12,773 - core.overlay - WARNING - Installer spoof sospechado: tipo=InnoSetup overlay=98.0% (> 93% para instalador NSIS/InnoSetup es anomalo)
+2026-09-04 21:54:12,774 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=98.0% entropy=0.0043 embedded_pe=0 installer=InnoSetup suspicious_strings=0
+2026-09-04 21:54:12,776 - core.overlay - INFO - Firma de instalador detectada: NSIS
+2026-09-04 21:54:12,776 - core.overlay - INFO - Instalador legitimo confirmado: NSIS (overlay=5.9%, FP protection activa)
+2026-09-04 21:54:12,777 - core.overlay - INFO - Overlay analizado — size=0.0MB ratio=5.9% entropy=0.0378 embedded_pe=0 installer=NSIS suspicious_strings=0
+2026-09-04 21:54:12,778 - core.heuristics - WARNING - Installer spoof detectado: descuento cancelado. overlay_ratio=0.99
+2026-09-04 21:54:12,779 - core.heuristics - INFO - Heurística — score=80 level=CRITICAL operational=DANGEROUS is_dotnet=False | triggers=5
+2026-09-04 21:54:12,779 - core.heuristics - INFO - Heurística — score=60 level=HIGH operational=SUSPICIOUS is_dotnet=False | triggers=5
+2026-09-04 21:54:12,780 - core.heuristics - INFO - Heurística — score=5 level=LOW operational=CLEAN is_dotnet=False | triggers=2
+2026-09-04 21:54:12,781 - core.heuristics - INFO - Heurística — score=25 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=1
+2026-09-04 21:54:12,796 - core.heuristics - INFO - Heurística — score=30 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
+2026-09-04 21:54:12,797 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN is_dotnet=False | triggers=1
+2026-09-04 21:54:12,799 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0

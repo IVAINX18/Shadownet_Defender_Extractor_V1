@@ -25,8 +25,8 @@ class _DummyExplanationService:
 
     def explain(self, scan_result, provider=None, model=None):
         return {
-            "provider": provider or "ollama",
-            "model": model or "mistral",
+            "provider": provider or "groq",
+            "model": model or "openai/gpt-oss-20b",
             "response_text": '{"resumen_ejecutivo":"ok"}',
         }
 
@@ -35,7 +35,7 @@ class _DummyExplanationServiceFail:
     """Stub que simula ExplanationService.explain() con fallo."""
 
     def explain(self, scan_result, provider=None, model=None):
-        raise RuntimeError("ollama no disponible")
+        raise RuntimeError("groq no disponible")
 
 
 class _DummyTelemetry:
@@ -69,8 +69,8 @@ def test_cli_scan_with_explain_success(monkeypatch):
     args = argparse.Namespace(
         file="archivo.exe",
         explain=True,
-        provider="ollama",
-        model="mistral",
+        provider="groq",
+        model="openai/gpt-oss-20b",
     )
     code = cli._cmd_scan(args)
     output = captured.getvalue()
@@ -93,8 +93,8 @@ def test_cli_scan_with_explain_error(monkeypatch):
     args = argparse.Namespace(
         file="archivo.exe",
         explain=True,
-        provider="ollama",
-        model="mistral",
+        provider="groq",
+        model="openai/gpt-oss-20b",
     )
     code = cli._cmd_scan(args)
     output = captured.getvalue()

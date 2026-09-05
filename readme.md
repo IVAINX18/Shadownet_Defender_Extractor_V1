@@ -70,7 +70,7 @@
 
 **ShadowNet Defender (SND)** es un sistema de ciberseguridad orientado a la **detección estática de malware** en ejecutables Windows (formato PE — _Portable Executable_). Convierte cada binario en un vector matemático de 2,381 dimensiones, lo normaliza estadísticamente y lo clasifica mediante una **red neuronal profunda (DNN)** exportada a ONNX.
 
-Acompañando a esta clasificación por ML, el sistema emplea un **pipeline heurístico multicapa** que inspecciona overlays, secciones empaquetadas, coincidencias YARA y comportamientos .NET, integrando finalmente los resultados con **modelos de lenguaje (LLM)** locales como Ollama para explicar la decisión.
+Acompañando a esta clasificación por ML, el sistema emplea un **pipeline heurístico multicapa** que inspecciona overlays, secciones empaquetadas, coincidencias YARA y comportamientos .NET, integrando finalmente los resultados con **modelos de lenguaje (LLM) en la nube (Groq/Gemini)** para explicar la decisión mediante cascada resiliente.
 
 ---
 
@@ -93,7 +93,7 @@ El sistema se presenta como una suite completa de ciberseguridad compuesta por:
 - Extractor de 2,381 dimensiones compatible con EMBER 2.0.
 - Entrenamiento de modelo sobre dataset masivo (SOREL-20M + in-the-wild).
 - Pipeline híbrido para evadir ataques adversarios y técnicas de empaquetamiento.
-- Explicaciones generativas (Ollama) locales sin dependencia cloud.
+- Explicaciones generativas cloud (Groq primario -> Gemini secundario -> Template offline) con cascada resiliente y sin dependencia local.
 - Autenticación y sincronización con Supabase (offline-first).
 
 ---
@@ -114,7 +114,7 @@ ShadowNet Defender aplica **Machine Learning sobre análisis estático** y **Heu
 - **Inferencia CPU Ligera:** Exportación a ONNX y normalización Z-Score estática (tiempo < 50ms inferencia pura).
 - **BehavioralShield:** Capa dinámica (Fase 8) para monitorizar procesos vivos y detectar inyecciones, networking, persistencia (registro).
 - **SHAP Explainer:** Interpretación de ML con explicabilidad formal matemática.
-- **Explicación LLM GenAI:** Generación estructurada JSON a través de Ollama.
+- **Explicación LLM GenAI:** Generación estructurada JSON vía cascada cloud Groq/Gemini (SDK `openai` + `response_format json_object`) con fallback `TemplateExplainer` offline.
 - **Hardening Extractor:** Fallback por tamaño, muestreo distribuido, tolerancia a PE corruptos.
 
 ---
@@ -138,7 +138,7 @@ flowchart TD
   C --> I[Fase 6: BehavioralShield opt.]
   C --> J[Fase 7: Risk Engine]
   J --> K[ScanResult Tripartito]
-  K --> L[Explicación LLM Ollama / SHAP]
+  K --> L[Explicación LLM (Groq/Gemini/template) / SHAP]
   L --> M[n8n Webhook / Persistencia]
 ```
 
@@ -155,7 +155,7 @@ Para conocer el análisis completo de esta arquitectura, consulte:
 4. **Machine Learning (Fase 3):** Se procesa el binario, el `PEFeatureExtractor` genera el vector, se escala y pasa por el clasificador ML.
 5. **Overlay y Heurística (Fase 4 y 5):** Si el binario oculta carga útil (overlay), se detecta con heurística (tamaño vs PE size) y análisis de strings/entropía.
 6. **Risk Engine (Fase 7):** Asigna un score combinando todos los módulos (ML + Overlay + YARA) logrando un veredicto consolidado (`CLEAN`, `SUSPICIOUS`, `DANGEROUS`).
-7. **Explicabilidad:** Opcionalmente SHAP values u Ollama LLM describen el porqué de la decisión.
+7. **Explicabilidad:** Opcionalmente SHAP values o LLM cloud (Groq/Gemini) describen el porqué de la decisión.
 8. **Automatización:** n8n recibe eventos `DANGEROUS` o `SUSPICIOUS` configurados para orquestación SOC.
 
 ---
@@ -182,7 +182,7 @@ Para conocer el análisis completo de esta arquitectura, consulte:
 
 ### Inteligencia Artificial
 - **PyTorch:** Usado offline para entrenamiento de la Red Neuronal (MLP).
-- **Ollama / Llama3.2:** LLM local, usado para resúmenes de análisis estático sin depender de cloud.
+- **Groq (`openai/gpt-oss-20b`) / Gemini (`gemini-3.5-flash-lite`):** LLM cloud vía endpoint OpenAI-compatible (SDK `openai`) + `TemplateExplainer` offline como fallback determinístico.
 - **SHAP:** XAI (Explicabilidad de IA) para atribución de características en inferencia de modelos ONNX.
 
 ### Automatización y Base de Datos
@@ -270,11 +270,15 @@ SUPABASE_URL="https://tu-proyecto.supabase.co"
 SUPABASE_JWT_SECRET="tu-secret"
 ```
 
-Para **Ollama** (LLM Explicador):
-Debes instalar Ollama localmente (https://ollama.com/) y tener un modelo (ej. `llama3.2:3b` o `phi3`) descargado.
+Para **LLM cloud** (cascada Groq -> Gemini -> template):
+Configura las API keys en `.env` (ver `.env.example`). Sin keys, la cascada degenera a `TemplateExplainer` offline.
 ```bash
-OLLAMA_BASE_URL="http://127.0.0.1:11434/v1"
-OLLAMA_MODEL="llama3.2:3b"
+GROQ_API_KEY="gsk_..."
+GROQ_MODEL="openai/gpt-oss-20b"
+GEMINI_API_KEY="AIza..."
+GEMINI_MODEL="gemini-3.5-flash-lite"
+LLM_PROVIDER=groq
+LLM_PROVIDER_ORDER=groq,gemini,template
 ```
 
 Para integración **n8n** SOC:
@@ -324,9 +328,12 @@ Escanear un archivo rápido sin IA:
 python cli.py scan samples/procexp64.exe
 ```
 
-Escanear, explicar con Ollama y forzar modelo:
+Escanear y explicar vía cascada cloud (Groq -> Gemini -> template offline):
 ```bash
-python cli.py scan samples/procexp64.exe --explain --provider ollama --model llama3.2:3b
+python cli.py scan samples/procexp64.exe --explain
+# Forzar proveedor/modelo:
+python cli.py scan samples/procexp64.exe --explain --provider groq
+python cli.py scan samples/procexp64.exe --explain --provider gemini --model gemini-3.5-flash-lite
 ```
 
 Validar el hash de los modelos ONNX:
@@ -530,7 +537,7 @@ Para mitigaciones previstas: [Limitaciones](docs/academico/13_limitaciones.md).
 - [Comparación ML vs Híbrido](docs/academico/08_comparacion_ml_vs_hibrido.md)
 - [Limitaciones y Evasión](docs/academico/13_limitaciones.md)
 - [Trabajo Futuro (Roadmap)](docs/academico/14_trabajo_futuro.md)
-- [Explicabilidad e Integración Ollama](docs/academico/15_ollama.md)
+- [Cascada LLM Tri-Fallover (Groq/Gemini/template)](docs/TriFallover_Groq_Gemini_Template.md)
 - [Task V4 (Hardening y Ajustes)](docs/academico/TaskV4.md)
 - [Artículo Base y Tesis](docs/academico/articulo_base.md)
 

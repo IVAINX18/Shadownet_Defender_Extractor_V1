@@ -9,7 +9,6 @@ from typing import Any, Dict, List, Optional, Protocol
 
 from .gemini_client import GeminiClient, GeminiClientConfig
 from .groq_client import GroqClient, GroqClientConfig
-from .ollama_client import OllamaClient, OllamaClientConfig
 from .prompt_builder import build_llm_prompt
 from .template_explainer import TemplateExplainer
 
@@ -127,9 +126,8 @@ def _validate_llm_response(parsed: dict, scan_result: dict) -> dict:
 
 class LLMClient(Protocol):
     """
-    Contrato minimo para clientes LLM.
-
-    Permite reemplazar Ollama por OpenAI, Gemini o Claude sin cambiar la capa de servicio.
+    Contrato minimo para clientes LLM en la nube (Groq, Gemini u otro
+    OpenAI-compatible). Permite añadir un nuevo proveedor sin tocar explain().
     """
 
     def generate(self, prompt: str, *, model: str | None = None) -> str:
@@ -139,12 +137,14 @@ class LLMClient(Protocol):
 @dataclass
 class ExplanationServiceConfig:
     """
-    Configuracion del servicio de explicacion con cascada Tri-Fallover.
+    Configuracion del servicio de explicacion con cascada Tri-Fallover cloud.
 
-    provider_order define la prelación de fallover cuando un proveedor falla
-    por cuota (429), red o timeout. Cada proveedor lee su modelo del entorno:
-    GROQ_MODEL (default openai/gpt-oss-20b), GEMINI_MODEL
-    (default gemini-3.5-flash-lite) y OLLAMA_MODEL (default llama3.2:3b).
+    provider_order define la prelacion de fallover cuando un proveedor falla
+    por cuota (429), red o timeout. Solo cloud: GROQ_MODEL
+    (default openai/gpt-oss-20b) y GEMINI_MODEL (default gemini-3.5-flash-lite).
+    `default_model` se mantiene por compatibilidad con clientes inyectados en
+    tests/CLI que no usan groq/gemini; para groq/gemini se resuelve el modelo
+    propio del proveedor.
     """
 
     default_provider: str = field(
@@ -157,10 +157,9 @@ class ExplanationServiceConfig:
             if p.strip()
         ]
     )
-    # default_model aplica a ollama (y a clientes inyectados en tests); groq y
-    # gemini resuelven su modelo propio, asi el contrato legacy no se rompe.
+    # Legacy/fallback para clientes inyectados en tests; no se usa para groq/gemini.
     default_model: str = field(
-        default_factory=lambda: os.getenv("OLLAMA_MODEL", "llama3.2:3b")
+        default_factory=lambda: os.getenv("LLM_MODEL", os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"))
     )
     groq_model: str = field(
         default_factory=lambda: os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
@@ -203,9 +202,6 @@ class ExplanationService:
             "gemini": lambda: GeminiClient(
                 GeminiClientConfig(model=self.config.gemini_model)
             ),
-            "ollama": lambda: OllamaClient(
-                OllamaClientConfig(model=self.config.default_model)
-            ),
             "template": lambda: TemplateExplainer(),
         }
         self._template = TemplateExplainer()
@@ -226,8 +222,8 @@ class ExplanationService:
         try:
             client = factory()
         except Exception as exc:
-            # Un default roto (p.ej. Ollama en localhost con ENVIRONMENT=prod)
-            # no debe tumbar el servicio: se registra y se hace fallover.
+            # Un factory roto (p.ej. base_url sin HTTPS en prod) no debe
+            # tumbar el servicio: se registra y se hace fallover.
             logger.warning("No se pudo construir cliente %s: %s", provider, exc)
             return None
         self._clients[provider] = client
@@ -253,6 +249,7 @@ class ExplanationService:
             return self.config.groq_model
         if provider == "gemini":
             return self.config.gemini_model
+        # Clientes inyectados / template usan default_model por compat.
         return self.config.default_model
 
     def _try_provider(

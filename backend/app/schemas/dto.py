@@ -277,7 +277,7 @@ class ExplainRequest(BaseModel):
     provider: Optional[str] = Field(
         default=None,
         description=(
-            "Proveedor LLM explícito (groq|gemini|ollama|template). "
+            "Proveedor LLM explicito (groq|gemini|template). "
             "Si se omite, el backend aplica la cascada Tri-Fallover "
             "configurada en LLM_PROVIDER / LLM_PROVIDER_ORDER."
         ),

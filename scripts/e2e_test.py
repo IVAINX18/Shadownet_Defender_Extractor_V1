@@ -4,8 +4,8 @@ scripts/e2e_test.py — Test E2E completo de ShadowNet Defender.
 Simulo un flujo real de usuario:
   1. Login con Supabase (usando SUPABASE_ANON_KEY desde .env)
   2. Escaneo de todos los archivos en samples/
-  3. Generación de explicación con Ollama
-  4. Verificación de persistencia en Supabase
+  3. Generacion de explicacion via cascada cloud (Groq -> Gemini -> template)
+  4. Verificacion de persistencia en Supabase
 
 Leo TODAS las credenciales desde .env — nunca hardcodeo valores sensibles.
 """
@@ -207,13 +207,13 @@ def scan_file(file_path: Path, token: str) -> Optional[Dict[str, Any]]:
 
 def explain(scan_data: Dict[str, Any], token: str) -> Optional[Dict[str, Any]]:
     """
-    Envío un scan_result al endpoint /analysis/explain para que Ollama
-    genere una explicación técnica. Si el LLM falla o hace timeout,
-    el backend retorna un fallback (no error).
+    Envio un scan_result al endpoint /analysis/explain para que la cascada
+    cloud (Groq -> Gemini -> template) genere una explicacion tecnica. Si
+    el LLM falla o hace timeout, el backend retorna un fallback (no error).
     """
     payload = json.dumps({
         "scan_result": scan_data,
-        "provider": "ollama",
+        # provider omitido -> el backend aplica la cascada Tri-Fallover
     }).encode()
 
     t0 = time.time()
@@ -381,7 +381,7 @@ def main() -> None:
     # --- 3. LLM Explain (con el primer resultado exitoso) ---
     print()
     print("=" * 60)
-    print("3. EXPLICACIÓN LLM (Ollama)")
+    print("3. EXPLICACION LLM (Groq/Gemini/template)")
     print("=" * 60)
 
     if scan_results:

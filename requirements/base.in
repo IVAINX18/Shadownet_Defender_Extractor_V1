@@ -23,7 +23,7 @@ supabase>=2.0.0
 # --- CLI y visualización en terminal ---
 rich>=13.7.0
 
-# --- LLM (Ollama vía OpenAI-compatible API) ---
+# --- LLM cloud (Groq/Gemini vía OpenAI-compatible API) ---
 openai>=1.0.0
 
 # --- HTTP (n8n webhook, updater, telemetry) ---
