@@ -360,7 +360,9 @@ def scan_and_explain(
     2. Clasificación tripartita
     3. Explicación LLM (opcional)
     4. Persistencia en Supabase (con fallback offline)
-    5. Alerta N8N si resultado es malicious
+       → INSERT dispara Database Webhook → Edge Function → Resend (Fase 1-2)
+    5. Alerta n8n (fallback) si resultado es malicious/DANGEROUS
+       Se mantiene para rollback; desactívalo con N8N_ENABLED=false tras validar Resend.
 
     Args:
         file_path: Ruta al archivo a escanear.
@@ -422,12 +424,20 @@ def _queue_offline(result_dict: dict) -> None:
 
 
 def _notify_n8n(scan_result: ScanResult) -> None:
-    """Envía alerta a N8N delegando la lógica de filtrado a send_scan_result."""
+    """
+    Envía alerta a n8n (modo compatibilidad / rollback).
+
+    Fase 3 n8n→Resend: el flujo primario de alertas es ahora
+    Supabase Database Webhook → Edge Function send-malware-alert → Resend.
+    Esta función se mantiene como fallback mientras N8N_ENABLED=true
+    para permitir rollback sin pérdida de funcionalidad. No elimina
+    funcionalidad existente; el INSERT en save_scan_safe ya dispara Resend.
+    """
     try:
         from core.integrations.n8n_client import send_scan_result
         send_scan_result(scan_result.model_dump())
     except Exception as exc:
-        logger.warning("Error enviando alerta N8N: %s", exc)
+        logger.warning("Error enviando alerta N8N (fallback): %s", exc)
 
 
 # Compatibilidad retroactiva — alias del nombre anterior

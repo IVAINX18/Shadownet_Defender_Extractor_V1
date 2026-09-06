@@ -174,6 +174,8 @@ def save_scan(data: Dict[str, Any]) -> Dict[str, Any]:
         "user_id": data.get("user_id"),
         "user_email": data.get("user_email"),
         "offline": bool(data.get("offline", False)),
+        # Fase 1 n8n→Resend: idempotencia para Edge Function (evita duplicados en retries)
+        "alert_sent": bool(data.get("alert_sent", False)),
         "metadata": {
             k: v for k, v in data.items()
             if k in ("features_detected", "timestamp")

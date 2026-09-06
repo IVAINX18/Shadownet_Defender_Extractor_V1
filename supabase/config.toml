@@ -1,0 +1,48 @@
+# supabase/config.toml — ShadowNet Defender
+# Generado Fase 2: n8n → Supabase+Resend. Minimal para Edge Functions local.
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow = true
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+enabled = true
+port = 54325
+file_size_limit = "50MiB"
+# No file storage extra necesario para alertas
+
+[auth]
+enabled = true
+port = 54325
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://localhost:3000"]
+jwt_expiry = 3600
+enable_signup = true
+enable_confirmations = false
+enable_manual_linking = true
+third_party_auth = { enabled = false }
+
+# Edge Functions — send-malware-alert
+[functions.send-malware-alert]
+enabled = true
+verify_jwt = false
+import_map = "./functions/send-malware-alert/import_map.json"
+entrypoint = "./functions/send-malware-alert/index.ts"
+

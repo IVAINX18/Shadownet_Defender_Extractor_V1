@@ -48,8 +48,10 @@ def run_scan_explain_pipeline(
     ``automation``.  Presentation (Rich tables, JSON responses) is left
     to the caller.
 
-    N8N dispatch ahora usa send_scan_result() internamente y solo
-    envía alertas cuando result == 'malicious'.
+    N8N dispatch usa send_scan_result() solo si dispatch_n8n=True.
+    Fase 3 n8n→Resend: el flujo primario es Supabase Webhook → Resend;
+    este flag se mantiene para compatibilidad/rollback (N8N_ENABLED=false
+    desactiva el envío aunque dispatch_n8n=True).
     """
     start = time.time()
     try:

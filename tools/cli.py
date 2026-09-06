@@ -11,6 +11,8 @@ from rich.panel import Panel
 from rich.table import Table
 
 from core.engine import ShadowNetEngine
+# Fase 3 n8n→Resend: n8n se mantiene como fallback/rollback; flujo primario
+# es Supabase Webhook → Edge Function → Resend tras persistir en scan_results.
 from core.integrations.n8n_client import send_scan_result
 from core.scan_pipeline import run_scan_explain_pipeline
 from core.llm.explanation_service import ExplanationService, ExplanationServiceConfig
@@ -129,7 +131,8 @@ def _cmd_scan(args: argparse.Namespace) -> int:
     result = engine.scan_file(args.file)
 
     if not args.explain:
-        # N8N dispatch — solo envía si es malicious
+        # Fase 3: n8n fallback — solo envia si N8N_ENABLED=true y result es malicious/DANGEROUS.
+        # Flujo primario Resend se dispara via Supabase Webhook tras persistir (Fase 1-2).
         send_scan_result(result)
         # Mostrar resultado con rich
         scan_table = Table(title="🔬 Resultado del Escaneo", show_header=False)

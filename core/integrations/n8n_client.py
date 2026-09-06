@@ -9,6 +9,13 @@ Mejoras de auditoría (Tarea 12):
   12.2 — Payload extendido con campos de auditoría
   12.3 — Retry exponencial (1s, 2s) en HTTP >= 500 (máx 2 reintentos)
   12.4 — Sanitización de payload con _safe_json antes de enviar
+
+Fase 3 n8n→Resend (compatibilidad):
+  Este módulo se mantiene activo para rollback. El flujo primario de alertas
+  es ahora Supabase Database Webhook → supabase/functions/send-malware-alert
+  → Resend (ver docs/database/supabase_migration_resend.sql). Mientras
+  N8N_ENABLED=true el pipeline sigue enviando a n8n; para cortar a solo
+  Resend, fija N8N_ENABLED=false y valida Edge Function en staging.
 """
 
 from __future__ import annotations

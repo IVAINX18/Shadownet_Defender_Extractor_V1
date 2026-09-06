@@ -14472,3 +14472,14 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-09-04 21:54:12,796 - core.heuristics - INFO - Heurística — score=30 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=2
 2026-09-04 21:54:12,797 - core.heuristics - INFO - Heurística — score=20 level=LOW operational=CLEAN is_dotnet=False | triggers=1
 2026-09-04 21:54:12,799 - core.heuristics - INFO - Heurística — score=0 level=LOW operational=CLEAN is_dotnet=False | triggers=0
+2026-09-05 14:28:29,062 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: evil.exe (HTTP 200, intento 1)
+2026-09-05 14:28:29,071 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: evil.exe (HTTP 200, intento 1)
+2026-09-05 14:28:29,074 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: evil.exe (HTTP 200, intento 1)
+2026-09-05 14:28:29,077 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] HTTP 500 en intento 1/3, reintentando en 1s...
+2026-09-05 14:28:29,078 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] HTTP 500 en intento 2/3, reintentando en 2s...
+2026-09-05 14:28:29,078 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] HTTP 500 tras 3 intentos
+2026-09-05 14:28:29,086 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: malware.exe (HTTP 200, intento 1)
+2026-09-05 14:28:29,088 - core.integrations.n8n_client - INFO - [ShadowNet-N8N] Alerta enviada: dropper.exe (HTTP 200, intento 1)
+2026-09-05 14:28:29,090 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 1/3: Connection refused, reintentando en 1s...
+2026-09-05 14:28:30,091 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 2/3: Connection refused, reintentando en 2s...
+2026-09-05 14:28:32,093 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] Error de red tras 3 intentos: Connection refused
