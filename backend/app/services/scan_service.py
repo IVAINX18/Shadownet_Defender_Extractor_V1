@@ -221,25 +221,49 @@ def scan_single_file(
         )
 
     else:
-        # Archivo PE válido — uso el score del modelo ML
-        score = float(raw_result.get("score", 0.0))
-        if score < 0.0:
-            score = 0.0
-
-        result_label, risk_level = classify_tripartite(score)
-        confidence    = round(score, 4)
-        analysis_type = AnalysisType.PE
-
-        logger.info(
-            "Archivo PE analizado: %s | type=pe | result=%s | risk=%s | "
-            "score=%.4f | unpacked=%s | inference_time=%.3fs",
-            file_path.name,
-            result_label.value,
-            risk_level.value,
-            score,
-            was_unpacked,
-            elapsed,
-        )
+        # Archivo PE válido — usar veredicto de Correlation Engine si existe (Fase 2)
+        # para no reintroducir last-writer-wins via tripartita sobre score ML puro.
+        if raw_result.get("final_verdict") and raw_result.get("correlation"):
+            final = raw_result["final_verdict"]
+            # Mapear verdict de correlation a DTO enums
+            fv = final.get("verdict", "benign")
+            frisk = final.get("risk_level", "low")
+            label_map = {"benign": ScanResultLabel.BENIGN, "suspicious": ScanResultLabel.SUSPICIOUS, "malicious": ScanResultLabel.MALICIOUS, "unknown": ScanResultLabel.SUSPICIOUS}
+            risk_map = {"low": RiskLevel.LOW, "medium": RiskLevel.MEDIUM, "high": RiskLevel.HIGH, "critical": RiskLevel.HIGH}
+            result_label = label_map.get(fv, ScanResultLabel.SUSPICIOUS)
+            risk_level = risk_map.get(frisk, RiskLevel.LOW)
+            confidence = round(float(raw_result.get("score", 0.0)), 4)
+            analysis_type = AnalysisType.PE
+            logger.info(
+                "Archivo PE analizado (correlation): %s | type=pe | result=%s | risk=%s | "
+                "score=%.4f | ml_raw=%.4f | unpacked=%s | time=%.3fs | sources=%s",
+                file_path.name,
+                result_label.value,
+                risk_level.value,
+                confidence,
+                final.get("ml_score_raw", 0.0),
+                was_unpacked,
+                elapsed,
+                ",".join(final.get("contributing_sources", [])),
+            )
+        else:
+            # Fallback legacy: tripartita sobre score ML (sin correlation)
+            score = float(raw_result.get("score", 0.0))
+            if score < 0.0:
+                score = 0.0
+            result_label, risk_level = classify_tripartite(score)
+            confidence    = round(score, 4)
+            analysis_type = AnalysisType.PE
+            logger.info(
+                "Archivo PE analizado: %s | type=pe | result=%s | risk=%s | "
+                "score=%.4f | unpacked=%s | inference_time=%.3fs",
+                file_path.name,
+                result_label.value,
+                risk_level.value,
+                score,
+                was_unpacked,
+                elapsed,
+            )
 
     # Extraigo features detectadas del resultado del motor
     details = raw_result.get("details", {})

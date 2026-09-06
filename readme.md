@@ -119,14 +119,14 @@ ShadowNet Defender aplica **Machine Learning sobre análisis estático** y **Heu
 
 ---
 
-## 6. Arquitectura General
+## 6. Arquitectura General — F2 Evidence Contract + Correlation Engine
 
-El sistema sigue una arquitectura por capas basada en Clean Architecture.
+El sistema sigue una arquitectura por capas basada en Clean Architecture, consolidada en **F2** como pipeline **Evidence-Centric** que elimina el patrón `last writer wins`.
 
 ```mermaid
 flowchart TD
   A[Cliente / UI / CLI] -->|HTTP| B[FastAPI / backend]
-  B --> C[Motor ShadowNet core/engine.py]
+  B --> C[Motor ShadowNet core/engine.py — Fase 9 CORRELATION]
   C --> D[Fase 1: YARA]
   C --> E[Fase 2: UPX Unpack]
   C --> F[Fase 3: ML Extractor]
@@ -135,28 +135,34 @@ flowchart TD
   F2 --> F3[Modelo ONNX]
   C --> G[Fase 4: Overlay Forensics]
   C --> H[Fase 5: DotNet Analysis]
-  C --> I[Fase 6: BehavioralShield opt.]
-  C --> J[Fase 7: Risk Engine]
-  J --> K[ScanResult Tripartito]
-  K --> L[Explicación LLM (Groq/Gemini/template) / SHAP]
-  L --> M[n8n Webhook / Persistencia]
+  C --> I[Fase 6: IL Behavioral]
+  C --> J[Fase 8: BehavioralShield opt.]
+  J --> K[core/evidence.py — Evidence Contract]
+  K --> K1[Evidence: score_raw/score_norm/scale/reliability/evidence_group/status]
+  K1 --> L[core/correlation.py — CorrelationEngine]
+  L --> L1[S = Σ(w·s_norm)/Σw por grupo, max por grupo, w por Reliability]
+  L1 --> M[FinalVerdict: verdict/risk/operational + degraded/coverage/contradiction]
+  M --> N[ScanResult Tripartito compatible]
+  N --> O[Explicación LLM (Groq/Gemini/template) / SHAP — solo explainer]
+  O --> P[Persistencia Supabase / Offline]
 ```
 
-Para conocer el análisis completo de esta arquitectura, consulte:
-[Documentación de arquitectura](docs/academico/02_arquitectura_general.md) y [Sistema Híbrido Multicapa](docs/academico/04_sistema_hibrido_multicapa.md).
+**F2** introduce `core/evidence.py` (Evidence Contract) y `core/correlation.py` (CorrelationEngine) con `score_raw` preservado, `score_norm 0-1`, `reliability` (DETERMINISTIC 1.0 → DEGRADED 0.25), `evidence_group` anti-double-counting (`pe_heuristic` max), `UNAVAILABLE≠BENIGN`, `FinalVerdict` con `Verdict/Risk/Operational` separados y `UNKNOWN/DEGRADED`. Doc: `docs/arquitectura/F2_EVIDENCE_CORRELATION.md`.
+
+Para análisis completo: [02_arquitectura_general](docs/academico/02_arquitectura_general.md) y [04_sistema_hibrido_multicapa](docs/academico/04_sistema_hibrido_multicapa.md).
 
 ---
 
 ## 7. Flujo de Funcionamiento
 
-1. **Recepción:** El binario PE llega a través de API, CLI o subida directa.
-2. **Determinismo (Fase 1):** `YaraScanner` verifica si hay coincidencias exactas conocidas.
-3. **Desempaquetado (Fase 2):** Detecta y aplica UPX si el archivo está compactado.
-4. **Machine Learning (Fase 3):** Se procesa el binario, el `PEFeatureExtractor` genera el vector, se escala y pasa por el clasificador ML.
-5. **Overlay y Heurística (Fase 4 y 5):** Si el binario oculta carga útil (overlay), se detecta con heurística (tamaño vs PE size) y análisis de strings/entropía.
-6. **Risk Engine (Fase 7):** Asigna un score combinando todos los módulos (ML + Overlay + YARA) logrando un veredicto consolidado (`CLEAN`, `SUSPICIOUS`, `DANGEROUS`).
-7. **Explicabilidad:** Opcionalmente SHAP values o LLM cloud (Groq/Gemini) describen el porqué de la decisión.
-8. **Automatización:** n8n recibe eventos `DANGEROUS` o `SUSPICIOUS` configurados para orquestación SOC.
+1. **Recepción:** El binario PE llega vía API/CLI/subida.
+2. **Determinismo (Fase 1):** `YaraScanner` → evidencia determinista (no instalado = `UNAVAILABLE`, no `BENIGN`).
+3. **Desempaquetado (Fase 2):** UPX si compactado.
+4. **Machine Learning (Fase 3):** `PEFeatureExtractor` → vector 2381 → `scaler.pkl` → `best_model.onnx` → evidencia `ML` con `score_raw` preservado (nunca fabricado) y `score_norm 0-1`.
+5. **Overlay/DotNet/IL (Fases 4-6):** Cada capa emite `Evidence` independiente con `score_raw`/`score_norm`/`reliability`/`evidence_group`/`status`.
+6. **Correlación (Fase 9):** `CorrelationEngine` recibe `Evidence[]`, calcula `S = Σ(w·s_norm)/Σw` por grupo (max por `pe_heuristic` para evitar doble conteo), aplica umbrales `S<0.15 BENIGN / 0.15-0.60 SUSPICIOUS / ≥0.60 MALICIOUS` + regla `≥2 grupos SUSPICIOUS → SUSPICIOUS` y vetos `YARA/IL≥0.75`, produce `FinalVerdict` (`verdict`/`risk`/`operational` separados, `coverage`/`contradiction`/`degraded` explícitos).
+7. **Explicabilidad:** SHAP o LLM cloud (Groq→Gemini→template) **solo explica**, nunca decide.
+8. **Automatización:** `DANGEROUS`/`SUSPICIOUS` → Supabase Webhook → `send-malware-alert` (SMTP).
 
 ---
 
@@ -395,24 +401,21 @@ Para detalles profundos, revisar [Arquitectura Deep Learning](docs/arquitectura/
 
 ---
 
-## 19. Sistema de Detección Multicapa
+## 19. Sistema de Detección Multicapa (F2)
 
-Para contrarrestar limitaciones puras de ML tabular (adversariales), el motor `ShadowNetEngine` ejecuta múltiples analizadores independientes.
+Motor `ShadowNetEngine` con **Evidence Contract** (`core/evidence.py`) y **Correlation Engine** (`core/correlation.py`) — sin `last writer wins`.
+
+### Evidence Contract
+Cada capa emite `Evidence {source, verdict, score_raw/score_norm/scale, severity, operational_status, reliability, evidence_group, indicators, reasons, confidence, status}`. `UNAVAILABLE/DEGRADED≠BENIGN`, `score_raw` preservado, `score_norm 0-1`, `evidence_group` evita doble conteo (`pe_heuristic` max). `CNN` extensible vía `EvidenceSource.CNN` + `cnn_evidence()`.
 
 ### Análisis estático y YARA
-Se lanzan firmas base YARA desde `security/rules/` al binario para detección determinista de familias conocidas (ej. Keyloggers) con Whitelists para evitar Falsos Positivos.
+YARA determinista (`security/yara_rules/`) con `YARA UNAVAILABLE` → `UNKNOWN`, no `BENIGN`. Veto `MALICIOUS` → `CRITICAL/DANGEROUS`.
 
-### Análisis heurístico (Overlay Forensics)
-Se descubrió que malware avanzado agrega gigabytes de carga maliciosa (payload) fuera del "PE declarado" (Overlay). 
-ShadowNet extrae el ratio de tamaño del overlay, la entropía del mismo y los strings; bloqueando efectivamente _Droppers_ y empaquetados personalizados.
+### Overlay / DotNet / IL
+Overlay (forense), DotNet (contextual `obfuscator`/`reflection`), IL (semántico `MemberRef` alta confiabilidad) — cada uno evidencia independiente.
 
-### Análisis de comportamiento (BehavioralShield)
-Fase 8, dinámica (opcional `enable_behavioral=True`). Vigila PIDs activos para interceptar Handles Remotos (Inyecciones), Networking anómalo y registros de Persistencia.
-
-### Motor de Riesgo (Risk Engine)
-Agrega todos los inputs y calcula indicadores. Ejemplo: Si ML dice `BENIGN (score: 0.0)` pero _Overlay Forensics_ informa "98% del tamaño del archivo oculto en overlay cifrado (entropía 7.9)", el Risk Engine aplica un Override heurístico y escala el estado a `DANGEROUS` o `CRITICAL`.
-
-Consulte [Hallazgo Multicapa](docs/academico/05_hallazgo_multicapa.md).
+### Correlation Engine
+`S = Σ(w·s_norm)/Σw` por grupo (`w` por `Reliability`: DETERMINISTIC 1.0, HIGH 0.85, MEDIUM 0.6, LOW 0.35, DEGRADED 0.25). Thresholds `S<0.15 BENIGN`, `0.15-0.60 SUSPICIOUS`, `≥0.60 MALICIOUS`; regla `≥2 grupos → SUSPICIOUS` fija `sample2.exe` (`pe 40 + dotnet 28 → SUSPICIOUS/MEDIUM`). Vetos `IL≥0.75 CRITICAL`, `≥0.50 HIGH`, `coverage<0.30 → UNKNOWN`. `Verdict/Risk/Operational` separados. Doc `docs/arquitectura/F2_EVIDENCE_CORRELATION.md`.
 
 ---
 
@@ -556,11 +559,6 @@ Para mitigaciones previstas: [Limitaciones](docs/academico/13_limitaciones.md).
 - [Task V4 (Hardening y Ajustes)](docs/academico/TaskV4.md)
 - [Artículo Base y Tesis](docs/academico/articulo_base.md)
 
-### 📋 Especificaciones de Tareas (.kiro/specs)
-- **Mejoras de Auditoría:** [.kiro/specs/shadownet-audit-improvements/design.md](.kiro/specs/shadownet-audit-improvements/design.md)
-- **Tareas V4 (F1):** [.kiro/specs/shadownet-taskv4-f1/design.md](.kiro/specs/shadownet-taskv4-f1/design.md)
-- **Tareas V4 (F2):** [.kiro/specs/shadownet-taskv4-f2/design.md](.kiro/specs/shadownet-taskv4-f2/design.md)
-- **Tareas V4 (F3):** [.kiro/specs/shadownet-taskv4-f3/design.md](.kiro/specs/shadownet-taskv4-f3/design.md)
 
 ---
 

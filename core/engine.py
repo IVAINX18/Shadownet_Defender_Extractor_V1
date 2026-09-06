@@ -45,6 +45,23 @@ from core.overlay import OverlayAnalyzer
 from core.heuristics import HeuristicRiskEngine
 from core.dotnet import DotNetAnalyzer
 from core.dotnet.il_analyzer import ILBehavioralAnalyzer
+from core.evidence import (
+    Evidence,
+    EvidenceIndicator,
+    EvidenceSource,
+    EvidenceStatus,
+    EvidenceVerdict,
+    OperationalStatus,
+    Severity,
+    ml_evidence,
+    yara_evidence,
+    pe_static_evidence,
+    overlay_evidence,
+    heuristic_evidence,
+    dotnet_evidence,
+    il_behavioral_evidence,
+)
+from core.correlation import CorrelationEngine
 from extractors.extractor import PEFeatureExtractor
 from models.inference import ShadowNetModel
 from utils.logger import setup_logger
@@ -96,6 +113,9 @@ class ShadowNetEngine:
         except Exception as exc:
             logger.warning("BehavioralShield no disponible: %s", exc)
             self._behavioral_shield = None
+
+        # ── Módulo 10: Correlation Engine (Fase 2 — Evidence Contract) ──
+        self._correlation_engine = CorrelationEngine()
 
     # ------------------------------------------------------------------
     # API Pública
@@ -294,6 +314,15 @@ class ShadowNetEngine:
         if enable_behavioral:
             self._run_behavioral_phase(file_path, result)
         # Si el flag esta inactivo, behavioral_analysis permanece None (ya en el dict)
+
+        # ── FASE 9: Evidence Contract + Correlation Engine (Fases 1-2) ─
+        # Construye evidencias independientes de cada capa y correlaciona
+        # sin "last writer wins". Preserva score ML intacto.
+        try:
+            result = self._run_correlation_phase(file_path, result)
+        except Exception as _exc:
+            logger.error("Error en fase de correlacion para %s: %s", file_path.name, _exc)
+            result["details"]["correlation_phase_error"] = str(_exc)
 
         # ── Limpieza del archivo desempacado temporal ─────────────────
         if result["was_unpacked"] and analysis_path != file_path:
@@ -869,6 +898,239 @@ class ShadowNetEngine:
 
         except Exception as exc:
             logger.error("Error en fase IL para %s: %s", file_path.name, exc)
+
+    def _run_correlation_phase(self, file_path: Path, result: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Fase 9 — Correlation Engine (Evidence Contract).
+
+        Construye evidencias independientes de cada capa y correlaciona
+        sin "last writer wins". Preserva score ML intacto.
+        """
+        from core.evidence import EvidenceSource, EvidenceVerdict, Severity, OperationalStatus
+
+        # ── Recolectar datos para evidencias ──────────────────────────
+        ml_score = result.get("score", -1.0)
+        # Distinguir error ML (score -1) vs benign 0.0
+        if ml_score is None or ml_score < 0:
+            ml_status = EvidenceStatus.ERROR
+            ml_err = result.get("details", {}).get("ml_phase_error") and "ml_phase_error" or "ML unavailable"
+        elif result.get("label") == "NOT_PE":
+            ml_status = EvidenceStatus.ERROR
+            ml_err = "NOT_PE"
+        else:
+            ml_status = EvidenceStatus.OK
+            ml_err = None
+
+        yara_status = EvidenceStatus.OK
+        yara_err = None
+        if self._yara_scanner is None or not getattr(self._yara_scanner, "is_available", False):
+            yara_status = EvidenceStatus.UNAVAILABLE
+            yara_err = "YARA unavailable (yara-python no instalado)"
+
+        packer_indicators: Dict[str, Any] = {}
+        if hasattr(self.extractor, "last_diagnostics") and self.extractor.last_diagnostics:
+            packer_indicators = (
+                self.extractor.last_diagnostics.get("diagnostics", {}).get("packer_indicators", {}) or {}
+            )
+
+        # Heuristic assessment dict -> RiskAssessment-like
+        heuristic_dict = result.get("heuristic_assessment", {})
+        overlay_dict = result.get("overlay_analysis", {})
+        dotnet_dict = result.get("dotnet_analysis", {})
+        il_dict = result.get("il_behavioral", {})
+
+        # ── Construir evidencias ──────────────────────────────────────
+        evidences: List[Evidence] = []
+
+        # ML evidencia (preserva score intacto)
+        if ml_status == EvidenceStatus.ERROR:
+            evidences.append(ml_evidence(score=0.0, label="UNKNOWN", status=ml_status, error=ml_err))
+            # Ajustar score a None manualmente para distinguir error de 0.0
+            evidences[-1].score = None
+            evidences[-1].verdict = EvidenceVerdict.UNKNOWN
+        else:
+            evidences.append(ml_evidence(score=float(ml_score) if ml_score is not None else 0.0, label=result.get("label", "UNKNOWN"), confidence=result.get("confidence", "Low"), status=ml_status, error=ml_err))
+
+        # YARA evidencia
+        yara_matches = result.get("yara_matches", [])
+        has_yara = bool(yara_matches)
+        if yara_status == EvidenceStatus.UNAVAILABLE:
+            evidences.append(yara_evidence(has_matches=False, status=yara_status, degraded_reason=yara_err))
+        else:
+            # Extraer threat_names de yara_matches si son dicts con rule
+            threat_names = []
+            for m in yara_matches:
+                if isinstance(m, dict):
+                    threat_names.append(m.get("rule", str(m)))
+                elif isinstance(m, str):
+                    threat_names.append(m)
+            evidences.append(yara_evidence(has_matches=has_yara, matches=yara_matches if isinstance(yara_matches, list) else [], threat_names=threat_names, status=EvidenceStatus.OK))
+
+        # PE static evidencia (packer/entropy/imports)
+        evidences.append(pe_static_evidence(packer_indicators=packer_indicators, status=EvidenceStatus.OK))
+
+        # Overlay evidencia (desde diet overlay_analysis)
+        # Reconstruir objeto like OverlayReport si es dict
+        if overlay_dict:
+            # Crear evidencia overlay manualmente desde dict
+            from core.evidence import Evidence, EvidenceIndicator
+            ov_indicators: List[EvidenceIndicator] = []
+            ov_reasons: List[str] = []
+            if overlay_dict.get("overlay_present"):
+                ratio = overlay_dict.get("overlay_ratio", 0.0)
+                ent = overlay_dict.get("overlay_entropy", 0.0)
+                ov_reasons.append(f"overlay_present ratio={ratio:.2%} entropy={ent:.2f}")
+                if ratio > 0.80:
+                    ov_indicators.append(EvidenceIndicator(name="overlay_ratio_high", value=ratio, weight=30))
+                    ov_reasons.append(f"overlay_ratio={ratio:.1%} > 80%")
+                if overlay_dict.get("embedded_pe_detected"):
+                    ov_indicators.append(EvidenceIndicator(name="embedded_pe", value=overlay_dict.get("embedded_pe_count", 0), weight=25))
+                    ov_reasons.append(f"embedded_pe_count={overlay_dict.get('embedded_pe_count', 0)}")
+                if overlay_dict.get("overlay_yara_hits"):
+                    ov_indicators.append(EvidenceIndicator(name="yara_overlay", value=overlay_dict.get("overlay_yara_hits", []), weight=35))
+                    ov_reasons.append(f"yara_overlay={overlay_dict.get('overlay_yara_hits', [])}")
+            has_signal = any(i.weight > 0 for i in ov_indicators)
+            ov_verdict = EvidenceVerdict.SUSPICIOUS if has_signal else EvidenceVerdict.BENIGN
+            ov_sev = Severity.MEDIUM if has_signal else Severity.LOW
+            ov_op = OperationalStatus.SUSPICIOUS if has_signal else OperationalStatus.CLEAN
+            evidences.append(Evidence(
+                source=EvidenceSource.OVERLAY,
+                verdict=ov_verdict,
+                score=float(sum(i.weight for i in ov_indicators)),
+                severity=ov_sev,
+                operational_status=ov_op,
+                indicators=ov_indicators,
+                reasons=ov_reasons or ["no overlay signals"],
+                metadata=dict(overlay_dict),
+                status=EvidenceStatus.OK,
+            ))
+        else:
+            evidences.append(overlay_evidence(overlay_report=None, status=EvidenceStatus.ERROR, error="overlay unavailable"))
+
+        # Heuristic evidencia (desde heuristic_assessment)
+        if heuristic_dict and heuristic_dict.get("risk_score") is not None:
+            score_h = heuristic_dict.get("risk_score", 0)
+            level = heuristic_dict.get("risk_level", "LOW")
+            op_str = heuristic_dict.get("operational_status", "CLEAN")
+            sev_map = {"LOW": Severity.LOW, "MEDIUM": Severity.MEDIUM, "HIGH": Severity.HIGH, "CRITICAL": Severity.CRITICAL}
+            op_map = {"CLEAN": OperationalStatus.CLEAN, "SUSPICIOUS": OperationalStatus.SUSPICIOUS, "DANGEROUS": OperationalStatus.DANGEROUS}
+            verdict_map = {"LOW": EvidenceVerdict.BENIGN, "MEDIUM": EvidenceVerdict.SUSPICIOUS, "HIGH": EvidenceVerdict.SUSPICIOUS, "CRITICAL": EvidenceVerdict.MALICIOUS}
+            evidences.append(Evidence(
+                source=EvidenceSource.HEURISTIC,
+                verdict=verdict_map.get(level, EvidenceVerdict.BENIGN),
+                score=float(score_h),
+                severity=sev_map.get(level, Severity.LOW),
+                operational_status=op_map.get(op_str, OperationalStatus.CLEAN),
+                indicators=[EvidenceIndicator(name=t, value=t, weight=0) for t in heuristic_dict.get("triggered_indicators", [])],
+                reasons=list(heuristic_dict.get("triggered_indicators", [])) or [heuristic_dict.get("justification", "")],
+                metadata=dict(heuristic_dict),
+                status=EvidenceStatus.OK,
+            ))
+        else:
+            evidences.append(heuristic_evidence(risk_assessment=None, status=EvidenceStatus.ERROR, error="heuristic unavailable"))
+
+        # DotNet evidencia
+        is_dotnet = result.get("is_dotnet", False)
+        if is_dotnet and dotnet_dict:
+            # Construir dotnet evidencia manualmente para preservar raw dotnet_risk
+            score_d = dotnet_dict.get("dotnet_risk_score", result.get("dotnet_risk_score", 0))
+            level_d = dotnet_dict.get("dotnet_risk_level", result.get("dotnet_risk_level", "LOW"))
+            sev_map2 = {"LOW": Severity.LOW, "MEDIUM": Severity.MEDIUM, "HIGH": Severity.HIGH, "CRITICAL": Severity.CRITICAL}
+            op_map2 = {"LOW": OperationalStatus.CLEAN, "MEDIUM": OperationalStatus.CLEAN, "HIGH": OperationalStatus.SUSPICIOUS, "CRITICAL": OperationalStatus.DANGEROUS}
+            verdict_map2 = {"LOW": EvidenceVerdict.BENIGN, "MEDIUM": EvidenceVerdict.SUSPICIOUS, "HIGH": EvidenceVerdict.SUSPICIOUS, "CRITICAL": EvidenceVerdict.MALICIOUS}
+            reasons_d: List[str] = []
+            indicators_d: List[EvidenceIndicator] = []
+            if dotnet_dict.get("obfuscator_detected") or result.get("obfuscator_detected"):
+                reasons_d.append(f"obfuscator={dotnet_dict.get('obfuscator_name') or result.get('obfuscator_name')}")
+                indicators_d.append(EvidenceIndicator(name="obfuscator_detected", value=True, weight=20))
+            if dotnet_dict.get("dotnet_risk_factors"):
+                reasons_d.extend(list(dotnet_dict.get("dotnet_risk_factors", []))[:3])
+            evidences.append(Evidence(
+                source=EvidenceSource.DOTNET,
+                verdict=verdict_map2.get(level_d, EvidenceVerdict.BENIGN),
+                score=float(score_d),
+                severity=sev_map2.get(level_d, Severity.LOW),
+                operational_status=op_map2.get(level_d, OperationalStatus.CLEAN),
+                indicators=indicators_d,
+                reasons=reasons_d or [f"dotnet_risk={level_d} score={score_d}"],
+                metadata=dict(dotnet_dict),
+                status=EvidenceStatus.OK,
+            ))
+        else:
+            evidences.append(dotnet_evidence(dotnet_report=None, status=EvidenceStatus.OK if not is_dotnet else EvidenceStatus.ERROR, error=None))
+
+        # IL Behavioral evidencia
+        if is_dotnet and il_dict:
+            score_il = il_dict.get("dotnet_threat_score", result.get("dotnet_threat_score", 0))
+            level_il = il_dict.get("dotnet_threat_level", result.get("dotnet_threat_level", "LOW"))
+            sev_map3 = {"LOW": Severity.LOW, "MEDIUM": Severity.MEDIUM, "HIGH": Severity.HIGH, "CRITICAL": Severity.CRITICAL}
+            op_map3 = {"LOW": OperationalStatus.CLEAN, "MEDIUM": OperationalStatus.SUSPICIOUS, "HIGH": OperationalStatus.SUSPICIOUS, "CRITICAL": OperationalStatus.DANGEROUS}
+            verdict_map3 = {"LOW": EvidenceVerdict.BENIGN, "MEDIUM": EvidenceVerdict.SUSPICIOUS, "HIGH": EvidenceVerdict.SUSPICIOUS, "CRITICAL": EvidenceVerdict.MALICIOUS}
+            indicators_il: List[EvidenceIndicator] = []
+            for k in ("injection_detected", "persistence_detected", "networking_detected", "credential_theft_detected", "worm_behavior_detected", "rat_detected", "stealer_detected"):
+                if result.get(k):
+                    indicators_il.append(EvidenceIndicator(name=k, value=True, weight=10))
+            evidences.append(Evidence(
+                source=EvidenceSource.IL_BEHAVIORAL,
+                verdict=verdict_map3.get(level_il, EvidenceVerdict.BENIGN),
+                score=float(score_il),
+                severity=sev_map3.get(level_il, Severity.LOW),
+                operational_status=op_map3.get(level_il, OperationalStatus.CLEAN),
+                indicators=indicators_il,
+                reasons=list(il_dict.get("family_likelihoods", {}).keys())[:3] or [f"il_threat={level_il} score={score_il}"],
+                metadata=dict(il_dict),
+                status=EvidenceStatus.OK,
+            ))
+        else:
+            evidences.append(il_behavioral_evidence(il_report=None, is_dotnet=is_dotnet, status=EvidenceStatus.OK if not is_dotnet else EvidenceStatus.ERROR, error=None))
+
+        # ── Correlacionar ─────────────────────────────────────────────
+        final = self._correlation_engine.correlate(evidences)
+
+        # ── Mapear FinalVerdict a result (sin borrar evidencias) ─────
+        # Preservar score ML intacto en result["score"]; el final verdict va a campos separados
+        result["evidences"] = [e.to_dict() for e in evidences]
+        result["final_verdict"] = final.to_dict()
+        result["correlation"] = {
+            "verdict": final.verdict.value,
+            "risk_level": final.risk_level.value,
+            "operational_status": final.operational_status.value,
+            "reasons": final.reasons,
+            "contributing_sources": final.contributing_sources,
+            "ml_score_preserved": final.ml_score_raw,
+        }
+        # Actualizar campos legacy para compatibilidad: ahora vienen del correlation, no de last writer
+        # Mapear verdict a label tripartita legacy para compat con API/DTO
+        verdict_to_label = {
+            EvidenceVerdict.BENIGN: "BENIGN",
+            EvidenceVerdict.SUSPICIOUS: "SUSPICIOUS",
+            EvidenceVerdict.MALICIOUS: "MALWARE",
+            EvidenceVerdict.UNKNOWN: "SUSPICIOUS",
+        }
+        result["label"] = verdict_to_label.get(final.verdict, result.get("label", "UNKNOWN"))
+        result["operational_status"] = final.operational_status.value.upper()
+        result["risk_level"] = final.risk_level.value.upper()
+        # risk_score: si final es de correlacion, usar score agregado; si no, mantener heuristic score
+        if final.score is not None:
+            # Para compat, si final viene de ML (benign), preservar ml score; si viene de correlation, usar heuristic-like score
+            # Usar heuristic score si final risk es LOW, sino usar final score
+            if final.verdict == EvidenceVerdict.BENIGN:
+                result["risk_score"] = int(result.get("heuristic_assessment", {}).get("risk_score", 0) or 0)
+            else:
+                # Final SUSPICIOUS/MALICIOUS: risk_score viene de evidencias agregadas
+                result["risk_score"] = int(final.score) if final.score < 1000 else 999
+        result["detection_phases"].append("CORRELATION")
+
+        logger.info(
+            "Correlacion: %s | verdict=%s risk=%s operational=%s | ml_score=%.4f preserved | sources=%s",
+            file_path.name,
+            final.verdict.value,
+            final.risk_level.value,
+            final.operational_status.value,
+            final.ml_score_raw if final.ml_score_raw is not None else -1.0,
+            ",".join(final.contributing_sources) or "none",
+        )
+        return result
 
     # ------------------------------------------------------------------
     # Inicialización de Módulos Auxiliares

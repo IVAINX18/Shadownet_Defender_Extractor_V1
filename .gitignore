@@ -30,3 +30,8 @@ samples/overlay_corpus/*.dll
 # Artefactos de evaluación generados (se reproducen con evaluate_real_corpus.py)
 data/eval_real/X_eval.npy
 data/eval_real/y_eval.npy
+
+# F0 — Artefactos temporales E2E con secretos (nunca commitear)
+shadownet_e2e_*
+/tmp/shadownet_e2e_*
+data/offline_queue.json

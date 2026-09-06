@@ -9,6 +9,7 @@ Este directorio contiene la documentación técnica, arquitectónica, académica
 ### 1. `docs/arquitectura/` — Especificaciones Técnicas y Diseño
 - [Documentación Técnica Integral](arquitectura/DOCUMENTACION_TECNICA_INTEGRAL.md)
 - [Arquitectura Deep Learning](arquitectura/ARQUITECTURA_DEEP_LEARNING.md)
+- [F2 Evidence Contract + Correlation Engine](arquitectura/F2_EVIDENCE_CORRELATION.md) — F2 FINAL
 - [PRD (Product Requirements Document)](arquitectura/PRD.md)
 
 ### 2. `docs/academico/` — Investigación Académica y Tesis

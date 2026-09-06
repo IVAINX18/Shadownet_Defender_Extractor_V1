@@ -135,5 +135,6 @@ async def get_current_user(request: Request) -> Dict[str, Any]:
         raise HTTPException(status_code=401, detail="Token no contiene información de usuario.")
 
     user = {"id": user_id, "email": email or ""}
-    logger.debug("Usuario autenticado: %s (%s)", user_id, email)
+    # F0: nunca loggear token/JWT raw; solo user_id fingerprint
+    logger.debug("Usuario autenticado: %s (%s)", user_id[:8] + "***" if user_id else "***", email)
     return user

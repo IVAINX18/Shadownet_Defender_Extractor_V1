@@ -61,10 +61,21 @@ TEST_PASSWORD = "12345678"
 # ====================================================================
 
 def _mask_token(token: str) -> str:
-    """Enmascaro el token para no exponerlo en logs."""
+    """Enmascaro el token para no exponerlo en logs (F0: nunca loggear token raw)."""
+    if not token:
+        return "***"
     if len(token) > 20:
-        return token[:15] + "..." + token[-5:]
+        return token[:8] + "***" + token[-4:]
     return "***"
+
+
+def _secure_write(path: Path, content: str) -> None:
+    """Escribe contenido sensible con permisos 0o600 (solo owner)."""
+    path.write_text(content)
+    try:
+        path.chmod(0o600)
+    except Exception:
+        pass
 
 
 def _http_request(
@@ -146,7 +157,8 @@ def login() -> Optional[str]:
         return None
 
     print(f"   ✅ Login exitoso ({elapsed:.1f}s)")
-    print(f"   Token: {_mask_token(token)}")
+    # F0: nunca imprimir token raw; solo fingerprint enmascarado
+    print(f"   Token fp: {_mask_token(token)} (len={len(token)})")
     print(f"   User: {data.get('user', {}).get('email', '?')}")
     return token
 
