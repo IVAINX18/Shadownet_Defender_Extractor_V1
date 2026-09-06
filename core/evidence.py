@@ -267,6 +267,16 @@ def yara_evidence(
     error: Optional[str] = None,
     degraded_reason: Optional[str] = None,
 ) -> Evidence:
+    if status == EvidenceStatus.DEGRADED:
+        return Evidence(
+            source=EvidenceSource.YARA, verdict=EvidenceVerdict.UNKNOWN,
+            score=None, score_raw=None, score_norm=None, scale="deterministic",
+            severity=Severity.LOW, operational_status=OperationalStatus.UNKNOWN,
+            reasons=[degraded_reason or error or "YARA degraded (timeout/partial)"],
+            status=status, error=error or degraded_reason,
+            reliability=Reliability.DEGRADED, evidence_group=GROUP_YARA_SIG,
+            confidence="Low", timestamp=_now(),
+        )
     if status == EvidenceStatus.UNAVAILABLE:
         return Evidence(
             source=EvidenceSource.YARA, verdict=EvidenceVerdict.UNKNOWN,
@@ -287,15 +297,45 @@ def yara_evidence(
             confidence="Low", timestamp=_now(),
         )
     if has_matches:
+        # Distinguir severidad: high/critical => MALICIOUS DETERMINISTIC veto, medium => SUSPICIOUS
+        sev_vals = []
+        for m in (matches or []):
+            meta = m.get("meta", {}) if isinstance(m, dict) else {}
+            sev = str(meta.get("severity", "")).lower() if isinstance(meta, dict) else ""
+            sev_vals.append(sev)
+        is_critical = any(s in ("critical", "high") for s in sev_vals)
+        is_medium = any(s == "medium" for s in sev_vals)
+        if is_critical or not sev_vals or all(s == "" for s in sev_vals):
+            # Default to critical if no meta (legacy rules) -> treat as high-confidence
+            verdict = EvidenceVerdict.MALICIOUS
+            severity = Severity.CRITICAL
+            op = OperationalStatus.DANGEROUS
+            rel = Reliability.DETERMINISTIC
+            conf = "High"
+            score = 1.0
+        elif is_medium:
+            verdict = EvidenceVerdict.SUSPICIOUS
+            severity = Severity.HIGH
+            op = OperationalStatus.SUSPICIOUS
+            rel = Reliability.HIGH
+            conf = "Medium"
+            score = 0.7
+        else:
+            verdict = EvidenceVerdict.SUSPICIOUS
+            severity = Severity.MEDIUM
+            op = OperationalStatus.SUSPICIOUS
+            rel = Reliability.MEDIUM
+            conf = "Medium"
+            score = 0.5
         return Evidence(
-            source=EvidenceSource.YARA, verdict=EvidenceVerdict.MALICIOUS,
-            score=1.0, score_raw=1.0, score_norm=1.0, scale="deterministic",
-            severity=Severity.CRITICAL, operational_status=OperationalStatus.DANGEROUS,
+            source=EvidenceSource.YARA, verdict=verdict,
+            score=score, score_raw=score, score_norm=_norm(score, EvidenceSource.YARA), scale="deterministic",
+            severity=severity, operational_status=op,
             indicators=[EvidenceIndicator(name=m.get("rule", "?"), value=m, weight=35) for m in (matches or [])],
             reasons=[f"yara_match: {t}" for t in (threat_names or [])] or ["yara_match"],
-            metadata={"threat_names": threat_names or [], "match_count": len(matches or [])},
-            status=EvidenceStatus.OK, reliability=Reliability.DETERMINISTIC,
-            evidence_group=GROUP_YARA_SIG, confidence="High", timestamp=_now(),
+            metadata={"threat_names": threat_names or [], "match_count": len(matches or []), "severities": sev_vals},
+            status=EvidenceStatus.OK, reliability=rel,
+            evidence_group=GROUP_YARA_SIG, confidence=conf, timestamp=_now(),
         )
     return Evidence(
         source=EvidenceSource.YARA, verdict=EvidenceVerdict.BENIGN,

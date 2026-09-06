@@ -147,7 +147,7 @@ flowchart TD
   O --> P[Persistencia Supabase / Offline]
 ```
 
-**F2** introduce `core/evidence.py` (Evidence Contract) y `core/correlation.py` (CorrelationEngine) con `score_raw` preservado, `score_norm 0-1`, `reliability` (DETERMINISTIC 1.0 → DEGRADED 0.25), `evidence_group` anti-double-counting (`pe_heuristic` max), `UNAVAILABLE≠BENIGN`, `FinalVerdict` con `Verdict/Risk/Operational` separados y `UNKNOWN/DEGRADED`. Doc: `docs/arquitectura/F2_EVIDENCE_CORRELATION.md`.
+**F2** introduce `core/evidence.py` (Evidence Contract) y `core/correlation.py` (CorrelationEngine) con `score_raw` preservado, `score_norm 0-1`, `reliability` (DETERMINISTIC 1.0 → DEGRADED 0.25), `evidence_group` anti-double-counting (`pe_heuristic` max), `UNAVAILABLE≠BENIGN`, `FinalVerdict` con `Verdict/Risk/Operational` separados y `UNKNOWN/DEGRADED`. **F3** añade `security/yara_scanner.py` + `yara-python 4.5.2` con 4 reglas productivas (15 reglas), veto determinista `YARA high/critical → MALICIOUS/CRITICAL/DANGEROUS`, `timeout 30s → DEGRADED`, nunca `BENIGN` silencioso. Docs: `docs/arquitectura/F2_EVIDENCE_CORRELATION.md`, `docs/arquitectura/F3_YARA_INTEGRATION.md`.
 
 Para análisis completo: [02_arquitectura_general](docs/academico/02_arquitectura_general.md) y [04_sistema_hibrido_multicapa](docs/academico/04_sistema_hibrido_multicapa.md).
 

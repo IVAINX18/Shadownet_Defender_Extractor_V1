@@ -1,6 +1,6 @@
 # Índice de Documentación — ShadowNet Defender
 
-Este directorio contiene la documentación técnica, arquitectónica, académica y operacional de **ShadowNet Defender Extractor V2**.
+Este directorio contiene la documentación técnica, arquitectónica, académica y operacional de **ShadowNet Defender Extractor V4**.
 
 ---
 
@@ -10,6 +10,7 @@ Este directorio contiene la documentación técnica, arquitectónica, académica
 - [Documentación Técnica Integral](arquitectura/DOCUMENTACION_TECNICA_INTEGRAL.md)
 - [Arquitectura Deep Learning](arquitectura/ARQUITECTURA_DEEP_LEARNING.md)
 - [F2 Evidence Contract + Correlation Engine](arquitectura/F2_EVIDENCE_CORRELATION.md) — F2 FINAL
+- [F3 YARA Integration](arquitectura/F3_YARA_INTEGRATION.md) — F3 IMPLEMENTED
 - [PRD (Product Requirements Document)](arquitectura/PRD.md)
 
 ### 2. `docs/academico/` — Investigación Académica y Tesis

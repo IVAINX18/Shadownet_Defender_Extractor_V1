@@ -130,6 +130,17 @@ class YaraScanner:
 
         except Exception as exc:
             elapsed_ms = (time.perf_counter() - start) * 1000
+            # Timeout debe ser DEGRADED, no BENIGN silencioso
+            try:
+                import yara as yara_mod
+                if isinstance(exc, yara_mod.TimeoutError):
+                    logger.warning("YARA timeout en %s (30s): %s", file_path.name, exc)
+                    return YaraScanResult(has_matches=False, scan_time_ms=elapsed_ms, error="YARA timeout (30s)")
+                if isinstance(exc, yara_mod.SyntaxError):
+                    logger.error("YARA SyntaxError en %s: %s", file_path.name, exc)
+                    return YaraScanResult(has_matches=False, scan_time_ms=elapsed_ms, error=f"YARA SyntaxError: {exc}")
+            except ImportError:
+                pass
             logger.error("Error durante escaneo YARA de %s: %s", file_path.name, exc)
             return YaraScanResult(has_matches=False, scan_time_ms=elapsed_ms, error=str(exc))
 
@@ -161,6 +172,13 @@ class YaraScanner:
 
         except Exception as exc:
             elapsed_ms = (time.perf_counter() - start) * 1000
+            try:
+                import yara as yara_mod2
+                if isinstance(exc, yara_mod2.TimeoutError):
+                    logger.warning("YARA timeout en memoria %s (30s): %s", label, exc)
+                    return YaraScanResult(has_matches=False, scan_time_ms=elapsed_ms, error="YARA timeout (30s)")
+            except ImportError:
+                pass
             return YaraScanResult(has_matches=False, scan_time_ms=elapsed_ms, error=str(exc))
 
     def is_whitelisted(self, sha256: str, matches: List[YaraMatch]) -> bool:

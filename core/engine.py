@@ -372,6 +372,14 @@ class ShadowNetEngine:
         try:
             yara_scan = self._yara_scanner.scan(file_path)
             result["detection_phases"].append("YARA")
+            # Propagar estado YARA para Evidence Contract (F3): timeout => DEGRADED, error => UNAVAILABLE no silencioso
+            if yara_scan.error:
+                if "timeout" in yara_scan.error.lower():
+                    result["details"]["yara_degraded"] = yara_scan.error
+                    result["yara_status"] = "degraded"
+                    logger.warning("YARA degraded (timeout) para %s: %s", file_path.name, yara_scan.error)
+                else:
+                    result["details"]["yara_error"] = yara_scan.error
 
             if yara_scan.has_matches:
                 threat_names = yara_scan.threat_names
@@ -399,6 +407,7 @@ class ShadowNetEngine:
                             "rule": m.rule_name,
                             "category": m.category,
                             "tags": m.tags,
+                            "meta": m.meta,
                         }
                         for m in yara_scan.matches
                     ]
@@ -435,6 +444,7 @@ class ShadowNetEngine:
                             "rule": m.rule_name,
                             "category": m.category,
                             "tags": m.tags,
+                            "meta": m.meta,
                         }
                         for m in yara_scan.matches
                     ],
@@ -951,13 +961,16 @@ class ShadowNetEngine:
         else:
             evidences.append(ml_evidence(score=float(ml_score) if ml_score is not None else 0.0, label=result.get("label", "UNKNOWN"), confidence=result.get("confidence", "Low"), status=ml_status, error=ml_err))
 
-        # YARA evidencia
+        # YARA evidencia (F3: distingue OK/DEGRADED/UNAVAILABLE)
         yara_matches = result.get("yara_matches", [])
         has_yara = bool(yara_matches)
-        if yara_status == EvidenceStatus.UNAVAILABLE:
+        # Detectar DEGRADED por timeout guardado en details
+        yara_degraded = result.get("details", {}).get("yara_degraded") or result.get("yara_status") == "degraded"
+        if yara_degraded:
+            evidences.append(yara_evidence(has_matches=False, status=EvidenceStatus.DEGRADED, degraded_reason=str(result.get("details", {}).get("yara_degraded") or "YARA timeout")))
+        elif yara_status == EvidenceStatus.UNAVAILABLE:
             evidences.append(yara_evidence(has_matches=False, status=yara_status, degraded_reason=yara_err))
         else:
-            # Extraer threat_names de yara_matches si son dicts con rule
             threat_names = []
             for m in yara_matches:
                 if isinstance(m, dict):
