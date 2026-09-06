@@ -281,9 +281,24 @@ LLM_PROVIDER=groq
 LLM_PROVIDER_ORDER=groq,gemini,template
 ```
 
-Para integración **n8n** SOC:
+### Alertas de malware (arquitectura actual)
+El envío de alertas por email es nativo de Supabase (ya NO depende de n8n ni Resend):
+
+```text
+INSERT scan_results → Supabase Database Webhook → Edge Function send-malware-alert
+    → Nodemailer → smtp.gmail.com (STARTTLS 587) → usuario registrado
+```
+
+- Destinatario: `scan_results.user_email` (fallback `users.email` vía `user_id`).
+- Solo alerta si `result='malicious'` OR `operational_status='DANGEROUS'`.
+- Idempotencia: `alert_sent` (solo se marca tras envío SMTP exitoso).
+- Secrets (solo en Supabase): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SB_URL`, `SB_SERVICE_ROLE_KEY`.
+- Dependencia Deno: `supabase/functions/send-malware-alert/deno.json` (nodemailer).
+- Docs: `supabase/functions/send-malware-alert/README.md`.
+
+### Integración **n8n** SOC (DEPRECATED — solo rollback)
 ```bash
-N8N_ENABLED=true
+N8N_ENABLED=false   # mantener false; no eliminar n8n_client.py hasta validar en staging
 ENVIRONMENT=dev
 N8N_WEBHOOK_TEST=https://tu-ngrok.app/webhook-test/...
 N8N_WEBHOOK_PROD=https://tu-ngrok.app/webhook/...

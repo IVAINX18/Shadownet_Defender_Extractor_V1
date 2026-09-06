@@ -14483,3 +14483,65 @@ Verifica que el modelo 'llama3.2:3b' esté descargado:
 2026-09-05 14:28:29,090 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 1/3: Connection refused, reintentando en 1s...
 2026-09-05 14:28:30,091 - core.integrations.n8n_client - WARNING - [ShadowNet-N8N] Error de red en intento 2/3: Connection refused, reintentando en 2s...
 2026-09-05 14:28:32,093 - core.integrations.n8n_client - ERROR - [ShadowNet-N8N] Error de red tras 3 intentos: Connection refused
+2026-09-06 11:02:15,108 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-09-06 11:02:15,200 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-09-06 11:02:15,539 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-09-06 11:02:20,448 - models.inference - INFO - Model and scaler loaded successfully.
+2026-09-06 11:02:20,449 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-09-06 11:02:20,545 - security.yara_scanner - INFO - Whitelist cargado: 0 hash(es) SHA-256, 1 exclusion(es) YARA
+2026-09-06 11:02:20,546 - security.yara_scanner - ERROR - El módulo 'yara-python' no está instalado. Instalar con: pip install yara-python
+2026-09-06 11:02:20,546 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-09-06 11:08:23,261 - backend.scan_service - INFO - Inicializando ShadowNetEngine (primera vez)...
+2026-09-06 11:08:23,268 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-09-06 11:08:23,277 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-09-06 11:08:24,039 - models.inference - INFO - Model and scaler loaded successfully.
+2026-09-06 11:08:24,040 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-09-06 11:08:24,042 - security.yara_scanner - INFO - Whitelist cargado: 0 hash(es) SHA-256, 1 exclusion(es) YARA
+2026-09-06 11:08:24,043 - security.yara_scanner - ERROR - El módulo 'yara-python' no está instalado. Instalar con: pip install yara-python
+2026-09-06 11:08:24,044 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-09-06 11:09:30,231 - core.engine - INFO - Extrayendo features de: 1788710970148-sample2.exe
+2026-09-06 11:09:30,626 - extractors.extractor - INFO - Extracción completada: 1788710970148-sample2.exe | modo=PE_STRICT | ratio_analizado=100.0% | packer_detectado=True | tiempo=393.3ms
+2026-09-06 11:09:30,686 - core.heuristics - INFO - Heurística — score=40 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-09-06 11:09:30,688 - core.dotnet - INFO - DotNetAnalyzer: ensamblado .NET/CLR detectado
+2026-09-06 11:09:30,787 - core.dotnet - INFO - DotNetAnalyzer: 2 strings IL sospechosas, il_score=8
+2026-09-06 11:09:30,788 - core.dotnet - INFO - DotNetAnalyzer: dotnet_risk_score=28 level=MEDIUM factors=2
+2026-09-06 11:09:30,789 - core.engine - INFO - Fase .NET: assembly=#Strings clr=v4.0.30319 obfuscator=Unknown Obfuscator dotnet_risk=MEDIUM(28)
+2026-09-06 11:09:30,800 - core.heuristics - INFO - Heurística — score=1 level=LOW operational=CLEAN is_dotnet=True | triggers=5
+2026-09-06 11:09:30,802 - core.engine - INFO - Heurística re-evaluada con contexto .NET: score=1 level=LOW operational=CLEAN
+2026-09-06 11:09:30,804 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=25 type_refs=50 assembly_refs=0 strings=0 us=0 pinvoke=0
+2026-09-06 11:09:30,804 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=25 type_refs=50 assembly_refs=0 strings=0 us=0 pinvoke=0
+2026-09-06 11:09:30,807 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=1
+2026-09-06 11:09:30,807 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=1
+2026-09-06 11:09:30,808 - core.engine - INFO - Fase IL completa: 1788710970148-sample2.exe | threat=4 (LOW) | family=none | operational=CLEAN | indicators=1
+2026-09-06 11:09:30,809 - core.engine - INFO - Escaneo completo: 1788710970148-sample2.exe | label=BENIGN | score=0.0000 | operational=CLEAN | risk=LOW(1) | phases=['ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS', 'IL_BEHAVIORAL'] | time=658ms
+2026-09-06 11:09:30,810 - backend.scan_service - INFO - Archivo PE analizado: 1788710970148-sample2.exe | type=pe | result=benign | risk=low | score=0.0000 | unpacked=False | inference_time=0.661s
+2026-09-06 11:09:58,874 - core.engine - INFO - Extrayendo features de: 1788710998787-sample2.exe
+2026-09-06 11:09:59,190 - extractors.extractor - INFO - Extracción completada: 1788710998787-sample2.exe | modo=PE_STRICT | ratio_analizado=100.0% | packer_detectado=True | tiempo=314.5ms
+2026-09-06 11:09:59,203 - core.heuristics - INFO - Heurística — score=40 level=MEDIUM operational=SUSPICIOUS is_dotnet=False | triggers=3
+2026-09-06 11:09:59,205 - core.dotnet - INFO - DotNetAnalyzer: ensamblado .NET/CLR detectado
+2026-09-06 11:09:59,304 - core.dotnet - INFO - DotNetAnalyzer: 2 strings IL sospechosas, il_score=8
+2026-09-06 11:09:59,305 - core.dotnet - INFO - DotNetAnalyzer: dotnet_risk_score=28 level=MEDIUM factors=2
+2026-09-06 11:09:59,305 - core.engine - INFO - Fase .NET: assembly=#Strings clr=v4.0.30319 obfuscator=Unknown Obfuscator dotnet_risk=MEDIUM(28)
+2026-09-06 11:09:59,319 - core.heuristics - INFO - Heurística — score=1 level=LOW operational=CLEAN is_dotnet=True | triggers=5
+2026-09-06 11:09:59,320 - core.engine - INFO - Heurística re-evaluada con contexto .NET: score=1 level=LOW operational=CLEAN
+2026-09-06 11:09:59,322 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=25 type_refs=50 assembly_refs=0 strings=0 us=0 pinvoke=0
+2026-09-06 11:09:59,322 - core.dotnet.il_analyzer - INFO - ILAnalyzer: CLR tokens extraídos — member_refs=25 type_refs=50 assembly_refs=0 strings=0 us=0 pinvoke=0
+2026-09-06 11:09:59,325 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=1
+2026-09-06 11:09:59,325 - core.dotnet.il_analyzer - INFO - ILAnalyzer: threat_score=4 (LOW) | family=unknown | indicators=1
+2026-09-06 11:09:59,327 - core.engine - INFO - Fase IL completa: 1788710998787-sample2.exe | threat=4 (LOW) | family=none | operational=CLEAN | indicators=1
+2026-09-06 11:09:59,328 - core.engine - INFO - Escaneo completo: 1788710998787-sample2.exe | label=BENIGN | score=0.0000 | operational=CLEAN | risk=LOW(1) | phases=['ML_STATIC', 'OVERLAY_FORENSICS', 'DOTNET_ANALYSIS', 'IL_BEHAVIORAL'] | time=537ms
+2026-09-06 11:09:59,329 - backend.scan_service - INFO - Archivo PE analizado: 1788710998787-sample2.exe | type=pe | result=benign | risk=low | score=0.0000 | unpacked=False | inference_time=0.540s
+2026-09-06 11:24:27,250 - models.inference - INFO - Loading model from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/best_model.onnx...
+2026-09-06 11:24:27,437 - models.inference - INFO - Loading scaler from /mnt/disco1tb/Shadow-Net/Shadownet_Defender_Extractor_V2/models/scaler.pkl...
+2026-09-06 11:24:29,801 - models.inference - INFO - Model and scaler loaded successfully.
+2026-09-06 11:24:29,802 - core.engine - INFO - Modelo ONNX cargado correctamente.
+2026-09-06 11:24:29,841 - security.yara_scanner - INFO - Whitelist cargado: 0 hash(es) SHA-256, 1 exclusion(es) YARA
+2026-09-06 11:24:29,842 - security.yara_scanner - ERROR - El módulo 'yara-python' no está instalado. Instalar con: pip install yara-python
+2026-09-06 11:24:29,842 - core.engine - WARNING - YARA scanner inactivo — no hay reglas cargadas. Agrega archivos .yar en security/yara_rules/
+2026-09-06 11:24:40,095 - extractors.extractor - INFO - Extracción completada: sample2.exe | modo=PE_STRICT | ratio_analizado=100.0% | packer_detectado=True | tiempo=354.2ms
+2026-09-06 11:25:00,288 - extractors.extractor - INFO - Extracción completada: sample2.exe | modo=PE_STRICT | ratio_analizado=100.0% | packer_detectado=True | tiempo=326.8ms
+2026-09-06 11:25:01,354 - extractors.extractor - INFO - Extracción completada: sample1.exe | modo=PE_FASTLOAD | ratio_analizado=50.2% | packer_detectado=True | tiempo=1018.1ms
+2026-09-06 11:25:02,228 - extractors.extractor - INFO - Extracción completada: procexp.exe | modo=PE_STRICT | ratio_analizado=100.0% | packer_detectado=False | tiempo=863.1ms
+2026-09-06 11:25:02,360 - extractors.extractor - WARNING - pefile: parseo estricto falló para samples/eicar.txt ('DOS Header magic not found.'). Intentando parseo relajado (fast_load)...
+2026-09-06 11:25:02,415 - extractors.extractor - ERROR - pefile: ambos modos de parseo fallaron para samples/eicar.txt. Error estricto: 'DOS Header magic not found.' | Error relajado: 'DOS Header magic not found.'
+2026-09-06 11:25:02,417 - extractors.extractor - INFO - Extracción completada: eicar.txt | modo=RAW_FALLBACK | ratio_analizado=100.0% | packer_detectado=False | tiempo=174.5ms

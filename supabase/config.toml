@@ -40,9 +40,11 @@ enable_manual_linking = true
 third_party_auth = { enabled = false }
 
 # Edge Functions — send-malware-alert
+# Dependencias via deno.json (recomendado). CLI usa deno.json por defecto
+# cuando no se especifica import_map. import_map.json queda deprecated/orphan
+# hasta confirmar deploy con deno.json.
 [functions.send-malware-alert]
 enabled = true
 verify_jwt = false
-import_map = "./functions/send-malware-alert/import_map.json"
 entrypoint = "./functions/send-malware-alert/index.ts"
 
