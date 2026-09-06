@@ -280,6 +280,16 @@ def scan_single_file(
         if isinstance(threat_names, list):
             features.extend([f"YARA:{n}" for n in threat_names[:5]])
 
+    # Estado operativo desde el veredicto autoritativo F2 (F4.2); fallback UNKNOWN.
+    _final = raw_result.get("final_verdict")
+    operational_status = None
+    if isinstance(_final, dict) and _final.get("operational_status"):
+        operational_status = str(_final["operational_status"]).upper()
+    elif is_yara_hit:
+        operational_status = "DANGEROUS"
+    elif is_not_pe or is_unknown:
+        operational_status = "SUSPICIOUS"
+
     # Construyo ScanResult estandarizado según el PRD
     scan_result = ScanResult(
         file_name=file_path.name,
@@ -292,6 +302,7 @@ def scan_single_file(
         explanation=None,  # Se llena después si se solicita LLM
         risk_level=risk_level,
         analysis_type=analysis_type,
+        operational_status=operational_status,
         # Campos del pipeline híbrido
         yara_matches=yara_matches,
         was_unpacked=was_unpacked,
@@ -323,6 +334,12 @@ def scan_single_file(
         sha256=file_sha256,
         # BehavioralShield (Fase 7)
         behavioral_analysis=raw_result.get("behavioral_analysis"),
+        # F2 Evidence Contract (persistencia F4)
+        evidences=raw_result.get("evidences"),
+        final_verdict=raw_result.get("final_verdict"),
+        correlation=raw_result.get("correlation"),
+        degraded=raw_result.get("final_verdict", {}).get("degraded") if raw_result.get("final_verdict") else None,
+        coverage=raw_result.get("final_verdict", {}).get("coverage") if raw_result.get("final_verdict") else None,
     )
 
     return scan_result

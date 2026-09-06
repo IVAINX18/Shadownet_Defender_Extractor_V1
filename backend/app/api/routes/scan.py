@@ -331,13 +331,15 @@ async def scan_file(file: UploadFile = File(...), user: dict = Depends(get_curre
         # Actualizo el nombre al original (no al temporal)
         scan_result.file_name = safe_name
 
-        # Inyecto datos del usuario autenticado
+        # Inyecto datos del usuario autenticado (JWT es autoridad; ignoro
+        # cualquier user_id del cliente — no existe tal campo en multipart)
         scan_result.user_id = user["id"]
         scan_result.user_email = user["email"]
+        user_jwt = user.get("_jwt")
 
-        # Sincronizo usuario y guardo en Supabase
-        sync_user(user)
-        save_scan_safe(scan_result.model_dump())
+        # Sincronizo usuario y guardo en Supabase con RLS real (F4.2 Opcion A)
+        sync_user(user, user_jwt=user_jwt)
+        save_scan_safe(scan_result.model_dump(), user_jwt=user_jwt)
 
         return success_response(scan_result)
 
@@ -446,13 +448,14 @@ async def scan_multiple(files: List[UploadFile] = File(...), user: dict = Depend
         results = scan_multiple_files(file_paths)
 
         # Corrijo los nombres de archivo al original y guardo en Supabase
-        sync_user(user)
+        user_jwt = user.get("_jwt")
+        sync_user(user, user_jwt=user_jwt)
         for i, (_, original_name) in enumerate(temp_files):
             if i < len(results):
                 results[i].file_name = original_name
                 results[i].user_id = user["id"]
                 results[i].user_email = user["email"]
-                save_scan_safe(results[i].model_dump())
+                save_scan_safe(results[i].model_dump(), user_jwt=user_jwt)
 
         # Convierto a lista de dicts para la respuesta
         results_data = [r.model_dump() for r in results]
@@ -487,7 +490,7 @@ async def scan_recent(
     Si Supabase no está configurado o falla, devuelvo lista vacía (status success).
     """
     lim = max(1, min(limit, 50))
-    rows = fetch_recent_scans(user["id"], limit=lim)
+    rows = fetch_recent_scans(user["id"], limit=lim, user_jwt=user.get("_jwt"))
     return success_response(rows)
 
 

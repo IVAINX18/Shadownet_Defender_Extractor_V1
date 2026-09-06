@@ -222,6 +222,31 @@ class ScanResult(BaseModel):
         default=None,
         description="BehaviorReport serializado o null si el proceso no estaba activo",
     )
+    # ── Estado operativo + F2 Evidence Contract persistence (F4/F4.2) ───
+    operational_status: Optional[str] = Field(
+        default=None,
+        description="Estado operativo del final_verdict: CLEAN | SUSPICIOUS | DANGEROUS | UNKNOWN",
+    )
+    evidences: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Evidence[] completa del pipeline (F2)",
+    )
+    final_verdict: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="FinalVerdict de CorrelationEngine",
+    )
+    correlation: Optional[Dict[str, Any]] = Field(
+        default=None,
+        description="Resumen de correlacion (S, contributors)",
+    )
+    degraded: Optional[bool] = Field(
+        default=None,
+        description="True si cobertura insuficiente o degradado",
+    )
+    coverage: Optional[float] = Field(
+        default=None,
+        description="Cobertura de evidencias 0-1",
+    )
 
 
 class ScanResponse(BaseModel):

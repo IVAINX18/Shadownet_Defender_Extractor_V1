@@ -11,6 +11,7 @@ Este directorio contiene la documentación técnica, arquitectónica, académica
 - [Arquitectura Deep Learning](arquitectura/ARQUITECTURA_DEEP_LEARNING.md)
 - [F2 Evidence Contract + Correlation Engine](arquitectura/F2_EVIDENCE_CORRELATION.md) — F2 FINAL
 - [F3 YARA Integration](arquitectura/F3_YARA_INTEGRATION.md) — F3 IMPLEMENTED
+- [F4 Persistence + F4.2 E2E Remediation](arquitectura/F4_PERSISTENCE.md) — F4/F4.2
 - [PRD (Product Requirements Document)](arquitectura/PRD.md)
 
 ### 2. `docs/academico/` — Investigación Académica y Tesis

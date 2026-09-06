@@ -51,6 +51,7 @@ class TestSupabaseTelemetryFields:
 
         data = {
             "file_name": "test.exe",
+            "user_id": "integration-test-uid",
             "result": "malicious",
             "confidence": 0.95,
             "risk_level": "high",
@@ -103,6 +104,7 @@ class TestSupabaseTelemetryFields:
 
         data = {
             "file_name": "test_nan.exe",
+            "user_id": "integration-test-uid",
             "result": "benign",
             "confidence": float("nan"),  # NaN
             "risk_level": "low",
@@ -143,6 +145,7 @@ class TestSaveIncidentOnDangerous:
 
         data = {
             "file_name": "dangerous.exe",
+            "user_id": "integration-test-uid",
             "result": "malicious",
             "confidence": 0.99,
             "risk_level": "high",
@@ -187,6 +190,7 @@ class TestSaveIncidentOnDangerous:
 
         data = {
             "file_name": "clean.exe",
+            "user_id": "integration-test-uid",
             "result": "benign",
             "confidence": 0.1,
             "risk_level": "low",
@@ -230,6 +234,7 @@ class TestOfflineFallback:
 
         data = {
             "file_name": "offline_test.exe",
+            "user_id": "integration-test-uid",
             "result": "suspicious",
             "sha256": f"offline_sha_{time.time()}",
         }
@@ -274,6 +279,7 @@ class TestIdempotency:
         sha = f"idem_sha256_{time.time()}"
         data = {
             "file_name": "idem_test.exe",
+            "user_id": "integration-test-uid",
             "result": "malicious",
             "sha256": sha,
         }

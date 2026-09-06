@@ -41,9 +41,12 @@ class TemplateExplainer:
     def _scan_result_from_prompt(prompt: str) -> Dict[str, Any]:
         """Extrae el bloque JSON SCAN_SUMMARY del prompt para no perder indicadores.
 
-        build_llm_prompt serializa el resumen tras la marca 'SCAN_SUMMARY:'.
+        build_llm_prompt (contrato F4.2) serializa {detector, evidences,
+        family, legacy} tras la marca 'SCAN_SUMMARY:'. Se reconstruye un
+        ScanResult mínimo con el veredicto autoritativo del detector.
         Si el bloque no está o no es JSON válido, devuelve dict vacío y el motor
-        aplica su rama benigna por defecto (fail-soft, nunca lanza excepción).
+        aplica su rama de incertidumbre (fail-soft, nunca lanza excepción,
+        nunca inventa benignidad).
         """
         marker = "SCAN_SUMMARY:"
         idx = prompt.find(marker)
@@ -53,6 +56,29 @@ class TemplateExplainer:
         try:
             parsed = json.loads(candidate)
             if isinstance(parsed, dict):
+                if "detector" in parsed:
+                    det = parsed.get("detector") or {}
+                    leg = parsed.get("legacy") or {}
+                    return {
+                        "result": det.get("verdict"),
+                        "risk_level": det.get("risk_level"),
+                        "operational_status": det.get("operational_status"),
+                        "confidence": det.get("confidence"),
+                        "degraded": det.get("degraded"),
+                        "coverage": det.get("correlation_score") if det.get("coverage") is None else det.get("coverage"),
+                        "final_verdict": {"verdict": det.get("verdict")},
+                        "evidences": parsed.get("evidences") or [],
+                        "family_likelihoods": (parsed.get("family") or {}).get("family_likelihoods") or {},
+                        "top_family": (parsed.get("family") or {}).get("top_family"),
+                        "file_name": det.get("file_name"),
+                        # Fallback legacy para prompts construidos con esquema antiguo
+                        "label": leg.get("label"),
+                        "score": leg.get("score"),
+                        "details": {
+                            "entropy": leg.get("entropy"),
+                            "suspicious_imports": leg.get("suspicious_imports") or [],
+                        },
+                    }
                 return {"label": parsed.get("label"), "score": parsed.get("score"),
                         "confidence": parsed.get("confidence"),
                         "details": parsed}
@@ -63,15 +89,30 @@ class TemplateExplainer:
     def explain_from_scan_result(self, scan_result: Dict[str, Any]) -> Dict[str, Any]:
         """Construye el objeto JSON de explicación forense estructurada en español.
 
-        Lee tanto el esquema del pipeline ML (label/score/details) como el de
-        la capa operativa (operational_status/risk_level/yara_matches), porque
-        ExplanationService puede recibir resultados de ambas fuentes.
+        Lee el contrato ACTUAL (result/final_verdict/correlation/evidences)
+        con fallback al esquema legacy (label/score/details) y a la capa
+        operativa (operational_status/risk_level/yara_matches), porque
+        ExplanationService puede recibir resultados de varias fuentes.
+        El veredicto del detector es autoritativo: el template nunca lo
+        contradice (Detector = autoridad, LLM = explicador).
         """
-        operational_status = str(scan_result.get("operational_status", "")).upper()
-        risk_level = str(scan_result.get("risk_level", "")).upper()
-        score = _as_float(scan_result.get("score"), default=-1.0)
+        final = scan_result.get("final_verdict")
+        if not isinstance(final, dict):
+            final = {}
+        verdict = str(
+            final.get("verdict") or scan_result.get("result")
+            or scan_result.get("verdict") or scan_result.get("label") or "unknown"
+        ).lower()
+        operational_status = str(
+            final.get("operational_status") or scan_result.get("operational_status", "")
+        ).upper()
+        risk_level = str(
+            final.get("risk_level") or scan_result.get("risk_level", "")
+        ).upper()
+        _score = _as_float(scan_result.get("score"), default=-1.0)
+        score: float = _score if isinstance(_score, (int, float)) else -1.0
         file_name = scan_result.get("file_name") or scan_result.get("file") or "archivo_analizado.bin"
-        label = str(scan_result.get("label", "Unknown"))
+        label = str(scan_result.get("label", verdict.upper() if verdict else "Unknown"))
 
         indicators: List[str] = []
         recommended_actions: List[str] = []
@@ -79,9 +120,10 @@ class TemplateExplainer:
         # Indicadores estructurados del overlay de PE (capa Defender Extractor)
         overlay = scan_result.get("overlay_analysis") or {}
         if isinstance(overlay, dict) and overlay.get("overlay_detected"):
-            ratio = _as_float(overlay.get("overlay_ratio"), default=0.0) * 100
+            _ratio = _as_float(overlay.get("overlay_ratio"), default=0.0)
+            ratio = _ratio if isinstance(_ratio, (int, float)) else 0.0
             indicators.append(
-                f"Se detectó un overlay que representa el {ratio:.1f}% del tamaño total del archivo."
+                f"Se detectó un overlay que representa el {ratio * 100:.1f}% del tamaño total del archivo."
             )
 
         yara_matches = scan_result.get("yara_matches") or []
@@ -99,7 +141,8 @@ class TemplateExplainer:
             indicators.append("Indicadores de inyección de código en procesos activos.")
 
         # Indicadores del pipeline ML (details: entropy, imports sospechosos)
-        details = scan_result.get("details") if isinstance(scan_result.get("details"), dict) else {}
+        _details = scan_result.get("details")
+        details: Dict[str, Any] = _details if isinstance(_details, dict) else {}
         entropy = _as_float(details.get("entropy"), default=None)
         if entropy is not None and entropy >= 7.0:
             indicators.append(
@@ -110,9 +153,52 @@ class TemplateExplainer:
             shown = ", ".join(str(i) for i in suspicious_imports[:5])
             indicators.append(f"Imports sospechosos asociados a inyección/evasión: {shown}.")
 
-        # Clasificación del veredicto: capas operativas mandan; el score ML es respaldo.
+        # Indicadores del Evidence Contract F2 (F4.2): el template es explicador,
+        # el veredicto del detector es autoritativo y aquí solo se narra.
+        contradiction_text: Optional[str] = None
+        family_note = "Familia no determinada / no concluyente."
+        raw_evs = scan_result.get("evidences")
+        if isinstance(raw_evs, list):
+            for ev in raw_evs:
+                if not isinstance(ev, dict):
+                    continue
+                src = str(ev.get("source", ""))
+                ev_verdict = str(ev.get("verdict", "")).lower()
+                reasons = ev.get("reasons") or []
+                r0 = str(reasons[0])[:200] if reasons else ""
+                if ev_verdict in ("suspicious", "malicious"):
+                    if src == "overlay" and r0:
+                        indicators.append(f"Overlay forense ({ev_verdict}): {r0}.")
+                    elif src == "pe_static" and r0:
+                        indicators.append(f"PE estático ({ev_verdict}): {r0}.")
+                    elif src == "heuristic" and r0:
+                        indicators.append(f"Heurística ({ev_verdict}): {r0}.")
+                    elif src == "dotnet" and r0:
+                        indicators.append(f".NET ({ev_verdict}): {r0}.")
+                    elif src == "yara" and r0:
+                        indicators.append(f"YARA ({ev_verdict}): {r0}.")
+                    elif r0:
+                        indicators.append(f"{src} ({ev_verdict}): {r0}.")
+            fv = final if isinstance(final, dict) else {}
+            contradiction_text = fv.get("contradiction") or scan_result.get("contradiction")
+            if contradiction_text:
+                indicators.append(f"Contradicción entre fuentes: {str(contradiction_text)[:300]}.")
+        _lik = scan_result.get("family_likelihoods")
+        fam_lik: Dict[str, Any] = _lik if isinstance(_lik, dict) else {}
+        top_fam = scan_result.get("top_family")
+        if top_fam:
+            family_note = f"Hipótesis de familia (no confirmada): {top_fam}."
+        elif fam_lik:
+            cands = ", ".join(f"{k}={v}" for k, v in list(fam_lik.items())[:6])
+            family_note = (
+                f"Candidatos no concluyentes ({cands}). Familia no determinada / no concluyente."
+            )
+
+        # Clasificación del veredicto: el detector manda (F4.2); el score ML es respaldo.
+        is_suspicious_verdict = verdict in ("suspicious", "malicious")
         is_high = (
-            operational_status in ("DANGEROUS", "CRITICAL")
+            verdict == "malicious"
+            or operational_status in ("DANGEROUS", "CRITICAL")
             or risk_level in ("HIGH", "CRITICAL")
             or label.upper() in ("MALWARE", "MALICIOUS")
             or score >= 0.8
@@ -120,7 +206,8 @@ class TemplateExplainer:
         is_medium = (
             not is_high
             and (
-                operational_status == "SUSPICIOUS"
+                is_suspicious_verdict
+                or operational_status == "SUSPICIOUS"
                 or risk_level == "MEDIUM"
                 or 0.5 <= score < 0.8
             )
@@ -150,12 +237,20 @@ class TemplateExplainer:
             ]
         else:
             threat_level = "low" if label.upper() in ("MALWARE", "MALICIOUS") else "none"
+            # Coherencia F4.2: un veredicto suspicious del detector nunca es "none".
+            if is_suspicious_verdict and threat_level == "none":
+                threat_level = "medium"
             summary = (
                 f"El archivo '{file_name}' no presenta indicadores maliciosos conocidos."
                 if threat_level == "none"
                 else f"El archivo '{file_name}' fue etiquetado como malicioso por el modelo "
-                     "pero los indicadores estructurales son limitados."
+                      "pero los indicadores estructurales son limitados."
             )
+            if is_suspicious_verdict and threat_level == "medium":
+                summary = (
+                    f"El detector clasificó '{file_name}' como {verdict.upper()}; "
+                    "los indicadores estructurales requieren supervisión. " + family_note
+                )
             recommended_actions = (
                 ["No se requieren acciones reactivas."]
                 if threat_level == "none"
@@ -165,10 +260,12 @@ class TemplateExplainer:
         analysis = (
             "Análisis Forense Nativo (Offline):\n"
             f"- Archivo: {file_name}\n"
+            f"- Veredicto del detector: {verdict.upper()}\n"
             + (f"- Veredicto ML: {label} (score={score:.4f})\n" if score >= 0 else "")
             + (f"- Estado Operativo: {operational_status}\n" if operational_status else "")
             + "- Hallazgos principales: "
             + (" ".join(indicators) if indicators else "Sin anomalías estructurales.")
+            + f"\n- Familia: {family_note}"
         )
 
         return {

@@ -134,7 +134,9 @@ async def get_current_user(request: Request) -> Dict[str, Any]:
     if not user_id:
         raise HTTPException(status_code=401, detail="Token no contiene información de usuario.")
 
-    user = {"id": user_id, "email": email or ""}
+    # F4.2 Opcion A: propagar el JWT validado para RLS real (auth.uid()).
+    # El token viaja solo en memoria backend; nunca se loguea ni se expone.
+    user = {"id": user_id, "email": email or "", "_jwt": token}
     # F0: nunca loggear token/JWT raw; solo user_id fingerprint
     logger.debug("Usuario autenticado: %s (%s)", user_id[:8] + "***" if user_id else "***", email)
     return user

@@ -99,12 +99,16 @@ async def explain_scan(payload: ExplainRequest, user: dict = Depends(get_current
             },
         }
 
-        # Sincronizo usuario y guardo en Supabase
-        sync_user(user)
+        # Sincronizo usuario y guardo en Supabase con RLS real (F4.2 Opcion A).
+        # user_id autoridad: JWT validado; se sobrescribe cualquier valor del cliente.
+        scan_result_dict["user_id"] = user["id"]
+        scan_result_dict["user_email"] = user["email"]
+        user_jwt = user.get("_jwt")
+        sync_user(user, user_jwt=user_jwt)
         if "file_name" in scan_result_dict:
             updated = dict(scan_result_dict)
             updated["explanation"] = explanation_text
-            save_scan_safe(updated)
+            save_scan_safe(updated, user_jwt=user_jwt)
 
         return success_response(response_data)
 

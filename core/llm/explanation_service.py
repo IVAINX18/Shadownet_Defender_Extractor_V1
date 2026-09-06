@@ -77,35 +77,71 @@ def _parse_json_response(response_text: str) -> Any | None:
     return None
 
 
+def _detector_verdict(scan_result: dict) -> str:
+    """Veredicto autoritativo del detector (F4.2): final_verdict > result > label."""
+    final = scan_result.get("final_verdict")
+    if isinstance(final, dict) and final.get("verdict"):
+        return str(final["verdict"]).lower()
+    for key in ("result", "verdict"):
+        if scan_result.get(key):
+            return str(scan_result[key]).lower()
+    label = str(scan_result.get("label", "unknown")).lower()
+    if label in ("malware", "malicious"):
+        return "malicious"
+    if label in ("benign", "benigno"):
+        return "benign"
+    if label in ("suspicious", "sospechoso"):
+        return "suspicious"
+    return "unknown"
+
+
+def _expected_threat_levels(verdict: str) -> set:
+    """Threat levels compatibles con cada veredicto del detector (F4.2)."""
+    if verdict == "malicious":
+        return {"high", "critical"}
+    if verdict == "suspicious":
+        return {"medium", "high", "critical"}
+    if verdict == "benign":
+        return {"none", "low"}
+    return {"none", "low", "medium", "high", "critical"}
+
+
 def _validate_llm_response(parsed: dict, scan_result: dict) -> dict:
     """
     Valida la coherencia entre el resultado del scan y la explicacion del LLM.
 
-    Un LLM puede alucinar y describir una amenaza como de bajo riesgo aunque el
-    scan_result indique CRITICAL. Esta funcion detecta esa inconsistencia y
-    calcula una metrica de confianza basada en cuantos indicadores reales del
-    scan se mencionan en la respuesta.
+    El veredicto del detector es autoritativo (F4.2): un LLM que describe
+    threat low/none ante un detector SUSPICIOUS/MALICIOUS es inconsistente,
+    igual que un threat high/critical ante un detector BENIGN.
 
     Args:
         parsed:      Respuesta parseada del LLM (dict con threat_level, etc.).
         scan_result: Resultado del escaneo usado para construir el prompt.
 
     Returns:
-        Dict con llm_inconsistent (bool) y llm_confidence (float 0-1).
+        Dict con llm_inconsistent (bool), llm_confidence (float 0-1),
+        detector_verdict y expected_threat_levels.
     """
     import json as _json
 
-    risk_level = scan_result.get("risk_level", "LOW").upper()
+    verdict = _detector_verdict(scan_result)
     threat_level = (parsed.get("threat_level") or "").lower()
+    expected = _expected_threat_levels(verdict)
 
-    # Detectar inconsistencia: el LLM dice "no hay amenaza" cuando el scan dice CRITICAL/HIGH
-    inconsistent = (
-        risk_level in ("CRITICAL", "HIGH")
-        and threat_level in ("none", "low")
-    )
+    # Inconsistencia: threat fuera del conjunto esperado para el veredicto.
+    # UNKNOWN es leniente (acepta todo) porque el detector no concluyo.
+    inconsistent = verdict != "unknown" and threat_level not in expected
 
-    # Calcular confianza por referencia a indicadores reales del scan
-    # El LLM demuestra que analizo el resultado si menciona al menos un indicador concreto.
+    # Compat legacy: risk CRITICAL/HIGH con threat none/low sigue siendo inconsistente
+    if not inconsistent and verdict == "unknown":
+        risk_level = str(scan_result.get("risk_level", "")).upper()
+        inconsistent = (
+            risk_level in ("CRITICAL", "HIGH")
+            and threat_level in ("none", "low")
+        )
+
+    # Calcular confianza por referencia a indicadores reales del scan.
+    # El LLM demuestra que analizo el resultado si menciona indicadores concretos.
     real_indicators = [
         "overlay_ratio",
         "overlay_entropy",
@@ -115,13 +151,51 @@ def _validate_llm_response(parsed: dict, scan_result: dict) -> dict:
         "risk_score",
         "embedded_pe",
         "block_entropy",
+        "packer",
+        "entropy",
+        "obfuscat",
+        "suspicious",
+        "correlation",
+        "contradic",
+        "familia no determinada",
+        "no concluyente",
     ]
-    response_text = _json.dumps(parsed).lower()
+    response_text = _json.dumps(parsed, ensure_ascii=False).lower()
     hits = sum(1 for ind in real_indicators if ind in response_text)
     # Normalizar sobre 3 hits como objetivo minimo para confianza maxima
     confidence = round(min(1.0, hits / 3.0), 2)
 
-    return {"llm_inconsistent": inconsistent, "llm_confidence": confidence}
+    return {
+        "llm_inconsistent": inconsistent,
+        "llm_confidence": confidence,
+        "detector_verdict": verdict,
+        "expected_threat_levels": sorted(expected),
+    }
+
+
+def _normalize_llm_response(parsed: dict, scan_result: dict, validation: dict) -> dict:
+    """
+    Normaliza una respuesta LLM inconsistente sin tocar el detector (F4.2).
+
+    El resultado del scan NUNCA se modifica: solo se corrige el threat_level
+    del texto explicativo al minimo compatible con el veredicto y se anota
+    la correccion. LLM failure/contradiction jamas convierte el veredicto
+    en BENIGN ni cambia el resultado del detector.
+    """
+    verdict = validation.get("detector_verdict", "unknown")
+    fallback = {"suspicious": "medium", "malicious": "high", "benign": "low"}.get(
+        verdict, parsed.get("threat_level")
+    )
+    corrected = dict(parsed)
+    corrected["threat_level"] = fallback
+    note = (
+        f"[Corrección automática: threat_level ajustado a '{fallback}' "
+        f"por coherencia con el veredicto autoritativo del detector '{verdict}'.]"
+    )
+    analysis = str(corrected.get("analysis", ""))
+    corrected["analysis"] = f"{note} {analysis}".strip()
+    corrected["llm_corrected"] = True
+    return corrected
 
 
 class LLMClient(Protocol):
@@ -282,17 +356,22 @@ class ExplanationService:
         }
 
         if parsed_response is not None:
-            # Validar coherencia de la respuesta LLM antes de retornar (T-10)
+            # Validar coherencia contra el veredicto autoritativo (F4.2).
+            # Si el LLM contradice al detector, se normaliza la explicacion;
+            # el resultado del scan NUNCA se modifica.
             validation = _validate_llm_response(parsed_response, scan_result)
             parsed_response.update(validation)
 
             if validation.get("llm_inconsistent"):
                 logger.warning(
-                    "LLM inconsistente: risk_level=%s pero threat_level=%s "
-                    "(llm_confidence=%.2f)",
-                    scan_result.get("risk_level", ""),
+                    "LLM inconsistente: detector_verdict=%s pero threat_level=%s "
+                    "(llm_confidence=%.2f) — normalizando explicacion",
+                    validation.get("detector_verdict", ""),
                     parsed_response.get("threat_level", ""),
                     validation.get("llm_confidence", 0),
+                )
+                parsed_response = _normalize_llm_response(
+                    parsed_response, scan_result, validation
                 )
 
             result["parsed_response"] = parsed_response
