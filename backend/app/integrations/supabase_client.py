@@ -409,6 +409,10 @@ def save_scan(data: Dict[str, Any], user_jwt: Optional[str] = None) -> Dict[str,
         "scan_type": str(data.get("scan_type", "single")),
         "result": str(data.get("result", "benign")),
         "risk_level": str(data.get("risk_level", "low")),
+        # score = probabilidad ML del DTO (0.0 = modelo dice benigno). NO es el
+        # score de correlacion S: ese vive en final_verdict.score / correlation
+        # (JSONB F4). Ver docs F4.2: score 0 + final_verdict S=0.29 es coherente
+        # cuando ML discrepa del analisis estatico.
         "score": float(data.get("confidence", data.get("score", 0.0))),
         "explanation": data.get("explanation"),
         "scan_duration": _parse_duration(data.get("scan_time")),
@@ -442,7 +446,13 @@ def save_scan(data: Dict[str, Any], user_jwt: Optional[str] = None) -> Dict[str,
         "evidences": data.get("evidences") or data.get("evidence") or [],
         "final_verdict": data.get("final_verdict") or {},
         "correlation": data.get("correlation") or {},
-        "confidence": str(data.get("confidence") if isinstance(data.get("confidence"), str) else data.get("confidence", "Low")),
+        # confidence (TEXT): nivel del veredicto F2 ("High"/"Medium"/"Low") si existe;
+        # fallback al confidence numerico legacy del DTO. Nunca inventar.
+        "confidence": (
+            (data.get("final_verdict") or {}).get("confidence")
+            or (data.get("correlation") or {}).get("confidence")
+            or str(data.get("confidence") if isinstance(data.get("confidence"), str) else data.get("confidence", "Low"))
+        ),
         "degraded": bool(data.get("degraded", False)),
         "coverage": float(data.get("coverage", 1.0)) if data.get("coverage") is not None else 1.0,
     })

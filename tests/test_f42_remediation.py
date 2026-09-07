@@ -184,6 +184,24 @@ def test_unique_violation_deduplicates():
         assert res.get("category") == "unique_violation"
 
 
+def test_confidence_prefers_final_verdict_level():
+    """confidence (TEXT) usa el nivel F2 ('High') antes que el float legacy del DTO."""
+    from backend.app.integrations import supabase_client as sc
+
+    mock_client = MagicMock()
+    mock_client.table.return_value.insert.return_value.execute.return_value = MagicMock(data=[{"id": "1"}])
+    data = _suspicious_scan()
+    data["sha256"] = "f42-confidence-mapping"
+    data["confidence"] = 0.0  # DTO legacy float (score ML)
+    data["final_verdict"] = {"verdict": "suspicious", "confidence": "High", "score": 0.29}
+    with patch.object(sc, "_get_service_client", return_value=mock_client):
+        res = sc.save_scan(data, user_jwt="t")
+        assert res.get("saved") is True
+        sent = mock_client.table.return_value.insert.call_args[0][0]
+        assert sent["confidence"] == "High"  # nivel F2, no "0.0"
+        assert sent["score"] == 0.0  # score = probabilidad ML (documentado)
+
+
 def test_f4_fields_in_record_and_json_safe():
     from backend.app.integrations import supabase_client as sc
     from pathlib import Path

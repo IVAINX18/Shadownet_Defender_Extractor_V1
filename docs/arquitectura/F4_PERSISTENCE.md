@@ -75,3 +75,10 @@ E2E real encontro 2 fallos (ver reporte F4.2): PGRST204 `analysis_type` + 42501 
 **DTO:** `ScanResult.operational_status` (F4.2, mapeado desde `final_verdict` en `scan_service`) para que respuesta y persistencia incluyan estado operativo.
 
 Aplicar en remoto (Dashboard SQL Editor, orden): `supabase_migration_f42.sql`.
+
+## F4.2b — Post-aplicacion en remoto (2026-09-07, verificado)
+Master aplico `supabase_migration_f42.sql` (sin bloque incidents: el proyecto solo tiene `scan_results` + `users`; la seccion 5b/5c del archivo ahora es condicional y no falla si `incidents` no existe). Verificado via service_role (solo diagnostico): las 19 columnas existen (`analysis_type`, `evidences`, `final_verdict`, `correlation`, `confidence`, `degraded`, `coverage`, telemetria). `incidents` ausente (PGRST205) → `save_incident` loguea error sin romper flujo; para activarla, descomentar seccion 5c y re-ejecutar 5b.
+
+**Semantica `score` vs S (duda resuelta):** `scan_results.score` = probabilidad ML del DTO (0.0 en sample1/2 porque el modelo dijo benigno). El score de deteccion S (0.29/0.19) vive en `final_verdict.score` + `correlation` (JSONB F4). Las filas pre-migracion muestran `score=0, confidence=Low(evidence defaults), evidences=[], final_verdict={}` porque esas columnas NO existian al insertar (adaptive strip las excluyo y Postgres aplico defaults). Tras la migracion, re-escanear persiste el payload F4 completo. `confidence` (TEXT) ahora prefiere `final_verdict.confidence` ("High") sobre el float legacy.
+
+**Que procede:** (1) opcional: crear `incidents` (5c) si se quieren incidentes DANGEROUS; (2) re-escanear sample1/sample2 autenticado para backfill F4 (las filas viejas quedan como historial pre-migracion); (3) verificar policies en Dashboard (`SELECT policyname FROM pg_policies WHERE tablename='scan_results'`) — deben existir `scan_results_select/insert/update_own` y `users_select/insert_own`; (4) verificar indice unico (`SELECT indexname FROM pg_indexes WHERE indexname='uq_scan_results_sha_user'`) — si hay duplicados historicos (mismo sha+user) el CREATE INDEX habria fallado: limpiar o aceptar sin indice (el codigo maneja ambos casos).

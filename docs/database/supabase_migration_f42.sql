@@ -64,7 +64,6 @@ CREATE INDEX IF NOT EXISTS idx_scan_results_analysis_type ON scan_results (analy
 -- ----------------------------------------------------------
 ALTER TABLE scan_results ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE incidents ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "scan_results_all" ON scan_results;
 DROP POLICY IF EXISTS "scan_results_select_own" ON scan_results;
@@ -83,8 +82,41 @@ DROP POLICY IF EXISTS "users_insert_own" ON users;
 CREATE POLICY "users_select_own" ON users FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "users_insert_own" ON users FOR INSERT WITH CHECK (auth.uid() = id);
 
-DROP POLICY IF EXISTS "incidents_select_own" ON incidents;
-CREATE POLICY "incidents_select_own" ON incidents FOR SELECT USING (auth.uid() = user_id);
+-- ----------------------------------------------------------
+-- 5b — incidents (OPCIONAL: solo si la tabla existe)
+-- ----------------------------------------------------------
+-- La tabla incidents la crea supabase_migration.sql. Si tu proyecto no la
+-- tiene (solo scan_results + users), este bloque no hace nada en vez de
+-- fallar: las alertas DANGEROUS simplemente no persisten incidente.
+DO $$
+BEGIN
+    IF to_regclass('public.incidents') IS NOT NULL THEN
+        EXECUTE 'ALTER TABLE incidents ENABLE ROW LEVEL SECURITY';
+        EXECUTE 'DROP POLICY IF EXISTS "incidents_select_own" ON incidents';
+        EXECUTE 'CREATE POLICY "incidents_select_own" ON incidents FOR SELECT USING (auth.uid() = user_id)';
+    ELSE
+        RAISE NOTICE 'incidents ausente: se omite su policy (ver seccion 5c)';
+    END IF;
+END
+$$;
+
+-- ----------------------------------------------------------
+-- 5c — Crear incidents si se desea (OPCIONAL, descomentar)
+-- ----------------------------------------------------------
+-- Si quieres la tabla de incidentes DANGEROUS, ejecuta este bloque:
+-- CREATE TABLE IF NOT EXISTS incidents (
+--     id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--     created_at          TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+--     scan_id             UUID REFERENCES scan_results(id),
+--     user_id             UUID REFERENCES users(id),
+--     file_name           TEXT NOT NULL,
+--     severity            TEXT NOT NULL DEFAULT 'critical',
+--     operational_status  TEXT NOT NULL DEFAULT 'DANGEROUS',
+--     timestamp           TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+-- );
+-- CREATE INDEX IF NOT EXISTS idx_incidents_user_id ON incidents (user_id);
+-- Luego re-ejecuta la seccion 5b.
+
 
 -- ----------------------------------------------------------
 -- 6 — Verification (ejecutar manualmente tras aplicar)
