@@ -34,7 +34,7 @@ Corrección aplicada en la celda 3; inventario verificado en vivo (2 entradas, a
 | 0 entorno | H0: no asumir GPU/VRAM/RAM/disco | Detecta torch/CUDA, VRAM, RAM, `df /kaggle/working`, exige >6 GB libres | FAIL si <6 GB |
 | 1 acceso | H1: bucket público sin credenciales | HEAD a meta.db, ember data.mdb, train.npz, missing-json; exige 200 + `Accept-Ranges: bytes` | FAIL si no-200 o sin Range |
 | 2 range | H2: Range honrado con 206 | Range cabeza (magia PK) + Range cola; deriva tamaño total | FAIL si no-206 o sin `PK` |
-| 3 zip | H3: npz inspeccionable por cola | Lee EOCD en últimos 128 KB, recorre Central Directory, lista `.npy`, lee método compresión | FAIL si sin EOCD o sin `.npy`; informa STORED vs DEFLATED |
+<!--| 3 zip | H3: npz inspeccionable por cola | Lee EOCD en últimos 128 KB, recorre Central Directory, lista `.npy`, lee método compresión | FAIL si sin EOCD o sin `.npy`; informa STORED vs DEFLATED |-->
 | 4 vector | H4/H5: row-slice streaming + 2381 finitas | Lee Local File Header; si STORED: parsea header `.npy`, calcula `payload+i*row_bytes`, trae 1 fila por Range; exige shape (2381,) y `isfinite` | Si DEFLATED → FAIL explícito + plan B (shards Parquet). Si len≠2381 o NaN/Inf → FAIL |
 | 5 cruce | H6/H7: orden NO asumido + etiqueta trazable | Descarga meta.db completo (sqlite exige fichero local), verifica esquema y conteo train `rl_fs_t<=1543449600`; declara que sin mapa sha↔índice la fila NO es atribuible | Sin mapa → FAIL controlado (resultado correcto de validar, no éxito fingido) |
 | 6 overlay | H8: N sin fijar, solo deterministas | 7 candidatas con veredicto OK/?/NO; pasan solo las 3 puras de SecInfo; overlay_ratio/entropy reales RECHAZADAS sin binario | Informativa; N queda abierto |
