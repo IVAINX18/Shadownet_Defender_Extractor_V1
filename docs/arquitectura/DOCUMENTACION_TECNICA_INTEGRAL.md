@@ -3,7 +3,7 @@
 ## ShadowNet Defender (SND) — Extractor V2
 
 **Proyecto:** Shadownet_Defender_Extractor_V2  
-**Versión documentada:** 2.0.0  
+**Versión documentada:** 4.1.0  
 **Institución:** INNOVASIC Research Lab — Universidad Cooperativa de Colombia  
 **Autores:** Ivan Velasco (IVAINX_18) · Santiago Cubillos (VANkLEis)  
 **Fecha de elaboración:** Junio 2026  
@@ -20,8 +20,8 @@ El sistema se presenta como:
 
 - **Motor de análisis** (`core/engine.py`): pipeline híbrido YARA → desempacado UPX → ML estático → (opcional) elevación conductual.
 - **Extractor de características** (`extractors/`): implementación modular alineada con el estándar EMBER 2.0 / SOREL-20M.
-- **Aplicación de escritorio** (Electron + React + FastAPI): interfaz SOC con autenticación Supabase, historial de escaneos y explicaciones LLM locales (Ollama).
-- **Capa de automatización** (n8n): alertas y flujos SOC vía webhooks.
+- **Aplicación de escritorio** (Electron + React + FastAPI): interfaz SOC con autenticación Supabase, historial de escaneos y explicaciones LLM vía cascada cloud Groq/Gemini con fallback offline.
+- **Capa de automatización** (Supabase Webhooks + Edge Functions; n8n solo rollback): alertas SOC vía Supabase Edge Function `send-malware-alert` (Deno + Nodemailer → smtp.gmail.com).
 
 ## 1.2 Qué problema resuelve
 
@@ -51,20 +51,20 @@ ShadowNet resuelve esto aplicando **Machine Learning sobre análisis estático**
 | Parsing PE | `pefile` |
 | ML / inferencia | NumPy, scikit-learn (StandardScaler), ONNX Runtime |
 | Entrenamiento (offline) | PyTorch (exportado a ONNX; no requerido en producción) |
-| LLM explicativo | Ollama (API OpenAI-compatible) |
+| LLM explicativo | Groq/Gemini (SDK openai, cascada Tri-Fallover) + TemplateExplainer offline |
 | Backend API | FastAPI, Pydantic v2, Uvicorn |
 | Frontend | React + Vite + Electron |
 | Persistencia | Supabase (Auth + PostgreSQL) |
 | Firmas | YARA (`yara-python`) |
 | Desempacado | UPX (`upx-ucl` vía subprocess) |
-| Automatización | n8n (webhooks) |
+| Automatización | Supabase Edge Function send-malware-alert (Deno/Nodemailer); n8n deprecated |
 
 ## 1.5 Principales aportes
 
 1. **Extractor robusto anti-evasión** con muestreo distribuido, RAW_FALLBACK, límites de recursos y telemetría de diagnóstico.
 2. **Pipeline híbrido de 4 fases** que combina detección determinista (YARA), desempacado UPX, ML estático y monitoreo conductual opcional.
 3. **Arquitectura modular SOLID/Clean Architecture** extensible por bloques de features (`FeatureBlock` ABC).
-4. **Explicabilidad asistida por LLM** con prompts estructurados y salida JSON.
+4. **Explicabilidad asistida por LLM** vía cascada cloud Groq (openai/gpt-oss-20b) → Gemini (gemini-3.5-flash-lite) → TemplateExplainer offline, con prompts estructurados y salida JSON (ver `docs/TriFallover_Groq_Gemini_Template.md`).
 5. **Aplicación desktop offline-first** con sincronización cloud diferida.
 
 ---
@@ -112,7 +112,7 @@ La evolución del proyecto confirma esta hipótesis:
 
 ## 3.1 Objetivo general
 
-Desarrollar un sistema de detección de malware basado en **aprendizaje profundo sobre análisis estático de PE**, capaz de operar **offline**, explicar sus decisiones mediante **IA generativa local**, e integrarse en flujos SOC automatizados.
+Desarrollar un sistema de detección de malware basado en **aprendizaje profundo sobre análisis estático de PE**, capaz de operar **offline**, explicar sus decisiones mediante **IA generativa vía cascada cloud con fallback offline**, e integrarse en flujos SOC automatizados.
 
 ## 3.2 Objetivos específicos
 
@@ -124,9 +124,9 @@ Desarrollar un sistema de detección de malware basado en **aprendizaje profundo
 | 4 | Implementar extractor resistente a evasión adversarial | ✅ Completado |
 | 5 | Pipeline híbrido YARA + UPX + ML | ✅ Completado |
 | 6 | API REST + CLI + aplicación desktop | ✅ Completado |
-| 7 | Explicaciones LLM con Ollama | ✅ Completado |
+| 7 | Explicaciones LLM vía cascada cloud Groq/Gemini con fallback offline (ver `docs/TriFallover_Groq_Gemini_Template.md`) | ✅ Completado |
 | 8 | Persistencia Supabase + modo offline | ✅ Completado |
-| 9 | Integración n8n para alertas | ⚠️ Parcial |
+| 9 | Alertas Supabase nativas (Database Webhook → Edge Function send-malware-alert); n8n deprecated (solo rollback) | ✅ Completado |
 | 10 | Monitoreo conductual en tiempo real | ⚠️ Base implementada |
 
 ## 3.3 Alcance real del sistema
@@ -171,9 +171,9 @@ Desarrollar un sistema de detección de malware basado en **aprendizaje profundo
 │                    CAPA DE DOMINIO (CORE)                        │
 │  core/engine.py          — Orquestador híbrido (Facade)         │
 │  core/unpacking/         — UPXUnpacker                           │
-│  core/llm/               — ExplanationService, OllamaClient     │
+│  core/llm/               — ExplanationService, GroqClient/GeminiClient/TemplateExplainer (cascada Tri-Fallover) │
 │  core/dynamic/           — BehavioralShield (monitoreo)         │
-│  core/integrations/      — n8n_client                           │
+│  core/integrations/      — supabase Edge Function send-malware-alert + n8n_client (deprecated, solo rollback) │
 └────────────────────────┬────────────────────────────────────────┘
                          │
 ┌────────────────────────▼────────────────────────────────────────┐
@@ -225,7 +225,7 @@ Archivo en disco
 │    tripartita      │
 │  - LLM explain     │
 │  - Supabase save   │
-│  - n8n alert       │
+│  - Supabase Edge Function alert (n8n solo rollback) │
 └──────────────────┘
 ```
 
@@ -237,7 +237,7 @@ Archivo en disco
 | `ShadowNetModel` | `onnxruntime`, `joblib`, `scaler.pkl` | `float [0,1]` |
 | `ShadowNetEngine` | Extractor + Model + YARA + UPX | `dict` scan_result |
 | `scan_service` | `ShadowNetEngine`, DTOs Pydantic | `ScanResult` |
-| `ExplanationService` | `OllamaClient`, `prompt_builder` | JSON explicativo |
+| `ExplanationService` | `GroqClient`/`GeminiClient`/`TemplateExplainer` (SDK openai, cascada Tri-Fallover), `prompt_builder` | JSON explicativo |
 
 ## 4.4 Diagrama lógico textual (pipeline ML)
 
@@ -705,9 +705,9 @@ Cada bloque fallido produce vector de ceros del tamaño correspondiente (toleran
 
 | Aspecto | Detalle |
 |---------|---------|
-| **Causa raíz** | Ollama con modelos grandes en hardware limitado |
+| **Causa raíz** | Proveedor LLM cloud con latencia/límites (Antes: Ollama local con modelos grandes en hardware limitado, Ahora: cascada cloud) |
 | **Impacto** | API bloqueada esperando explicación |
-| **Solución** | Timeout en `llm_service` + retorno de clasificación sin explicación |
+| **Solución** | Cascada Tri-Fallover Groq → Gemini → TemplateExplainer (SDK openai, timeouts 10s/12s, offline determinístico); ver `docs/TriFallover_Groq_Gemini_Template.md` |
 
 ## 9.10 Double Source of Truth (Auth)
 
@@ -1009,9 +1009,9 @@ La exportación ONNX reduce dependencias de ~700 MB a ~5 MB con inferencia compa
 |---------|------------------------------|-------------------|
 | Despliegue | Notebook Jupyter + PyTorch | App desktop + ONNX + API REST |
 | Robustez | Extracción ideal sobre PEs limpios | 9 protecciones anti-evasión |
-| Explicabilidad | Métricas numéricas | LLM local (Ollama) + JSON estructurado |
+| Explicabilidad | Métricas numéricas | LLM vía cascada cloud Groq/Gemini + TemplateExplainer offline + JSON estructurado |
 | Pipeline | ML puro | Híbrido YARA + UPX + ML |
-| Operación | Batch offline | Tiempo real + historial cloud + alertas n8n |
+| Operación | Batch offline | Tiempo real + historial cloud + alertas Supabase Edge Function (n8n solo rollback) |
 
 ---
 
@@ -1050,7 +1050,7 @@ Shadownet_Defender_Extractor_V2/
 ├── samples/              # PEs de prueba (procexp64.exe)
 ├── scripts/              # Evaluación, diagnóstico, robustez, E2E
 ├── security/             # yara_scanner.py, yara_rules/*.yar
-├── tests/                # pytest: extractors, LLM, n8n, CLI
+├── tests/                # pytest: extractors, LLM (Tri-Fallover), CLI
 ├── tools/                # cli.py
 ├── utils/                # logger, runtime_checks
 └── requirements.txt      # Perfil completo
@@ -1065,10 +1065,10 @@ Shadownet_Defender_Extractor_V2/
 | Inferencia | `models/inference.py` | ONNX + scaler |
 | YARA | `security/yara_scanner.py` | Firmas deterministas |
 | UPX | `core/unpacking/__init__.py` | Detección/desempacado |
-| LLM | `core/llm/explanation_service.py` | Explicaciones Ollama |
+| LLM | `core/llm/explanation_service.py` | Explicaciones vía cascada Groq/Gemini + TemplateExplainer (ver `docs/TriFallover_Groq_Gemini_Template.md`) |
 | API | `backend/app/main.py` | FastAPI + CORS |
 | Scan | `backend/app/services/scan_service.py` | Clasificación tripartita |
-| n8n | `core/integrations/n8n_client.py` | Webhooks SOC |
+| Automatización | `supabase/functions/send-malware-alert` (Deno/Nodemailer → smtp.gmail.com) + `core/integrations/n8n_client.py` (deprecated, solo rollback) | Alertas SOC |
 
 ## 19.3 Dependencias principales
 
@@ -1080,7 +1080,7 @@ Shadownet_Defender_Extractor_V2/
 | scikit-learn | ≥ 1.3 | StandardScaler |
 | pydantic | ≥ 2.0 | DTOs API |
 | supabase | ≥ 2.0 | Auth + DB |
-| openai | ≥ 1.0 | Cliente Ollama |
+| openai | ≥ 1.0 | Cliente Groq/Gemini vía endpoint OpenAI-compatible (cascada Tri-Fallover) |
 | torch | (ml.in) | Entrenamiento offline |
 
 ## 19.4 Scripts operativos
@@ -1095,7 +1095,7 @@ Shadownet_Defender_Extractor_V2/
 | `scripts/verify_readiness.py` | Smoke test completo |
 | `scripts/generate_mock_dataset.py` | Dataset sintético para evaluación |
 | `scripts/e2e_test.py` | Test end-to-end API |
-| `scripts/fix-ollama.sh` | Setup Ollama + modelo |
+| `scripts/fix-ollama.sh` | *Histórico — Antes: Ollama local, Ahora: cascada cloud Groq/Gemini (ver `docs/TriFallover_Groq_Gemini_Template.md`)* |
 
 ## 19.5 Casos de prueba
 
@@ -1107,7 +1107,7 @@ Shadownet_Defender_Extractor_V2/
 | Muestreo distribuido | `test_extractors.py::test_distributed_sampling` | ≤ 10 MB muestreados |
 | Detección UPX | `test_extractors.py::test_packer_detection` | Firma UPX! |
 | LLM prompt | `test_llm_prompt_builder.py` | Estructura prompt |
-| n8n client | `test_n8n_client.py` | Normalización eventos |
+| Automatización/alertas | `test_yara_integration.py` / `supabase/functions/send-malware-alert` | Webhook Supabase + Edge Function; `test_n8n_client.py` solo rollback |
 
 ## 19.6 Endpoints API
 
@@ -1124,7 +1124,7 @@ Shadownet_Defender_Extractor_V2/
 
 ## 20.1 Abstract (Resumen)
 
-> **ShadowNet Defender** es un sistema de detección estática de malware para ejecutables Windows (PE) basado en aprendizaje profundo. El sistema transforma cada binario en un vector de **2.381 características** compatible con el estándar EMBER 2.0 / SOREL-20M, lo normaliza mediante Z-Score y lo clasifica con una red neuronal profunda (MLP: 2381→512→256→128→1) exportada a ONNX, alcanzando un **AUC-ROC de 0.985** sobre el benchmark SOREL-20M. Se implementa un **extractor robusto anti-evasión** con nueve mecanismos de protección — incluyendo muestreo distribuido, fallback de características crudas, límites anti-DoS y telemetría de degradación — que garantiza análisis estable frente a técnicas de file bloating, billion strings y PE corruptos. El pipeline híbrido combina detección por firmas YARA, desempacado UPX automático e inferencia ML, complementado con explicaciones generadas por LLM local (Ollama). El sistema se despliega como aplicación desktop offline-first con API REST, persistencia cloud (Supabase) y automatización SOC (n8n), demostrando la viabilidad de trasladar investigación académica en detección estática de malware a herramientas operativas.
+> **ShadowNet Defender** es un sistema de detección estática de malware para ejecutables Windows (PE) basado en aprendizaje profundo. El sistema transforma cada binario en un vector de **2.381 características** compatible con el estándar EMBER 2.0 / SOREL-20M, lo normaliza mediante Z-Score y lo clasifica con una red neuronal profunda (MLP: 2381→512→256→128→1) exportada a ONNX, alcanzando un **AUC-ROC de 0.985** sobre el benchmark SOREL-20M. Se implementa un **extractor robusto anti-evasión** con nueve mecanismos de protección — incluyendo muestreo distribuido, fallback de características crudas, límites anti-DoS y telemetría de degradación — que garantiza análisis estable frente a técnicas de file bloating, billion strings y PE corruptos. El pipeline híbrido combina detección por firmas YARA, desempacado UPX automático e inferencia ML, complementado con explicaciones generadas por LLM vía cascada cloud Groq/Gemini con fallback offline. El sistema se despliega como aplicación desktop offline-first con API REST, persistencia cloud (Supabase) y automatización SOC vía Supabase Webhooks + Edge Functions (n8n solo rollback), demostrando la viabilidad de trasladar investigación académica en detección estática de malware a herramientas operativas.
 
 ## 20.2 Palabras clave
 
@@ -1134,7 +1134,7 @@ Shadownet_Defender_Extractor_V2/
 
 La detección de malware mediante firmas estáticas enfrenta limitaciones fundamentales ante técnicas de evasión modernas como polimorfismo, empaquetado y ataques zero-day. En respuesta, la comunidad científica ha adoptado enfoques basados en Machine Learning sobre características estáticas de ejecutables PE, con datasets masivos como EMBER (2018) y SOREL-20M (2020) que habilitan modelos con AUC-ROC superiores a 0.98. Sin embargo, la transición de experimentos de laboratorio a herramientas desplegables enfrenta desafíos adicionales: extractores frágiles ante técnicas adversariales de evasión, dependencias pesadas de frameworks de entrenamiento, y ausencia de explicabilidad para analistas humanos.
 
-Este trabajo presenta **ShadowNet Defender**, un sistema integral que aborda estos desafíos mediante: (1) un extractor PE con protecciones anti-evasión documentadas y verificadas; (2) un pipeline híbrido que combina firmas YARA, desempacado UPX e inferencia DNN via ONNX Runtime; (3) explicabilidad asistida por LLM local; y (4) una arquitectura de software modular desplegada como aplicación desktop offline-first. Presentamos la ingeniería de características de 2.381 dimensiones, la arquitectura del modelo, las mejoras de robustez implementadas, y los resultados experimentales obtenidos sobre SOREL-20M.
+Este trabajo presenta **ShadowNet Defender**, un sistema integral que aborda estos desafíos mediante: (1) un extractor PE con protecciones anti-evasión documentadas y verificadas; (2) un pipeline híbrido que combina firmas YARA, desempacado UPX e inferencia DNN via ONNX Runtime; (3) explicabilidad asistida por LLM vía cascada cloud Groq/Gemini con fallback offline; y (4) una arquitectura de software modular desplegada como aplicación desktop offline-first. Presentamos la ingeniería de características de 2.381 dimensiones, la arquitectura del modelo, las mejoras de robustez implementadas, y los resultados experimentales obtenidos sobre SOREL-20M.
 
 ## 20.4 Título científico propuesto
 

@@ -8,7 +8,7 @@
 
 ## Resumen
 
-Se presenta ShadowNet Defender, un sistema de detección de malware para archivos PE que combina aprendizaje automático estático con análisis forense multicapa. El sistema opera mediante 7 fases de análisis secuencial: escaneo YARA determinista, extracción de 2381 features PE, inferencia neuronal con ONNX Runtime, análisis de overlay, análisis de ensamblados .NET/CLR, análisis de comportamiento en IL y un motor de correlación de riesgo. La evaluación experimental sobre muestras disponibles demuestra que el sistema detecta binarios con técnicas de overlay payload que el modelo de aprendizaje automático aislado no puede detectar (score ML=0.0, operational_status=DANGEROUS). Los tests de integración sobre 158 casos verifican el comportamiento del sistema con una tasa de éxito del 98.1%. Se identifican limitaciones específicas: el conjunto de evaluación disponible es sintético y no permite calcular métricas estadísticas sobre datos de campo; y el módulo de monitoreo dinámico de procesos está implementado pero no integrado al pipeline. El sistema incluye un motor de explicabilidad basado en Ollama que traduce las evidencias forenses (tokens CLR, strings, indicadores de overlay) a lenguaje natural.
+Se presenta ShadowNet Defender, un sistema de detección de malware para archivos PE que combina aprendizaje automático estático con análisis forense multicapa. El sistema opera mediante 7 fases de análisis secuencial: escaneo YARA determinista, extracción de 2381 features PE, inferencia neuronal con ONNX Runtime, análisis de overlay, análisis de ensamblados .NET/CLR, análisis de comportamiento en IL y un motor de correlación de riesgo. La evaluación experimental sobre muestras disponibles demuestra que el sistema detecta binarios con técnicas de overlay payload que el modelo de aprendizaje automático aislado no puede detectar (score ML=0.0, operational_status=DANGEROUS). Los tests de integración sobre 158 casos verifican el comportamiento del sistema con una tasa de éxito del 98.1%. Se identifican limitaciones específicas: el conjunto de evaluación disponible es sintético y no permite calcular métricas estadísticas sobre datos de campo; y el módulo de monitoreo dinámico de procesos está implementado pero no integrado al pipeline. Durante el desarrollo se implementó un motor de explicabilidad basado en cascada cloud Groq/Gemini con fallback Template (SDK openai, ver docs/TriFallover_Groq_Gemini_Template.md) que traduce las evidencias forenses (tokens CLR, strings, indicadores de overlay) a lenguaje natural — Antes: Ollama, Ahora: cascada cloud Groq (openai/gpt-oss-20b) → Gemini (gemini-3.5-flash-lite) → Template offline; Ollama ELIMINADO.
 
 **Palabras clave**: detección de malware, aprendizaje automático, análisis forense, PE, .NET, overlay analysis, XAI, YARA.
 
@@ -93,7 +93,7 @@ Entrada (binario PE)
     ↓
 ScanResult (label + score + operational_status + evidencias)
     ↓
-Backend FastAPI → Supabase + n8n + Ollama LLM
+Backend FastAPI → Supabase (Edge Function send-malware-alert) + cascada LLM Groq/Gemini/Template
 ```
 
 Cada fase es tolerante a fallos: si una fase falla, el pipeline continúa con las fases restantes y retorna el resultado parcial con indicación del fallo.
@@ -115,7 +115,7 @@ Se ejecutó el pipeline completo sobre `samples/sample1.exe` (20.9 MB). El resul
 
 ### 5.3 Suite de tests
 
-Se ejecutó `pytest tests/ -v` sobre 158 tests. Resultado: 151 passed, 2 failed, 5 skipped en 16.76 segundos. La tasa de éxito es 155/158 = 98.1% (excluyendo skipped que dependen de datos externos). Los 2 tests fallidos corresponden a: (1) JWT expirado retorna 500 en lugar de 401 cuando Supabase no está configurado; (2) validación de URL en OllamaClient no lanza excepción esperada.
+Se ejecutó `pytest tests/ -v` sobre 158 tests. Resultado: 151 passed, 2 failed, 5 skipped en 16.76 segundos. La tasa de éxito es 155/158 = 98.1% (excluyendo skipped que dependen de datos externos). Los 2 tests fallidos corresponden a: (1) JWT expirado retorna 500 en lugar de 401 cuando Supabase no está configurado; (2) Antes: validación de URL en OllamaClient — Ahora: cascada cloud Groq/Gemini/Template via SDK openai (ver docs/TriFallover_Groq_Gemini_Template.md); Ollama ELIMINADO, validación ahora via GroqClient/GeminiClient; si aplica, actualizar a tests de `tests/test_tri_fallover.py`.
 
 ### 5.4 Evaluación sobre el test set disponible
 
@@ -165,7 +165,7 @@ Las métricas estadísticas del modelo ML (Accuracy, Precision, Recall, F1, AUC-
 
 **H-04**: El módulo BehavioralShield (monitoreo dinámico de procesos) existe en código pero no está integrado al pipeline, limitando el sistema al análisis estático.
 
-**H-05**: El cliente n8n solo alerta para `label == "malicious"`, omitiendo el caso más importante: `operational_status == "DANGEROUS"` con `label == "BENIGN"` (el escenario de H-01).
+**H-05**: Durante el desarrollo se implementó Supabase Edge Function `send-malware-alert` — Antes: cliente n8n solo alerta para `label == "malicious"` (n8n deprecated solo rollback), omitiendo el caso más importante: `operational_status == "DANGEROUS"` con `label == "BENIGN"` (el escenario de H-01); Ahora: alertas via Edge Function.
 
 ---
 
@@ -199,7 +199,7 @@ El falso positivo de procexp64.exe (H-03) ilustra que las reglas YARA genéricas
 
 4. Las métricas estadísticas del modelo ML sobre datos de campo no están disponibles — el conjunto de evaluación disponible es sintético. Esta limitación debe resolverse antes de publicar métricas de rendimiento.
 
-5. El módulo de explicabilidad (Ollama LLM + evidencias forenses IL) produce justificaciones auditables que un analista puede verificar manualmente con `ildasm`, `dnSpy` o herramientas equivalentes.
+5. Durante el desarrollo se implementó el módulo de explicabilidad basado en cascada cloud Groq/Gemini con fallback Template (SDK openai, ver docs/TriFallover_Groq_Gemini_Template.md) + evidencias forenses IL que produce justificaciones auditables verificables con `ildasm`, `dnSpy` o herramientas equivalentes — Antes: Ollama LLM, Ahora: cascada Groq (openai/gpt-oss-20b) → Gemini (gemini-3.5-flash-lite) → Template offline; Ollama ELIMINADO.
 
 ---
 
@@ -207,7 +207,7 @@ El falso positivo de procexp64.exe (H-03) ilustra que las reglas YARA genéricas
 
 1. Integración de BehavioralShield (monitoreo dinámico de procesos) como Fase 8 del pipeline.
 2. Construcción de corpus de evaluación real con ground truth externo (VirusTotal, sandbox).
-3. Corrección de la integración n8n para alertar sobre `operational_status == "DANGEROUS"` independientemente del label ML.
+3. Durante el desarrollo se implementó Supabase Edge Function `send-malware-alert` para alertar sobre `operational_status == "DANGEROUS"` independientemente del label ML — Antes: integración n8n, Ahora: Edge Function; n8n deprecated solo rollback.
 4. Implementación de interpretabilidad SHAP sobre el modelo ML para completar la cadena de explicabilidad.
 5. Extensión a binarios ELF (Linux) y análisis de memoria (fileless malware).
 6. Evaluación sistemática de la tasa de FPR de reglas YARA sobre corpus de software legítimo.
@@ -243,5 +243,5 @@ El falso positivo de procexp64.exe (H-03) ilustra que las reglas YARA genéricas
 - `docs/academico/12_hallazgos.md` — Hallazgos numerados con evidencia
 - `docs/academico/13_limitaciones.md` — Limitaciones y casos de evasión
 - `docs/academico/14_trabajo_futuro.md` — Propuestas de trabajo futuro
-- `docs/academico/15_ollama.md` — Integración LLM
+- `docs/academico/15_ollama.md` — Antes: Integración LLM Ollama (Ollama ELIMINADO) — Ahora: ver `docs/TriFallover_Groq_Gemini_Template.md` (cascada cloud Groq/Gemini + Template)
 - `docs/academico/figures/` — Figuras PNG y SVG (7 figuras generadas)

@@ -1,6 +1,6 @@
 # Plan de Implementación: Integración de Groq API (LLM Cloud) y Fallback Nativo en ShadowNet Defender
 
-> **Objetivo:** Reemplazar la dependencia obligatoria de Ollama local en la aplicación de escritorio (Electron), permitiendo generar explicaciones forenses en lenguaje humano de forma ultra rápida a través de la API de Groq o mediante un generador nativo offline por plantillas (*Template Generator*), sin requerir que los usuarios finales instalen Ollama ni descarguen modelos pesados.
+> **Objetivo (histórico):** Reemplazar la dependencia obligatoria de Ollama local en la aplicación de escritorio (Electron), permitiendo generar explicaciones forenses vía API cloud con fallback offline. **Estado actual:** Ollama fue eliminado por completo — solo nube. La implementación real es la **cascada Tri-Fallover Groq (`openai/gpt-oss-20b`) → Gemini (`gemini-3.5-flash-lite`, degrade a `3.1` en 503) → `TemplateExplainer` offline** vía SDK `openai` (ver [`docs/TriFallover_Groq_Gemini_Template.md`](../TriFallover_Groq_Gemini_Template.md)). Este documento se conserva como histórico del plan inicial; la arquitectura vigente es la de TriFallover.
 
 ---
 
@@ -22,10 +22,11 @@ flowchart TD
     F -->|Error / Timeout / 429 Rate Limit| H[Fallback Automático a Template Generator]
     D -->|No| H
     
-    C -->|ollama| I{¿Ollama Activo Localmente?}
-    I -->|Sí| J[OllamaClient - 127.0.0.1:11434/v1]
-    J --> G
-    I -->|No / Error| H
+    C -->|gemini| I{¿Existe GEMINI_API_KEY?}
+    I -->|Sí| J[GeminiClient - generativelanguage.googleapis.com/v1beta/openai]
+    J -->|Éxito| G
+    J -->|429/503/Error| H
+    I -->|No| H
     
     C -->|template / offline| H[TemplateExplainer - Motor Nativo Sin IA]
     H --> K[Reporte Forense Estructurado en Español]
@@ -35,14 +36,15 @@ flowchart TD
 
 ### 1.2 Estrategia de Selección de Proveedor y Fallback
 
-1. **Modo Cloud (`groq`) — Por Defecto**: Si existe `GROQ_API_KEY` en el entorno o configurado por el usuario, las explicaciones son generadas remotamente en menos de **0.5 segundos** mediante Groq.
-2. **Modo Local (`ollama`) — Avanzado/SOC**: Para usuarios avanzados o investigativos con Ollama en ejecución local (`llama3.2:3b`).
-3. **Modo Offline/Nativo (`template`) — Fallback Automático**: Si no hay conexión a internet, falla la API Key de Groq o no hay servidor Ollama disponible, el sistema conmuta automáticamente a `TemplateExplainer`. Este motor determinístico genera una narrativa en español detallada y sin latencia (0.001s), consumiendo 0 MB de memoria adicional.
+1. **Groq (`openai/gpt-oss-20b`) — Primario**: si existe `GROQ_API_KEY`, genera en < 0.5 s vía `api.groq.com/openai/v1`.
+2. **Gemini (`gemini-3.5-flash-lite`, degrade a `3.1` en 503) — Secundario**: si Groq falla (429/5xx/timeout) y existe `GEMINI_API_KEY`, vía `generativelanguage.googleapis.com/v1beta/openai`.
+3. **Template (`TemplateExplainer`) — Fallback offline**: si no hay keys o ambas nubes fallan, narrativa determinística sin latencia. Antes: Ollama local, ahora eliminado (solo nube). Ver [`docs/TriFallover_Groq_Gemini_Template.md`](../TriFallover_Groq_Gemini_Template.md).
 
 ### 1.3 Especificación del Modelo Groq
-* **Modelo Designado**: `meta-llama/llama-prompt-guard-2-22m`
-* **Endpoint API**: `https://api.groq.com/openai/v1`
-* **SDK**: `openai` (Biblioteca oficial de OpenAI en Python)
+* **Modelo Groq vigente**: `openai/gpt-oss-20b` (reemplaza a `meta-llama/llama-prompt-guard-2-22m` — clasificador no generativo, no habilitado).
+* **Modelo Gemini vigente**: `gemini-3.5-flash-lite` (degrade a `gemini-3.1-flash-lite` en 503).
+* **Endpoints**: `https://api.groq.com/openai/v1` · `https://generativelanguage.googleapis.com/v1beta/openai/`
+* **SDK**: `openai` (ver [`docs/TriFallover_Groq_Gemini_Template.md`](../TriFallover_Groq_Gemini_Template.md))
 
 ---
 

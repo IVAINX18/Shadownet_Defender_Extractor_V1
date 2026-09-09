@@ -9,10 +9,11 @@ Este directorio contiene la documentación técnica, arquitectónica, académica
 ### 1. `docs/arquitectura/` — Especificaciones Técnicas y Diseño
 - [Documentación Técnica Integral](arquitectura/DOCUMENTACION_TECNICA_INTEGRAL.md)
 - [Arquitectura Deep Learning](arquitectura/ARQUITECTURA_DEEP_LEARNING.md)
-- [F2 Evidence Contract + Correlation Engine](arquitectura/F2_EVIDENCE_CORRELATION.md) — F2 FINAL
-- [F3 YARA Integration](arquitectura/F3_YARA_INTEGRATION.md) — F3 IMPLEMENTED
-- [F4 Persistence + F4.2 E2E Remediation](arquitectura/F4_PERSISTENCE.md) — F4/F4.2
+- [Evidence Contract + Correlation Engine](arquitectura/F2_EVIDENCE_CORRELATION.md)
+- [Integración YARA](arquitectura/F3_YARA_INTEGRATION.md)
+- [Persistencia y Remediación E2E](arquitectura/F4_PERSISTENCE.md)
 - [PRD (Product Requirements Document)](arquitectura/PRD.md)
+- [Cascada LLM Tri-Fallover (Groq/Gemini/Template)](../docs/TriFallover_Groq_Gemini_Template.md) — stack LLM vigente (Ollama eliminado)
 
 ### 2. `docs/academico/` — Investigación Académica y Tesis
 - [01. Resumen Ejecutivo](academico/01_resumen_ejecutivo.md)
@@ -29,20 +30,22 @@ Este directorio contiene la documentación técnica, arquitectónica, académica
 - [12. Hallazgos](academico/12_hallazgos.md)
 - [13. Limitaciones y Evasión](academico/13_limitaciones.md)
 - [14. Trabajo Futuro](academico/14_trabajo_futuro.md)
-- [15. Integración Ollama](academico/15_ollama.md)
+- [15. Integración Ollama — histórico, ver TriFallover](#) *(archivo no versionado; vigente: [`docs/TriFallover_Groq_Gemini_Template.md`](../docs/TriFallover_Groq_Gemini_Template.md) — Ollama eliminado)*
 - [Artículo Base y Tesis](academico/articulo_base.md)
 - [Task V4](academico/TaskV4.md)
 
 ### 3. `docs/database/` — Esquemas SQL de Supabase
 - [Esquema Base (Supabase Schema)](database/supabase_schema.sql)
 - [Migración e Índices (Supabase Migration)](database/supabase_migration.sql)
+- [Migración F4 — evidences/final_verdict/correlation + RLS](database/supabase_migration_f4.sql)
+- [Migración F4.2 — analysis_type + telemetría](database/supabase_migration_f42.sql)
 
 ### 4. `docs/auditorias/` — Informes de Auditoría y Seguimiento
-- [Auditoría de Integración n8n -> Supabase (Alertas Malware)](auditorias/auditoria_n8n_supabase/AUDITORIA_MIGRACION_N8N_SUPABASE.md)
+- [Auditoría de Migración n8n → Supabase Edge Function (Alertas)](auditorias/auditoria_n8n_supabase/AUDITORIA_MIGRACION_N8N_SUPABASE.md) *(n8n deprecated, solo rollback)*
 - [Auditoría del Sistema](auditorias/Auditoria.md)
 - [Registro de Progreso (PROGRESS)](auditorias/PROGRESS.md)
 - [Tareas de Prioridad Crítica Realizadas](auditorias/TareasPrioridadCriticaRealizadas.md)
-- [Pendientes y Roadmap (ToDo)](auditorias/ToDo.md)
+- [Pendientes y Roadmap (ToDo)](auditorias/ToDo.md) *(histórico Groq/ollama → ver TriFallover vigente)*
 - [Readme Legacy](auditorias/ReadmeLegacy.md)
 
 ### 5. `docs/frontend/` — Guías de Interfaz y UI

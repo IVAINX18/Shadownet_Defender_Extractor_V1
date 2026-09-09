@@ -4,7 +4,7 @@
 
 - **Estado actual del proyecto**: Desarrollo activo y funcional.
 - **Nivel**: MVP Avanzado / Product-ready parcial (flujo core end-to-end completo).
-- **Breve descripción del sistema**: ShadowNet Defender es una aplicación de escritorio multiplataforma (Electron + React) de ciberseguridad construida con un enfoque offline-first. Ejecuta escaneos de malware localmente apoyados en inteligencia artificial (motor ONNX para clasificación y Ollama para explicar hallazgos) usando un backend en FastAPI enlazado fuertemente con Supabase para almacenamiento de historial de usuarios.
+- **Breve descripción del sistema**: ShadowNet Defender es una aplicación de escritorio multiplataforma (Electron + React) de ciberseguridad con enfoque offline-first. Ejecuta escaneos de malware localmente (motor ONNX para clasificación; explicabilidad vía cascada cloud Groq/Gemini con fallback offline TemplateExplainer — ver [`docs/TriFallover_Groq_Gemini_Template.md`](../TriFallover_Groq_Gemini_Template.md), SDK `openai`) usando un backend FastAPI y Supabase para historial de usuarios.
 
 ---
 
@@ -15,7 +15,7 @@
 - API (FastAPI) → ✅ Completado
 - Endpoints implementados → ✅ Completado (`/scan/file`, `/scan/multiple`, `/analysis/explain`, `/health`)
 - Sistema de escaneo (ONNX) → ✅ Completado (Delegado a `core/` inter-módulo)
-- Integración con Ollama → ✅ Completado (Para retornos de análisis y explicación)
+- Cascada LLM cloud (Groq → Gemini → Template offline) → ✅ Completado (ver [`docs/TriFallover_Groq_Gemini_Template.md`](../TriFallover_Groq_Gemini_Template.md); Ollama eliminado — solo nube)
 - Integración con Supabase → ✅ Completado (Guardado persistente y dependencias de auth)
 
 ### 2.2 Frontend
@@ -39,7 +39,7 @@
 - Modelo ONNX → ✅ Completado
 - Clasificación (benign/suspicious/malicious) → ✅ Completado
 - Soporte PE vs non-PE → ✅ Completado
-- Explicaciones con LLM (Ollama) → ✅ Completado
+- Explicaciones LLM (cascada Groq/Gemini/Template, SDK `openai`) → ✅ Completado
 - Manejo de timeout → ✅ Completado (Gestión de fallbacks implementada)
 
 ### 2.5 Base de Datos (Supabase)
@@ -60,18 +60,18 @@
 | Inferencia ML (ONNX) | Requerido | ✅ | Integración sub-2-segundos exitosa en backend. |
 | Multi-file scan | Requerido | ✅ | Incluido en las rutas de la API de FastAPI. |
 | File scanning | Requerido | ✅ | Análisis particular implementado en UI y endpoints. |
-| Explicaciones Ollama | Requerido | ✅ | Soportado con timeouts y resiliencia local. |
+| Explicaciones LLM cloud (Groq/Gemini/Template) | Requerido | ✅ | Cascada con fallback y `provider_used` — ver `docs/TriFallover_Groq_Gemini_Template.md`. |
 | Autenticación BD (Supabase) | Requerido | ✅ | Control JWT en el Dependency Injection (`auth.py`). |
 | Modo Offline | Requerido | ✅ | Backend preparado para retries y guardado de colas asíncronas. |
 | Real-time monitoring | Requerido | ⚠️ | Servicio base implementado, pendiente mayor madurez UI. |
-| Alerts system (N8N) | Requerido | ⚠️ | Integración parcial (trigger bajo resultados maliciosos en `scan_service`). |
+| Sistema de alertas | Requerido | ✅ | Supabase Webhook → Edge Function `send-malware-alert` (Deno/Nodemailer → Gmail SMTP); n8n deprecated solo rollback. |
 
 ---
 
 ## 4. Decisiones Técnicas Importantes
 
 - **Uso de ONNX para inferencia:** Transición de modelo clásico de PyTorch a runtime empaquetado ONNX asegurando inferencia ultra-rápida nativa y cumpliendo requisitos de escaneo `< 2 seg` en modo offline.
-- **Uso de Ollama para explicaciones:** Garantiza que los metadatos de los archivos analizados jamás viajen a clouds de terceros, interpretando los resultados localmente en el SO del usuario.
+- **Cascada LLM cloud con fallback offline:** Groq (`openai/gpt-oss-20b`) primario → Gemini (`gemini-3.5-flash-lite`, degrade a `3.1` en 503) secundario → `TemplateExplainer` offline; sin Ollama local (eliminado). Ver [`docs/TriFallover_Groq_Gemini_Template.md`](../TriFallover_Groq_Gemini_Template.md).
 - **Uso de Supabase para auth + DB:** La sesión es inyectada mediante headers en Electron y parseada mediante JWKS en el Backend vía Python. Con ello se prohíbe el envío arbitrario de un email desde el cliente.
 - **Clasificación de archivos non-PE como suspicious:** Para abarcar archivos sospechosos no contemplados por la IA original se incluyeron lógicas estáticas preventivas.
 - **Uso de Electron para multiplataforma:** La app web local (React+Vite) queda unificada, y se incluyó en `main.js` un flag específico para deshabilitar hardware-acceleration en Linux previniendo fallas de WebGL/Wayland.
@@ -93,13 +93,13 @@
 - Refinar **Frontend completo** y UX de resultados interactivos.
 - Extender el entrenamiento con un **Dataset real de malware** más exhaustivo.
 - Realizar pruebas exhaustivas con **malware real** en una **máquina virtual aislada** (actualmente no se han realizado pruebas de infección o ejecución de la amenaza en entornos reales).
-- Ampliar las notificaciones y **Sistema de alertas** finales (N8N callbacks completos).
+- Consolidar telemetría y estado de entrega del **sistema de alertas** Supabase (observabilidad del Edge Function).
 - Realizar optimización general de **UI/UX**.
 
 ---
 
 ## 7. Estado Final
 
-El proyecto **ShadowNet Defender** cuenta con una base sumamente sólida. Todo el núcleo de funcionalidad dictado por el PRD (Modelo ML Local, Backend intermedio offline-first, e Interfaz de Usuario Desktop) está operando armónicamente en conjunto. El sistema es totalmente capaz de identificar y narrar un hallazgo de malware por sí mismo sin conectividad y persistirlo en la nube al regresar online.
+El proyecto **ShadowNet Defender** cuenta con una base sólida. El núcleo dictado por el PRD (ML local, backend offline-first e interfaz desktop) opera de forma conjunta. Con la cascada cloud, el sistema genera narrativa incluso sin conectividad (fallback `TemplateExplainer`) y persiste en la nube al recuperar conexión.
 
 Está catalogado como un **MVP Maduro cercano a Product-Ready**. Lo único faltante antes del despliegue público será la optimización final del monitoreo de procesos directos en memoria RAM, estilización de interfaces, y los scripts para la compilación cross-platform de los binarios ejecutables para los consumidores target.

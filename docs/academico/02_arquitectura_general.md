@@ -24,7 +24,7 @@ flowchart TD
     L --> M[Backend FastAPI]
     M --> N[Supabase\npersistencia]
     M --> O[n8n\nalertas webhook]
-    M --> P[Ollama LLM\nexplicación en lenguaje natural]
+    M --> P[LLM cloud Groq/Gemini + Template (cascada Tri-Fallover)\nexplicación en lenguaje natural]
 ```
 
 ---
@@ -147,7 +147,7 @@ flowchart LR
     scan_service --> Engine
     scan_service --> Supabase
     scan_service --> n8n
-    llm_service --> Ollama
+    llm_service --> GroqClient/GeminiClient/TemplateExplainer (SDK openai)
     quarantine --> QuarantineManager
     remediation --> RemediationEngine
 ```

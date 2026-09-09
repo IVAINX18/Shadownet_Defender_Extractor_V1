@@ -11,7 +11,7 @@
 Un sistema de deteccion de malware que produce solo un score numerico no es directamente accionable para un analista de seguridad. ShadowNet Defender implementa tres niveles de explicabilidad:
 
 1. **XAI Forense** (basado en evidencias deterministas): tokens CLR, strings sospechosos, overlay metrics, YARA rules.
-2. **XAI Narrativo** (basado en LLM): Ollama convierte las evidencias forenses en una explicacion en lenguaje natural, con validacion de coherencia (F2 T-10).
+2. **XAI Narrativo** (basado en LLM): la cascada cloud Groq/Gemini (con fallback Template offline) convierte las evidencias forenses en una explicacion en lenguaje natural, con validacion de coherencia (F2 T-10).
 3. **XAI SHAP** (F3 T-12): KernelExplainer sobre ONNX Runtime expone las top-20 features del vector de 2381 dimensiones que mas contribuyeron al score ML.
 
 ---
@@ -108,7 +108,7 @@ Los niveles son asignados estáticamente en el código del IL Analyzer por categ
 
 ---
 
-## Nivel 2: XAI Narrativo — Ollama LLM
+## Nivel 2: XAI Narrativo — Cascada Cloud Groq/Gemini + Template
 
 ### Flujo de explicación
 
@@ -122,10 +122,18 @@ PromptBuilder.build_llm_prompt()
 [Guardrails de seguridad incluidos en el prompt]
         │
         ▼
-OllamaClient → Ollama Server (localhost:11434)
+GroqClient (api.groq.com/openai/v1, openai/gpt-oss-20b)
+        │ 200 + JSON válido → _metadata.provider_used=groq
+        │ 429/5xx/timeout/APIError/ValueError(sin key) → fallover
+        ▼
+GeminiClient (generativelanguage.googleapis.com/v1beta/openai, gemini-3.5-flash-lite, degrade a gemini-3.1-flash-lite en 503)
+        │ 200 + JSON válido → _metadata.provider_used=gemini
+        │ 429/5xx/timeout → fallover
+        ▼
+TemplateExplainer (offline determinístico)
         │
         ▼
-ExplanationService.parse_response()
+ExplanationService (cascada groq->gemini->template, provider_order configurable, _metadata.provider_used)
         │
         ▼
 JSON estructurado:
@@ -143,18 +151,22 @@ Construye el prompt incluyendo:
 3. Formato JSON esperado en la respuesta
 4. Instrucción de que si el archivo parece benigno, debe decirlo
 
+> Detalle de la cascada cloud y modelos: ver `docs/TriFallover_Groq_Gemini_Template.md`.
+
 **Test verificado**:
 ```
 test_build_llm_prompt_contains_guardrails_and_summary → PASSED
 test_extract_scan_summary_only_allowed_fields          → PASSED
 ```
 
-### ExplanationService (`core/llm/explanation_service.py`)
+### ExplanationService (`core/llm/explanation_service.py`) — Cascada Tri-Fallover
 
-- Ejecuta la llamada LLM en un thread con timeout configurable (default: 30s, vía `LLM_TIMEOUT` env)
-- Si el LLM devuelve JSON válido: retorna `parsed_response` estructurado
-- Si devuelve texto plano: retorna solo `raw_text`
-- Si hay timeout o error de conexión: retorna fallback graceful
+Durante el desarrollo se implementó la cascada cloud Groq → Gemini → Template via SDK `openai` (Antes: Ollama, Ahora: cascada cloud — Ollama ELIMINADO):
+
+- Orden configurable por `LLM_PROVIDER_ORDER` (default `groq,gemini,template`) y `LLM_PROVIDER`; durante el desarrollo se implementó con `GroqClient` (`api.groq.com/openai/v1`, `openai/gpt-oss-20b`, timeout `GROQ_TIMEOUT_SECONDS=10`) y `GeminiClient` (`generativelanguage.googleapis.com/v1beta/openai/`, `gemini-3.5-flash-lite` con degrade intra-proveedor a `gemini-3.1-flash-lite` en 503, timeout `GEMINI_TIMEOUT_SECONDS=12`).
+- Cada cliente implementa `LLMClient.generate(prompt, *, model) -> str` y usa `response_format={"type":"json_object"}`; errores `429/5xx/timeout/APIError/ValueError` (sin API key) provocan fallover inmediato al siguiente proveedor sin reintento con backoff.
+- `TemplateExplainer` offline determinístico es el fallback final (sin red, sin keys, sin latencia).
+- Toda respuesta incluye `_metadata.provider_used` (`groq`|`gemini`|`template`) y `fallover` para trazabilidad; si el proveedor devuelve JSON válido retorna `parsed_response` estructurado, si devuelve texto plano solo `raw_text`, si hay timeout/error retorna fallback graceful a siguiente nivel.
 
 **Tests verificados**:
 ```
@@ -295,6 +307,6 @@ Esta justificacion es reproducible, determinista y auditable.
 
 2. **SHAP disponible desde F3**: el Nivel 3 SHAP requiere `shap>=0.44.0` en `requirements/ml.in` y el endpoint `GET /explain/shap`. En instalaciones con solo `base.in` (prod sin ML), el endpoint retorna `error="shap_not_installed"`.
 
-3. **Ollama requiere servidor local**: la explicacion narrativa requiere un servidor Ollama corriendo. Si no esta disponible, la explicacion forense (nivel 1) sigue siendo accesible pero sin traduccion a lenguaje natural.
+3. **Cascada LLM: Groq/Gemini requieren API keys; sin ellas degenera a TemplateExplainer offline sin latencia (ver docs/TriFallover_Groq_Gemini_Template.md)**: durante el desarrollo se implementó la cascada cloud Groq (`openai/gpt-oss-20b`) → Gemini (`gemini-3.5-flash-lite`, degrade a 3.1 en 503) → Template offline via SDK `openai`; si no hay keys o hay 429/timeout, el sistema cae a Template determinístico sin latencia, manteniendo la explicacion forense (nivel 1) siempre accesible.
 
 4. **Confidence levels son estaticos**: los niveles de confianza son asignados por categoria de indicador en el codigo, no calculados dinamicamente segun el contexto del binario analizado.

@@ -41,7 +41,7 @@
 - Integrar BehavioralShield + remediación en un bucle de respuesta continua.
 - Políticas configurables: auto-terminate, auto-quarantine, alert-only.
 - Dashboard de incidentes activos.
-- Integración con SIEM (Supabase ya provee la capa de persistencia; n8n la capa de alertas).
+- Integración con SIEM (Supabase ya provee la capa de persistencia; durante el desarrollo se implementó Supabase Edge Function `send-malware-alert` — Antes: n8n, Ahora: cascada cloud; n8n deprecated solo rollback).
 - API: `edr.start_monitoring(paths, policy)`.
 
 **Impacto esperado**: Convierte el sistema de análisis reactivo (análisis a pedido) en un sistema de protección continua.
@@ -138,7 +138,7 @@ Los siguientes bugs son de resolución inmediata antes de cualquier trabajo futu
 
 | ID | Bug | Prioridad |
 |----|-----|-----------|
-| B-01 | n8n no alerta para `operational_status=DANGEROUS` con `label=BENIGN` | P0 |
+| B-01 | Antes: n8n no alerta para `operational_status=DANGEROUS` con `label=BENIGN` — Ahora: Supabase Edge Function `send-malware-alert` (n8n deprecated solo rollback) | P0 |
 | B-02 | JWT expirado produce HTTP 500 en lugar de 401 | P1 |
 | B-03 | `operational_status=UNKNOWN` no manejado por Risk Engine | P1 |
 | B-04 | Test set sintético pasa como test de accuracy | P2 |

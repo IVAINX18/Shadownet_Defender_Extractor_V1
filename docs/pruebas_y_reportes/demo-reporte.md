@@ -2,8 +2,8 @@
 
 ## Reporte de avances para presentación universitaria
 
-> **Enfoque de hoy:** Demostración local de detección ML + explicación LLM con Ollama.
-> Render y n8n se mencionan como arquitectura futura pero no se demuestran en profundidad.
+> **Nota 2026-09:** Este guion es histórico (demo universitaria con Ollama local). **Stack vigente:** cascada cloud Groq (`openai/gpt-oss-20b`) → Gemini (`gemini-3.5-flash-lite`) → `TemplateExplainer` offline vía SDK `openai` (ver [`docs/TriFallover_Groq_Gemini_Template.md`](../TriFallover_Groq_Gemini_Template.md)). Ollama fue eliminado; n8n deprecated (solo rollback, ahora Supabase Edge Function `send-malware-alert`).
+> Enfoque original de la demo: detección ML + explicación LLM con Ollama local.
 
 ---
 

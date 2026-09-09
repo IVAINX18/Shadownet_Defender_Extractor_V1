@@ -3,6 +3,7 @@
 > Plan derivado de auditoría verificada 2026-08-18 y actualizaciones 2026-08-25.
 > Fuentes: `12_hallazgos.md` (H-01..H-08), `13_limitaciones.md` (L-01..L-10, R-01..R-06, CE-01..CE-05), `14_trabajo_futuro.md` (TF-01..TF-10), `07_metricas_y_resultados.md`, `05_hallazgo_multicapa.md`, `articulo_base.md`.
 > Objetivo: convertir cada hallazgo/limitación/riesgo en tareas ejecutables con owner, archivos, criterios de aceptación y verificación.
+> **Nota 2026-09:** documento histórico — referencias a Ollama/n8n reflejan el stack de ese momento. Stack vigente: cascada cloud Groq (`openai/gpt-oss-20b`) → Gemini (`gemini-3.5-flash-lite`) → Template offline (SDK `openai`, Ollama eliminado) y Supabase Edge Function `send-malware-alert` (n8n solo rollback). Ver [`docs/TriFallover_Groq_Gemini_Template.md`](../TriFallover_Groq_Gemini_Template.md).
 
 ---
 

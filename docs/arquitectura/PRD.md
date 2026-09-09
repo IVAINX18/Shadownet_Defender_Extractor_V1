@@ -52,8 +52,8 @@ shadownet-defender/
 
 - Procesamiento de archivos
 - Ejecución del modelo ML
-- Integración con LLM (Ollama)
-- Comunicación con N8N
+- Integración con LLM vía cascada cloud Groq/Gemini con fallback offline (ver `docs/TriFallover_Groq_Gemini_Template.md`)
+- Automatización vía Supabase Webhooks + Edge Functions (n8n solo rollback)
 - Persistencia en Supabase
 - Monitoreo en tiempo real
 
@@ -89,8 +89,11 @@ backend/
 │
 │   ├── integrations/
 │   │   ├── supabase_client.py
-│   │   ├── n8n_client.py
-│   │   └── ollama_client.py
+│   │   └── supabase/functions/send-malware-alert/ (Deno + Nodemailer)
+│   └── core/llm/  (fuera de backend/app)
+│       ├── groq_client.py / gemini_client.py / template_explainer.py
+│       ├── base_client.py (esqueleto OpenAI-compatible)
+│       └── n8n_client.py (deprecated, solo rollback)
 │
 │   └── config/
 │       └── settings.py
@@ -128,10 +131,10 @@ backend/
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| `POST` | `/analysis/explain` | Generar explicación con Ollama |
+| `POST` | `/analysis/explain` | Generar explicación con LLM (cascada Groq/Gemini/Template) |
 
 **Funciones:**
-- Enviar resultado a Ollama
+- Enviar resultado a la cascada LLM cloud con fallback offline
 - Generar explicación detallada
 
 #### Salud del Sistema
@@ -151,9 +154,9 @@ backend/
    ├── Benigno
    ├── Sospechoso
    └── Malicioso
-6. Generación de explicación (LLM)
+6. Generación de explicación (LLM cascada Groq → Gemini → Template)
 7. Persistencia en Supabase
-8. Activación de N8N
+8. Alerta vía Supabase Edge Function send-malware-alert (n8n solo rollback)
 ```
 
 ---
@@ -179,17 +182,18 @@ backend/
 
 ---
 
-## 6. LLM (Ollama)
+## 6. LLM — Cascada cloud Groq → Gemini → Template (Antes: Ollama, Ahora: solo nube)
 
 ### 6.1 Función
 
-Explicar los resultados generados por el modelo ML.
+Explicar los resultados generados por el modelo ML vía cascada resiliente Groq (`openai/gpt-oss-20b`) → Gemini (`gemini-3.5-flash-lite`) → TemplateExplainer offline.
 
 ### 6.2 Requisitos
 
-- Funcionamiento **local**
+- Funcionamiento **cloud con fallback offline determinístico** (no local; Antes: Ollama local, Ahora: cascada cloud — ver `docs/TriFallover_Groq_Gemini_Template.md`)
+- SDK `openai` contra endpoints OpenAI-compatibles (`api.groq.com/openai/v1`, `generativelanguage.googleapis.com/v1beta/openai/`)
 - Prompt estructurado
-- Respuesta clara y técnica
+- Respuesta clara y técnica en JSON (`analysis`, `threat_level`, `behavior_summary`, `recommended_actions[]`)
 
 ### 6.3 Ejemplo de Prompt
 
@@ -208,16 +212,17 @@ Explica de forma técnica:
 
 ---
 
-## 7. Automatización (N8N)
+## 7. Automatización — Supabase Webhooks + Edge Functions (n8n deprecated, solo rollback)
 
 ### 7.1 Funciones
 
-- Envío de alertas (Gmail)
-- Registro en Google Drive
+- Envío de alertas vía Gmail SMTP (Supabase Edge Function `send-malware-alert` con Deno + Nodemailer → `smtp.gmail.com:587` STARTTLS)
+- Registro en base de datos Supabase con idempotencia `alert_sent`
 
 ### 7.2 Integración
 
-- Trigger mediante **webhook** desde el backend
+- Trigger mediante **Database Webhook de Supabase** (INSERT en `scan_results` con `result=malicious`) → Edge Function `supabase/functions/send-malware-alert`
+- Durante el desarrollo se implementó la migración desde n8n a Supabase nativo; `core/integrations/n8n_client.py` se conserva solo para rollback (`N8N_ENABLED=false` por defecto)
 
 ---
 
@@ -281,9 +286,9 @@ frontend/
 
 ### 10.1 Características
 
-- Uso de modelo local
+- Uso de modelo local (ONNX) + TemplateExplainer offline sin red
 - Sin conexión a Supabase
-- Sin N8N
+- Sin alertas cloud (cola offline `data/offline_queue.json`)
 
 ### 10.2 Sincronización
 
@@ -319,11 +324,11 @@ Envío de datos pendientes cuando se restaure la conexión.
 
 ### Implementado
 
-- Modelo ML (PyTorch)
+- Modelo ML (PyTorch → ONNX)
 - Dataset SOREL
 - Early Stopping
-- Integración con Ollama
-- Automatización con N8N
+- Integración LLM vía cascada Groq/Gemini + TemplateExplainer offline (Antes: Ollama, Ahora: solo nube — ver `docs/TriFallover_Groq_Gemini_Template.md`)
+- Automatización vía Supabase Edge Function send-malware-alert (Antes: n8n, Ahora: deprecated solo rollback)
 
 ### Pendiente
 
@@ -340,8 +345,8 @@ Envío de datos pendientes cuando se restaure la conexión.
 - [ ] Protección de rutas y redirección por sesión
 
 #### Integraciones
-- [ ] Supabase completo (Auth + base de datos)
-- [ ] Webhooks N8N
+- [x] Supabase completo (Auth + base de datos)
+- [x] Alertas vía Supabase Edge Function send-malware-alert (Database Webhook); n8n solo rollback
 
 #### Offline
 - [ ] Micro modelo local
@@ -358,10 +363,10 @@ Envío de datos pendientes cuando se restaure la conexión.
 4. Frontend envía request a FastAPI con token en header
 5. Backend valida token y extrae usuario
 6. Backend ejecuta modelo ML
-7. Resultado enviado a Ollama
+7. Resultado enviado a cascada LLM Groq → Gemini → Template
 8. Se genera explicación
 9. Se guarda en Supabase con user_id y user_email
-10. Se dispara N8N (si es malicioso)
+10. Se dispara Supabase Edge Function send-malware-alert vía Database Webhook (si es malicioso; n8n solo rollback)
 11. Se muestra resultado en UI
 ```
 
@@ -370,7 +375,7 @@ Envío de datos pendientes cuando se restaure la conexión.
 ## 15. Reglas para IDEs con IA
 
 - No recrear el modelo ML — **integrar el existente**
-- Usar Ollama local
+- Usar cascada LLM cloud Groq/Gemini con SDK openai y fallback TemplateExplainer (Antes: Ollama local, Ahora: solo nube; ver `docs/TriFallover_Groq_Gemini_Template.md`)
 - Mantener separación de capas
 - No mezclar frontend y backend
 - Seguir la estructura definida
@@ -407,9 +412,9 @@ Envío de datos pendientes cuando se restaure la conexión.
 2. Implementar sistema de autenticación con Supabase Auth
 3. Implementar `/scan/file`
 4. Integrar modelo ML
-5. Conectar Ollama
+5. Integrar cascada LLM Groq/Gemini + TemplateExplainer (Antes: Ollama, Ahora: cascada cloud)
 6. Integrar Supabase (Auth + base de datos)
-7. Conectar N8N
+7. Integrar alertas vía Supabase Edge Function send-malware-alert (Antes: n8n, Ahora: Edge Function)
 8. Crear UI básica con vistas de login y registro
 9. Integrar Electron
 
@@ -447,7 +452,7 @@ Cada escaneo debe generar el siguiente objeto estructurado:
 
 ### 19.3 Explicación Generada (LLM)
 
-El sistema debe retornar una explicación estructurada generada por Ollama que incluya:
+El sistema debe retornar una explicación estructurada generada por la cascada LLM (Groq → Gemini → Template) que incluya:
 
 - Motivo de la clasificación
 - Características relevantes detectadas
@@ -465,20 +470,20 @@ El sistema debe retornar una explicación estructurada generada por Ollama que i
 | `file_name` | Nombre del archivo analizado |
 | `result` | Resultado de la clasificación |
 | `confidence` | Nivel de confianza del modelo |
-| `explanation` | Explicación generada por Ollama |
+| `explanation` | Explicación generada por LLM vía cascada Groq/Gemini/Template |
 | `scan_time` | Tiempo de escaneo |
 | `timestamp` | Fecha y hora del escaneo |
 | `user_id` | Identificador del usuario autenticado |
 | `user_email` | Email del usuario autenticado |
 
-### 19.5 Activación de N8N
+### 19.5 Activación de automatización (Supabase Edge Function; n8n solo rollback)
 
 **Condición de activación:** `result == "malicious"`
 
-**Acciones esperadas:**
+**Acciones esperadas (vía Database Webhook → Edge Function `send-malware-alert`):**
 
-- Envío de correo al usuario
-- Registro en Google Drive
+- Envío de correo al usuario vía Gmail SMTP (Deno + Nodemailer)
+- Registro en Supabase con idempotencia `alert_sent`
 - Notificación estructurada con:
   - Nombre del archivo
   - Nivel de riesgo
@@ -526,9 +531,9 @@ El frontend debe mostrar:
 
 ### 19.9 Resultado en Modo Offline
 
-- Retornar resultado **sin explicación LLM** (opcional)
-- Marcar como `"mode": "offline"`
-- Sin envío a Supabase ni N8N
+- Retornar resultado con explicación offline vía TemplateExplainer (sin red)
+- Marcar como `"mode": "offline"` o `"mode": "template_offline"`
+- Sin envío a Supabase ni Edge Function (cola `data/offline_queue.json`)
 - Sincronización posterior cuando haya conexión
 
 ### 19.10 Criterios de Aceptación
@@ -675,9 +680,9 @@ Estos valores deben:
 
 ---
 
-### 20.9 Integración con N8N y Alertas
+### 20.9 Integración con automatización y alertas (Supabase Edge Function; n8n solo rollback)
 
-Cuando `result == "malicious"`, el backend enviará a N8N el siguiente payload:
+Cuando `result == "malicious"`, el Database Webhook de Supabase dispara la Edge Function `send-malware-alert` con el siguiente payload (Antes: n8n, Ahora: Edge Function):
 
 ```json
 {

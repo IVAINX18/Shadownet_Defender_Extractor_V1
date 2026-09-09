@@ -23,7 +23,7 @@ flowchart TD
     B3 --> R
     B4 --> R
     
-    R --> F[🤖 Capa 7: LLM / Ollama Transformer]
+    R --> F[🤖 Capa 7: LLM cloud Groq/Gemini + Template offline<br/>(cascada Tri-Fallover)]
     F --> G[📋 Reporte Explicativo XAI]
 ```
 
@@ -73,7 +73,7 @@ El subsistema de Deep Learning abarca componentes de código, artefactos pre-ent
 2. **Motores de Inferencia y Explicabilidad (`models/inference.py`, `core/`):**
    - `models/inference.py`: Ejecución de inferencia ligera con `onnxruntime`.
    - `core/explainers/shap_explainer.py`: Algoritmo SHAP para auditoría de características.
-   - `core/llm/`: Servicio de integración con Ollama (modelos Transformer).
+   - `core/llm/`: Servicio de integración LLM vía cascada cloud Groq (`openai/gpt-oss-20b`) → Gemini (`gemini-3.5-flash-lite`) → TemplateExplainer offline, todo con SDK `openai` y endpoint OpenAI-compatible (ver `docs/TriFallover_Groq_Gemini_Template.md`).
 
 3. **Dataset y Pipeline de Entrenamiento (Histórico):**
    - Entrenado en PyTorch con GPU NVIDIA A100 sobre un dataset de **5.1 millones de muestras** (5M de SOREL-20M + 100K muestras *in-the-wild* 2024–2026).
@@ -201,7 +201,7 @@ sequenceDiagram
 ## 6. Red Neuronal Secundaria: Arquitectura Transformer (LLM)
 
 ### 📌 ¿Qué se usa?
-Integración con modelos de lenguaje generativos (*Large Language Models*) basados en la arquitectura **Transformer**, ejecutados localmente mediante **Ollama** (ej. `llama3.2:3b`, `mistral-7b`).
+Integración con modelos de lenguaje generativos (*Large Language Models*) basados en la arquitectura **Transformer**, vía **cascada cloud Groq (`openai/gpt-oss-20b`) → Gemini (`gemini-3.5-flash-lite`) → TemplateExplainer offline**, todo con SDK `openai` sobre endpoints OpenAI-compatibles (Groq: `api.groq.com/openai/v1`, Gemini: `generativelanguage.googleapis.com/v1beta/openai/`). Durante el desarrollo se implementó la eliminación del stack local (Antes: Ollama local, Ahora: solo nube con fallback determinístico offline; ver `docs/TriFallover_Groq_Gemini_Template.md`).
 
 ---
 
@@ -213,9 +213,9 @@ Integración con modelos de lenguaje generativos (*Large Language Models*) basad
 
 ### ⚙️ ¿Cómo se usa?
 1. Se calcula la predicción del MLP, las evidencias multicapa y los valores SHAP correspondientes.
-2. `prompt_builder.py` construye una plantilla con la información forense recopilada.
-3. `OllamaClient` envía el prompt mediante la API compatible con OpenAI a Ollama local.
-4. El LLM devuelve un diagnóstico estructurado en JSON con el resumen del comportamiento y las acciones recomendadas.
+2. `prompt_builder.py` construye una plantilla con la información forense recopilada (`extract_scan_summary` + reglas de autoridad/familia).
+3. `GroqClient`/`GeminiClient` (vía `core/llm/base_client.py` OpenAI-compatible) envía el prompt a la nube; ante 429/timeout/5xx la cascada conmuta automáticamente a `TemplateExplainer` offline.
+4. El LLM (o el fallback determinístico) devuelve un diagnóstico estructurado en JSON con el resumen del comportamiento y las acciones recomendadas.
 
 ---
 
