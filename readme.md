@@ -140,10 +140,10 @@ flowchart TD
   J --> K[core/evidence.py — Evidence Contract]
   K --> K1[Evidence: score_raw/score_norm/scale/reliability/evidence_group/status]
   K1 --> L[core/correlation.py — CorrelationEngine]
-  L --> L1[S = Σ(w·s_norm)/Σw por grupo, max por grupo, w por Reliability]
+  L --> L1["S = Σ(w·s_norm)/Σw por grupo, max por grupo, w por Reliability"]
   L1 --> M[FinalVerdict: verdict/risk/operational + degraded/coverage/contradiction]
   M --> N[ScanResult Tripartito compatible]
-  N --> O[Explicación LLM (Groq/Gemini/template) / SHAP — solo explainer]
+  N --> O["Explicación LLM (Groq/Gemini/template) / SHAP — solo explainer"]
   O --> P[Persistencia Supabase / Offline]
 ```
 
