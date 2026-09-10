@@ -35,3 +35,8 @@ data/eval_real/y_eval.npy
 shadownet_e2e_*
 /tmp/shadownet_e2e_*
 data/offline_queue.json
+
+# V5 — Dataset regenerable excede el límite de 100MB de GitHub (278MB).
+# Se regenera con el notebook (Fase 2C/2D, seed 42 determinista). Se conservan
+# train_7m_indices.npy (28MB) y train_7m_preview.csv como referencia del subset.
+Model_Collab/Kaggle-MLP-PE/v5/dataset/*.parquet

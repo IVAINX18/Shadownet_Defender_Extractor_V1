@@ -1,0 +1,34 @@
+{
+  "version": "scaler_sorel_7m_v1.1",
+  "dataset": "SOREL-20M train split oficial, seleccion 7M seed 42 (59.82% malware)",
+  "n_samples": 7000000,
+  "n_features": 2381,
+  "seed": 42,
+  "method": "StandardScaler.partial_fit streaming por spans Range (STORED float32)",
+  "chunk_size": {
+    "fetch_span_rows": 25000,
+    "partial_rows": 32768,
+    "max_gap_rows": 512
+  },
+  "fecha_utc": "2026-09-10T17:09:58.831110+00:00",
+  "sha256_pkl": "a20feb5b227f2ece4eb044e67384449820986abc0d3235baef81cb1b482f5dd4",
+  "versiones": {
+    "numpy": "2.0.2",
+    "sklearn": "1.6.1",
+    "python": "3.12.13"
+  },
+  "io": {
+    "requests": 508,
+    "bytes": 120937018692,
+    "rows_fetched": 12698133,
+    "rows_selected": 7000000,
+    "gb_transferidos": 112.63137561455369
+  },
+  "tiempo_total_s": 6126.5988509655,
+  "ram_max_gb": 11.705123901367188,
+  "auditoria": {
+    "near_zero_var": 42,
+    "scale_min": 0.00025997782681036333,
+    "scale_max": 7521770000517126.0
+  }
+}

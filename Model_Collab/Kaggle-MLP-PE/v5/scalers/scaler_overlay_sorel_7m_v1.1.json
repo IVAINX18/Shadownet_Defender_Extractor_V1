@@ -1,0 +1,47 @@
+{
+  "contract": "ShadowNetFeatures_v1.1",
+  "features": "EMBER_2381 (scaler_sorel_7m_v1.1, intacto) + OVERLAY_6",
+  "feature_names": [
+    "slack_ratio",
+    "slack_bytes_log",
+    "file_size_log",
+    "imports_log",
+    "has_cert",
+    "stub_overlay_pattern"
+  ],
+  "order": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "N": 6,
+  "ember_indices": [
+    616,
+    617,
+    620,
+    623
+  ],
+  "normalization": "StandardScaler propio (fit en muestra 50k determinista, sin tocar scaler 2381)",
+  "sample": {
+    "n": 50000,
+    "blocks": 50,
+    "block_rows": 1000,
+    "method": "linspace-uniforme (sin RNG)"
+  },
+  "seed": "determinista-sin-RNG (linspace); manifest base seed 42",
+  "fecha_utc": "2026-09-10T17:20:30.990528+00:00",
+  "sha256_pkl": "42ab1cfd3e745f95f19b9c2ba94282af9bd6dbce573506ed954928439778e706",
+  "versiones": {
+    "numpy": "2.0.2",
+    "sklearn": "1.6.1",
+    "python": "3.12.13"
+  },
+  "io": {
+    "requests": 50,
+    "bytes": 476200000
+  },
+  "tiempo_s": 58.4
+}
